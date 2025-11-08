@@ -9,7 +9,7 @@ class SimpleForm extends IForm {
     /** @var string */
     protected string $content = "";
     /** @var array */
-    protected array$elements = [];
+    protected array $elements = [];
     /** @var array */
     protected array $buttons = [];
 

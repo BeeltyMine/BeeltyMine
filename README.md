@@ -27,6 +27,18 @@ It’s built to provide a smoother gameplay experience with better plugin suppor
 
 ---
 
+## 🤝 Contributing to BeeltyMine-MP
+
+Contributions, issues and feature requests are welcome!<br />Feel free to
+check [issues page](https://github.com/BeeltyMine/BeeltyMine/issues). You can also take a look at
+the [contributing guide](.CONTRIBUTING.md).
+
+<a href="https://github.com/BeeltyMine/BeeltyMine/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=BeeltyMine/BeeltyMine" />
+</a>
+
+---
+
 ## ⚠️ Note
 BeeltyMine (like PocketMine-MP) is **not** a vanilla Minecraft server.  
 Some vanilla features such as **full Redstone logic**, **mob AI**, and **terrain generation** are still in progress or intentionally excluded for performance reasons.
@@ -46,4 +58,4 @@ For a full vanilla experience, use the [official Bedrock server software](https:
 # Start the server (PowerShell)
 .\start.ps1
 # or
-.\start.cmd
+.\start.cmd```

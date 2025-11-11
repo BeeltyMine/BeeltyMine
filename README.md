@@ -58,4 +58,4 @@ For a full vanilla experience, use the [official Bedrock server software](https:
 # Start the server (PowerShell)
 .\start.ps1
 # or
-.\start.cmd```
+.\start.cmd

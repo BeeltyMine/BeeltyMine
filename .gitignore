@@ -7,6 +7,8 @@ plugins/*
 bin*/*
 timings/*
 crashdumps/*
+virions/*
+src back/*
 *.log
 *.txt
 *.phar

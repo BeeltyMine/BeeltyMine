@@ -944,6 +944,8 @@ final class VanillaBlocks
 		}, [Tags::POTTABLE_PLANTS])));
 		self::register("bamboo_sapling", fn(BID $id) => new BambooSapling($id, "Bamboo Sapling", new Info(new BreakInfo(1.0))));
 
+		// Bamboo mosaic is exposed explicitly so Item/Bedrock mappings can reference it
+		self::register("bamboo_mosaic", fn(BID $id) => new Opaque($id, "Bamboo Mosaic", new Info(BreakInfo::pickaxe(1.8, ToolTier::WOOD))));
 		$bannerBreakInfo = new Info(BreakInfo::axe(1.0));
 		self::register("banner", fn(BID $id) => new FloorBanner($id, "Banner", $bannerBreakInfo), TileBanner::class);
 		self::register("wall_banner", fn(BID $id) => new WallBanner($id, "Wall Banner", $bannerBreakInfo), TileBanner::class);
@@ -1486,6 +1488,7 @@ final class VanillaBlocks
 				WoodType::CRIMSON => VanillaItems::CRIMSON_SIGN(...),
 				WoodType::WARPED => VanillaItems::WARPED_SIGN(...),
 				WoodType::CHERRY => VanillaItems::CHERRY_SIGN(...),
+				WoodType::BAMBOO => VanillaItems::BAMBOO_SIGN(...),
 				WoodType::PALE_OAK => VanillaItems::PALE_OAK_SIGN(...),
 			};
 			self::register($idName("sign"), fn(BID $id) => new FloorSign($id, $name . " Sign", $signBreakInfo, $woodType, $signAsItem), TileSign::class);
@@ -1502,6 +1505,7 @@ final class VanillaBlocks
 				WoodType::CRIMSON => VanillaItems::CRIMSON_HANGING_SIGN(...),
 				WoodType::WARPED => VanillaItems::WARPED_HANGING_SIGN(...),
 				WoodType::CHERRY => VanillaItems::CHERRY_HANGING_SIGN(...),
+				WoodType::BAMBOO => VanillaItems::BAMBOO_HANGING_SIGN(...),
 				WoodType::PALE_OAK => VanillaItems::PALE_OAK_HANGING_SIGN(...),
 			};
 			self::register($idName("ceiling_center_hanging_sign"), fn(BID $id) => new CeilingCenterHangingSign($id, $name . " Center Hanging Sign", $hangingSignBreakInfo, $woodType, $hangingSignAsItem), TileHangingSign::class);
@@ -1521,6 +1525,7 @@ final class VanillaBlocks
 				WoodType::CRIMSON => VanillaItems::CRIMSON_SHELF(...),
 				WoodType::WARPED => VanillaItems::WARPED_SHELF(...),
 				WoodType::CHERRY => VanillaItems::CHERRY_SHELF(...),
+				WoodType::BAMBOO => VanillaItems::BAMBOO_SHELF(...),
 				WoodType::PALE_OAK => VanillaItems::PALE_OAK_SHELF(...),
 			};
 			self::register($idName("shelf"), fn(BID $id) => new Shelf($id, $name . " Shelf", new Info(BreakInfo::axe(1.0)), $woodType, $shelfAsItem), TileShelf::class);
@@ -1968,6 +1973,8 @@ final class VanillaBlocks
 
 		self::register("cauldron", fn(BID $id) => new Cauldron($id, "Cauldron", $cauldronBreakInfo), TileCauldron::class);
 		self::register("water_cauldron", fn(BID $id) => new WaterCauldron($id, "Water Cauldron", $cauldronBreakInfo), TileCauldron::class);
+		self::register("powder_snow_cauldron", fn(BID $id) => new PowderSnowCauldron($id, "Powder Snow Cauldron", $cauldronBreakInfo), TileCauldron::class);
+
 		self::register("lava_cauldron", fn(BID $id) => new LavaCauldron($id, "Lava Cauldron", $cauldronBreakInfo), TileCauldron::class);
 		self::register("potion_cauldron", fn(BID $id) => new PotionCauldron($id, "Potion Cauldron", $cauldronBreakInfo), TileCauldron::class);
 	}

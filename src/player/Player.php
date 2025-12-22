@@ -328,6 +328,12 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 
 	private int $lastEmoteTick = 0;
 
+	/**
+	 * Map of sound class name => last server tick when this player heard it. Used to throttle repeated sounds.
+	 * @var int[]
+	 */
+	private array $lastPlayedSoundTick = [];
+
 	protected int $formIdCounter = 0;
 	/** @var Form[] */
 	protected array $forms = [];
@@ -963,8 +969,8 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 				break;
 			}
 
-			$X = null;
-			$Z = null;
+			$X = 0;
+			$Z = 0;
 			World::getXZ($index, $X, $Z);
 
 			++$count;
@@ -1725,6 +1731,23 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			$this->entityBaseTick($tickDiff);
 			Timings::$entityBaseTick->stopTiming();
 
+			// Per-tick item usage hook: call the item's onUsingTick while the player is holding the use button
+			if ($this->isUsingItem()) {
+				$item = $this->inventory->getItemInHand();
+				// Performance: only call onUsingTick for items that can be 'released' (chargeable)
+				if ($item instanceof Releasable) {
+					$ticksUsed = $this->getItemUseDuration();
+					if ($ticksUsed < 0) {
+						$ticksUsed = 0;
+					}
+					// clamp to avoid runaway values
+					if ($ticksUsed > 72000) {
+						$ticksUsed = 72000;
+					}
+					$item->onUsingTick($this, $ticksUsed);
+				}
+			}
+
 			if ($this->isCreative() && $this->fireTicks > 1) {
 				$this->fireTicks = 1;
 			}
@@ -1960,7 +1983,27 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		}
 
 		$returnedItems = [];
-		$result = $item->onClickAir($this, $directionVector, $returnedItems);
+		try{
+			// Visible log to help debug bundle open flow
+			Server::getInstance()->getLogger()->info("Player::useHeldItem called: player=" . $this->getName() . ", item=" . $item->getName() . ", class=" . get_class($item) . ", typeId=" . $item->getTypeId() . ", stateId=" . $item->getStateId());
+			$this->getNetworkSession()->getLogger()->debug("Player::useHeldItem: attempting onClickAir for item " . $item->getName() . " in hand for player " . $this->getName());
+		} catch (\Throwable $e) {
+			// ignore
+		}
+		$result = ItemUseResult::NONE;
+		try{
+			$result = $item->onClickAir($this, $directionVector, $returnedItems);
+			try{
+				$this->getNetworkSession()->getLogger()->debug("Player::useHeldItem: onClickAir returned " . (is_object($result) ? get_class($result) : (string)$result));
+			} catch (\Throwable $e) {
+				// ignore
+			}
+		} catch (\Throwable $e) {
+			try{
+				$this->getNetworkSession()->getLogger()->debug("Player::useHeldItem: onClickAir threw: " . $e->getMessage());
+			} catch (\Throwable $_) {
+			}
+		}
 		if ($result === ItemUseResult::FAIL) {
 			return false;
 		}
@@ -3055,6 +3098,22 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			$targets = $this->getViewers();
 			$targets[] = $this;
 		}
+
+		// TODO Testing: Throttle identical sounds for this player
+		// If this player is among the targets, throttle identical sounds that are played too frequently
+		$isTargeted = $targets === null || in_array($this, $targets, true);
+		if ($isTargeted) {
+			$key = get_class($sound);
+			$now = $this->server->getTick();
+			$last = $this->lastPlayedSoundTick[$key] ?? -INF;
+			// Minimum ticks between repeats of the same sound for this player. Increase to reduce perceived spam.
+			$minInterval = 10; // 10 ticks = 500 ms
+			if ($now - $last < $minInterval) {
+				return;
+			}
+			$this->lastPlayedSoundTick[$key] = $now;
+		}
+
 		parent::broadcastSound($sound, $targets);
 	}
 

@@ -41,6 +41,7 @@ final class WorldCreationOptions{
 	private int $difficulty = World::DIFFICULTY_NORMAL;
 	private string $generatorOptions = "";
 	private Vector3 $spawnPosition;
+	private string $dimension = 'overworld';
 
 	public function __construct(){
 		$this->seed = random_int(Limits::INT32_MIN, Limits::INT32_MAX);
@@ -93,6 +94,14 @@ final class WorldCreationOptions{
 	/** @return $this */
 	public function setSpawnPosition(Vector3 $spawnPosition) : self{
 		$this->spawnPosition = $spawnPosition;
+		return $this;
+	}
+
+	public function getDimension() : string{ return $this->dimension; }
+
+	/** @return $this */
+	public function setDimension(string $dimension) : self{
+		$this->dimension = $dimension;
 		return $this;
 	}
 }

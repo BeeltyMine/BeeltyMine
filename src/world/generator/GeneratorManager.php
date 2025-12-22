@@ -27,6 +27,7 @@ use pocketmine\utils\SingletonTrait;
 use pocketmine\utils\Utils;
 use pocketmine\world\generator\hell\Nether;
 use pocketmine\world\generator\normal\Normal;
+use pocketmine\world\generator\end\End;
 use function array_keys;
 use function strtolower;
 
@@ -55,6 +56,7 @@ final class GeneratorManager{
 		$this->addAlias("normal", "default");
 		$this->addGenerator(Nether::class, "nether", fn() => null);
 		$this->addAlias("nether", "hell");
+		
 	}
 
 	/**

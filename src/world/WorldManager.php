@@ -39,6 +39,7 @@ use pocketmine\world\format\io\WritableWorldProvider;
 use pocketmine\world\generator\GeneratorManager;
 use pocketmine\world\generator\InvalidGeneratorOptionsException;
 use Symfony\Component\Filesystem\Path;
+use pocketmine\utils\Filesystem;
 use function array_keys;
 use function array_shift;
 use function assert;
@@ -54,6 +55,7 @@ use function strval;
 use function trim;
 
 class WorldManager{
+	private const META_FILENAME = "pm_meta.json";
 	public const TICKS_PER_AUTOSAVE = 300 * Server::TARGET_TICKS_PER_SECOND;
 
 	/**
@@ -248,6 +250,26 @@ class WorldManager{
 
 		$world = new World($this->server, $name, $provider, $this->server->getAsyncPool());
 
+		// load optional world metadata (JSON). Backwards-compatible with legacy plain-dimension files.
+		$metaFile = Path::join($path, self::META_FILENAME);
+		try{
+			if(is_file($metaFile)){
+				$contents = Filesystem::fileGetContents($metaFile);
+				$trimmed = trim($contents);
+				if($trimmed !== ""){
+					$json = @json_decode($trimmed, associative: true);
+					if(is_array($json) && isset($json['dimension']) && is_string($json['dimension'])){
+						$world->setDimension(trim($json['dimension']));
+					}else{
+						// Legacy fallback: file contains the raw dimension name
+						$world->setDimension($trimmed);
+					}
+				}
+			}
+		}catch(\RuntimeException $e){
+			// ignore read failures, world still loads
+		}
+
 		$this->worlds[$world->getId()] = $world;
 		$world->setAutoSave($this->autoSave);
 
@@ -271,7 +293,31 @@ class WorldManager{
 		$path = $this->getWorldPath($name);
 		$providerEntry->generate($path, $name, $options);
 
+		// If dimension wasn't explicitly set but generator strongly implies a dimension (eg. nether), infer it.
+		try{
+			$genName = GeneratorManager::getInstance()->getGeneratorName($options->getGeneratorClass());
+			if($options->getDimension() === 'overworld' && strtolower($genName) === 'nether'){
+				$options->setDimension('nether');
+			}
+		}catch(\InvalidArgumentException $e){
+			// ignore: unknown generator name mapping
+		}
+
 		$world = new World($this->server, $name, $providerEntry->fromPath($path, new \PrefixedLogger($this->server->getLogger(), "World Provider: $name")), $this->server->getAsyncPool());
+
+		// write optional world metadata (JSON). includes dimension and can be extended later
+		$metaFile = Path::join($path, self::META_FILENAME);
+		$meta = ['dimension' => $options->getDimension()];
+		$encoded = json_encode($meta, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		if($encoded === false){
+			$this->server->getLogger()->warning("Failed to encode world metadata for $name");
+		}else{
+			try{
+				Filesystem::safeFilePutContents($metaFile, $encoded);
+			}catch(\RuntimeException $e){
+				$this->server->getLogger()->warning("Failed to write world metadata: " . $e->getMessage());
+			}
+		}
 		$this->worlds[$world->getId()] = $world;
 
 		$world->setAutoSave($this->autoSave);

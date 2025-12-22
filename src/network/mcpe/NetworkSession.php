@@ -57,6 +57,7 @@ use pocketmine\network\mcpe\handler\ResourcePacksPacketHandler;
 use pocketmine\network\mcpe\handler\SessionStartPacketHandler;
 use pocketmine\network\mcpe\handler\SpawnResponsePacketHandler;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\ChangeDimensionPacket;
 use pocketmine\network\mcpe\protocol\ChunkRadiusUpdatedPacket;
 use pocketmine\network\mcpe\protocol\ClientboundCloseFormPacket;
 use pocketmine\network\mcpe\protocol\ClientboundPacket;
@@ -1075,13 +1076,23 @@ class NetworkSession
 	public function syncPlayerSpawnPoint(Position $newSpawn): void
 	{
 		$newSpawnBlockPosition = BlockPosition::fromVector3($newSpawn);
+		$dimensionId = match($newSpawn->getWorld()->getDimension()){
+			"nether" => DimensionIds::NETHER,
+			"the_end", "end" => DimensionIds::THE_END,
+			default => DimensionIds::OVERWORLD
+		};
 		//TODO: respawn causing block position (bed, respawn anchor)
-		$this->sendDataPacket(SetSpawnPositionPacket::playerSpawn($newSpawnBlockPosition, DimensionIds::OVERWORLD, $newSpawnBlockPosition));
+		$this->sendDataPacket(SetSpawnPositionPacket::playerSpawn($newSpawnBlockPosition, $dimensionId, $newSpawnBlockPosition));
 	}
 
 	public function syncWorldSpawnPoint(Position $newSpawn): void
 	{
-		$this->sendDataPacket(SetSpawnPositionPacket::worldSpawn(BlockPosition::fromVector3($newSpawn), DimensionIds::OVERWORLD));
+		$dimensionId = match($newSpawn->getWorld()->getDimension()){
+			"nether" => DimensionIds::NETHER,
+			"the_end", "end" => DimensionIds::THE_END,
+			default => DimensionIds::OVERWORLD
+		};
+		$this->sendDataPacket(SetSpawnPositionPacket::worldSpawn(BlockPosition::fromVector3($newSpawn), $dimensionId));
 	}
 
 	public function syncGameMode(GameMode $mode, bool $isRollback = false): void
@@ -1377,6 +1388,20 @@ class NetworkSession
 	{
 		if ($this->player !== null) {
 			$world = $this->player->getWorld();
+
+			$dimensionId = match($world->getDimension()){
+				"nether" => DimensionIds::NETHER,
+				"the_end", "end" => DimensionIds::THE_END,
+				default => DimensionIds::OVERWORLD
+			};
+
+			$this->sendDataPacket(ChangeDimensionPacket::create(
+				$dimensionId,
+				$this->player->getPosition()->asVector3(),
+				true,
+				null
+			));
+
 			$this->syncWorldTime($world->getTime());
 			$this->syncWorldDifficulty($world->getDifficulty());
 			$this->syncWorldSpawnPoint($world->getSpawnLocation());

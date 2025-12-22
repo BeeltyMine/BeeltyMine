@@ -49,22 +49,25 @@ use function count;
 use function ksort;
 use const SORT_NUMERIC;
 
-final class StandardEntityEventBroadcaster implements EntityEventBroadcaster{
+final class StandardEntityEventBroadcaster implements EntityEventBroadcaster
+{
 
 	public function __construct(
 		private PacketBroadcaster $broadcaster,
 		private TypeConverter $typeConverter
-	){}
+	) {}
 
 	/**
 	 * @param NetworkSession[] $recipients
 	 */
-	private function sendDataPacket(array $recipients, ClientboundPacket $packet) : void{
+	private function sendDataPacket(array $recipients, ClientboundPacket $packet): void
+	{
 		$this->broadcaster->broadcastPackets($recipients, [$packet]);
 	}
 
-	public function syncAttributes(array $recipients, Living $entity, array $attributes) : void{
-		if(count($attributes) > 0){
+	public function syncAttributes(array $recipients, Living $entity, array $attributes): void
+	{
+		if (count($attributes) > 0) {
 			$this->sendDataPacket($recipients, UpdateAttributesPacket::create(
 				$entity->getId(),
 				array_map(fn(Attribute $attr) => new UpdateAttribute($attr->getId(), $attr->getMinValue(), $attr->getMaxValue(), $attr->getValue(), $attr->getMinValue(), $attr->getMaxValue(), $attr->getDefaultValue(), []), $attributes),
@@ -73,14 +76,16 @@ final class StandardEntityEventBroadcaster implements EntityEventBroadcaster{
 		}
 	}
 
-	public function syncActorData(array $recipients, Entity $entity, array $properties) : void{
+	public function syncActorData(array $recipients, Entity $entity, array $properties): void
+	{
 		//TODO: HACK! as of 1.18.10, the client responds differently to the same data ordered in different orders - for
 		//example, sending HEIGHT in the list before FLAGS when unsetting the SWIMMING flag results in a hitbox glitch
 		ksort($properties, SORT_NUMERIC);
 		$this->sendDataPacket($recipients, SetActorDataPacket::create($entity->getId(), $properties, new PropertySyncData([], []), 0));
 	}
 
-	public function onEntityEffectAdded(array $recipients, Living $entity, EffectInstance $effect, bool $replacesOldEffect) : void{
+	public function onEntityEffectAdded(array $recipients, Living $entity, EffectInstance $effect, bool $replacesOldEffect): void
+	{
 		//TODO: we may need yet another effect <=> ID map in the future depending on protocol changes
 		$this->sendDataPacket($recipients, MobEffectPacket::add(
 			$entity->getId(),
@@ -94,15 +99,18 @@ final class StandardEntityEventBroadcaster implements EntityEventBroadcaster{
 		));
 	}
 
-	public function onEntityEffectRemoved(array $recipients, Living $entity, EffectInstance $effect) : void{
+	public function onEntityEffectRemoved(array $recipients, Living $entity, EffectInstance $effect): void
+	{
 		$this->sendDataPacket($recipients, MobEffectPacket::remove($entity->getId(), EffectIdMap::getInstance()->toId($effect->getType()), tick: 0));
 	}
 
-	public function onEntityRemoved(array $recipients, Entity $entity) : void{
+	public function onEntityRemoved(array $recipients, Entity $entity): void
+	{
 		$this->sendDataPacket($recipients, RemoveActorPacket::create($entity->getId()));
 	}
 
-	public function onMobMainHandItemChange(array $recipients, Human $mob) : void{
+	public function onMobMainHandItemChange(array $recipients, Human $mob): void
+	{
 		//TODO: we could send zero for slot here because remote players don't need to know which slot was selected
 		$inv = $mob->getInventory();
 		$this->sendDataPacket($recipients, MobEquipmentPacket::create(
@@ -114,7 +122,8 @@ final class StandardEntityEventBroadcaster implements EntityEventBroadcaster{
 		));
 	}
 
-	public function onMobOffHandItemChange(array $recipients, Human $mob) : void{
+	public function onMobOffHandItemChange(array $recipients, Human $mob): void
+	{
 		$inv = $mob->getOffHandInventory();
 		$this->sendDataPacket($recipients, MobEquipmentPacket::create(
 			$mob->getId(),
@@ -125,7 +134,8 @@ final class StandardEntityEventBroadcaster implements EntityEventBroadcaster{
 		));
 	}
 
-	public function onMobArmorChange(array $recipients, Living $mob) : void{
+	public function onMobArmorChange(array $recipients, Living $mob): void
+	{
 		$inv = $mob->getArmorInventory();
 		$converter = $this->typeConverter;
 		$this->sendDataPacket($recipients, MobArmorEquipmentPacket::create(
@@ -138,11 +148,13 @@ final class StandardEntityEventBroadcaster implements EntityEventBroadcaster{
 		));
 	}
 
-	public function onPickUpItem(array $recipients, Entity $collector, Entity $pickedUp) : void{
+	public function onPickUpItem(array $recipients, Entity $collector, Entity $pickedUp): void
+	{
 		$this->sendDataPacket($recipients, TakeItemActorPacket::create($collector->getId(), $pickedUp->getId()));
 	}
 
-	public function onEmote(array $recipients, Human $from, string $emoteId) : void{
+	public function onEmote(array $recipients, Human $from, string $emoteId): void
+	{
 		$this->sendDataPacket($recipients, EmotePacket::create(
 			$from->getId(),
 			$emoteId,

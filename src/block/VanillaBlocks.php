@@ -1302,16 +1302,10 @@ final class VanillaBlocks
 			$id,
 			"Weighted Pressure Plate Heavy",
 			$weightedPressurePlateBreakInfo,
-			deactivationDelayTicks: 10,
-			signalStrengthFactor: 0.1
+			10,
+			0.1
 		));
-		self::register("weighted_pressure_plate_light", fn(BID $id) => new WeightedPressurePlateLight(
-			$id,
-			"Weighted Pressure Plate Light",
-			$weightedPressurePlateBreakInfo,
-			deactivationDelayTicks: 10,
-			signalStrengthFactor: 1.0
-		));
+		self::register("weighted_pressure_plate_light", fn(BID $id) => new WeightedPressurePlateLight($id, "Weighted Pressure Plate Light", $weightedPressurePlateBreakInfo, 10));
 		self::register("wheat", fn(BID $id) => new Wheat($id, "Wheat Block", new Info(BreakInfo::instant())));
 
 		$leavesBreakInfo = new Info(new class(0.2, ToolType::HOE) extends BreakInfo {

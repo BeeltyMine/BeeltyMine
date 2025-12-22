@@ -23,16 +23,6 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-/**
- * Every block in {@link VanillaBlocks} has a corresponding constant in this class. These constants can be used to
- * identify and compare block types efficiently using {@link Block::getTypeId()}.
- *
- * Type ID is also used internally as part of block state ID, which is used to store blocks and their simple properties
- * in a memory-efficient way in chunks at runtime.
- *
- * WARNING: These are NOT a replacement for Minecraft legacy IDs. Do **NOT** hardcode their values, or store them in
- * configs or databases. They will change without warning.
- */
 final class BlockTypeIds
 {
 
@@ -853,7 +843,6 @@ final class BlockTypeIds
 	public const BAMBOO_SHELF = 10825;
 
 	public const BEEHIVE = 10826;
-	// Explicit bamboo wood variants
 	public const BAMBOO_PLANKS = 10834;
 	public const BAMBOO_MOSAIC = 10835;
 	public const HONEY_BLOCK = 10827;
@@ -863,7 +852,6 @@ final class BlockTypeIds
 	public const SCAFFOLDING = 10831;
 	public const CRIMSON_NYLIUM = 10832;
 	public const WARPED_NYLIUM = 10833;
-	// Explicit bamboo wood variants and other bamboo-related block IDs
 	public const BAMBOO_LOG = 10836;
 	public const BAMBOO_WOOD = 10837;
 	public const BAMBOO_FENCE = 10838;

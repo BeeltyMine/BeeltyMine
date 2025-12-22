@@ -29,8 +29,10 @@ use pocketmine\block\utils\HorizontalFacing;
 use pocketmine\block\utils\SupportType;
 use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\item\Item;
+use pocketmine\item\VanillaItems;
 use pocketmine\item\WritableBookBase;
 use pocketmine\item\WritableBook;
+use pocketmine\item\WrittenBook;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
@@ -86,8 +88,6 @@ class Lectern extends Transparent implements HorizontalFacing{
 		$original = clone $inventory->getItem($slot);
 		$preview = (clone $book)->setCount(1);
 
-		// Do not modify server inventory. Instead, send a temporary slot sync to the client
-		// so the client believes it's holding the book. This avoids prediction/restore races.
 		$inventoryManager->syncSlot($inventory, $slot, $networkSession->getTypeConverter()->coreItemStackToNet($preview));
 
 		$networkSession->sendDataPacket(InventoryTransactionPacket::create(
@@ -108,7 +108,6 @@ class Lectern extends Transparent implements HorizontalFacing{
 			)
 		), true);
 
-		// Restore the original slot view for the client
 		$inventoryManager->syncSlot($inventory, $slot, $networkSession->getTypeConverter()->coreItemStackToNet($original));
 	}
 
@@ -218,12 +217,9 @@ class Lectern extends Transparent implements HorizontalFacing{
 		}
 
 		if($currentBook !== null && $player !== null){
-			// If the lectern holds a writable (unsigned) book, present it as a read-only written book
-			// so players can read pages but not edit the lectern's copy.
-			if ($currentBook instanceof WritableBook && !($currentBook instanceof \pocketmine\item\WrittenBook)) {
-				$readOnly = \pocketmine\item\VanillaItems::WRITTEN_BOOK();
+			if ($currentBook instanceof WritableBook && !($currentBook instanceof WrittenBook)) {
+				$readOnly = VanillaItems::WRITTEN_BOOK();
 				$readOnly->setPages($currentBook->getPages());
-				// leave title/author empty for unsigned books
 				$this->previewBookToPlayer($player, $readOnly);
 			} else {
 				$this->previewBookToPlayer($player, $currentBook);

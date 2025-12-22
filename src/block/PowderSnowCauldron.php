@@ -62,12 +62,10 @@ final class PowderSnowCauldron extends FillableCauldron{
 	public function hasEntityCollision() : bool{ return true; }
 
 	public function onEntityInside(Entity $entity) : bool{
-		// Powder snow cauldron: extinguish burning entities like water cauldron
 		if($entity->isOnFire()){
 			$entity->extinguish();
 			$this->position->getWorld()->setBlock($this->position, $this->withFillLevel($this->getFillLevel() - 1));
 		}
-
 		return true;
 	}
 }

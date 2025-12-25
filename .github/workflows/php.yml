@@ -1,0 +1,49 @@
+name: BeeltyMine Build
+
+on:
+  push:
+    branches: [ "stable" ]
+  pull_request:
+    branches: [ "stable" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: "8.1"
+        extensions: mbstring, yaml, zip, curl
+        tools: composer
+
+    - name: Validate composer.json
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    - name: Build BeeltyMine Server (make-server)
+      run: |
+        php build/server-phar.php
+
+    - name: Upload built server
+      uses: actions/upload-artifact@v4
+      with:
+        name: BeeltyMine-MP
+        path: build/*.phar

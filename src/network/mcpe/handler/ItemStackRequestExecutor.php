@@ -262,17 +262,17 @@ class ItemStackRequestExecutor
 		$actualInventory = $inventory instanceof TransactionBuilderInventory ? $inventory->getActualInventory() : $inventory;
 		$actualSlotItem = $actualInventory->getItem($slot);
 
-		try{
-			$inventoryLabel = $this->prettyInventoryAndSlot($inventory, $slot);
-			$actualName = $actualSlotItem->isNull() ? 'AIR' : $actualSlotItem->getName();
-			if($inventory instanceof VirtualBundleInventory){
-				Server::getInstance()->getLogger()->warning("ItemStackRequestExecutor: Adding item to VirtualBundleInventory $inventoryLabel, item=" . $item->getName() . ", class=" . get_class($item) . ", typeId=" . $item->getTypeId() . ", stateId=" . $item->getStateId());
-			} else {
-				Server::getInstance()->getLogger()->warning("ItemStackRequestExecutor: addItemToSlot target is " . (new \ReflectionClass($inventory))->getShortName() . " => $inventoryLabel (actual slot item=$actualName)");
-			}
-		} catch(\Throwable $e){
-			// ignore
-		}
+		// try{
+		// 	$inventoryLabel = $this->prettyInventoryAndSlot($inventory, $slot);
+		// 	$actualName = $actualSlotItem->isNull() ? 'AIR' : $actualSlotItem->getName();
+		// 	if($inventory instanceof VirtualBundleInventory){
+		// 		Server::getInstance()->getLogger()->warning("ItemStackRequestExecutor: Adding item to VirtualBundleInventory $inventoryLabel, item=" . $item->getName() . ", class=" . get_class($item) . ", typeId=" . $item->getTypeId() . ", stateId=" . $item->getStateId());
+		// 	} else {
+		// 		Server::getInstance()->getLogger()->warning("ItemStackRequestExecutor: addItemToSlot target is " . (new \ReflectionClass($inventory))->getShortName() . " => $inventoryLabel (actual slot item=$actualName)");
+		// 	}
+		// } catch(\Throwable $e){
+		// 	// ignore
+		// }
 		if ($count < 1) {
 			//this should be impossible at the protocol level, but in case of buggy core code this will prevent exploits
 			throw new ItemStackRequestProcessException($this->prettyInventoryAndSlot($inventory, $slot) . ": Cannot take less than 1 items from a stack");

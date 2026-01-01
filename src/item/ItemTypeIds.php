@@ -489,6 +489,15 @@ final class ItemTypeIds{
 	public const FIRST_UNUSED_ITEM_ID = 99999;
 
 
+	public const WOODEN_SPEAR = 30000;
+	public const STONE_SPEAR = 30003;
+	public const IRON_SPEAR = 30004;
+	public const GOLDEN_SPEAR = 30005;
+	public const DIAMOND_SPEAR = 30006;
+	public const NETHERITE_SPEAR = 30007;
+	public const COPPER_SPEAR = 30008;
+
+
 
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_ITEM_ID;

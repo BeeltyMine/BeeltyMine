@@ -413,6 +413,13 @@ use function strtolower;
  * 
  * @method static Bundle BLUE_BUNDLE()
  * @method static Bundle BUNDLE()
+ * 
+ * @method static Spear WOODEN_SPEAR()
+ * @method static Spear STONE_SPEAR()
+ * @method static Spear IRON_SPEAR()
+ * @method static Spear GOLDEN_SPEAR()
+ * @method static Spear DIAMOND_SPEAR()
+ * @method static Spear NETHERITE_SPEAR()
  */
 final class VanillaItems
 {
@@ -968,12 +975,20 @@ final class VanillaItems
 		self::register("copper_pickaxe", fn(IID $id) => new Pickaxe($id, "Copper Pickaxe", ToolTier::COPPER, [EnchantmentTags::PICKAXE]));
 		self::register("copper_shovel", fn(IID $id) => new Shovel($id, "Copper Shovel", ToolTier::COPPER, [EnchantmentTags::SHOVEL]));
 		self::register("copper_axe", fn(IID $id) => new Axe($id, "Copper Axe", ToolTier::COPPER, [EnchantmentTags::AXE]));
-
 		// mace
 		self::register("mace", fn(IID $id) => new Mace($id, "Mace", ToolTier::IRON, [EnchantmentTags::WEAPONS]));
 
 		// wind charge
 		self::register("wind_charge", fn(IID $id) => new WindCharge($id, "Wind Charge"));
+
+
+
+		self::register("wooden_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::WOOD, [EnchantmentTags::WEAPONS]));
+		self::register("stone_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::STONE, [EnchantmentTags::WEAPONS]));
+		self::register("iron_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::IRON, [EnchantmentTags::WEAPONS]));
+		self::register("golden_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::GOLD, [EnchantmentTags::WEAPONS]));
+		self::register("diamond_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::DIAMOND, [EnchantmentTags::WEAPONS]));
+		self::register("netherite_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::NETHERITE, [EnchantmentTags::WEAPONS]));
 
 		// public const MACE = "minecraft:mace";
 

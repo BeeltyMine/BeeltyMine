@@ -501,7 +501,13 @@ final class ItemSerializerDeserializerRegistrar
 
 
 
-
+		// spear
+		$this->map1to1Item(Ids::WOODEN_SPEAR, Items::WOODEN_SPEAR());
+		$this->map1to1Item(Ids::STONE_SPEAR, Items::STONE_SPEAR());
+		$this->map1to1Item(Ids::IRON_SPEAR, Items::IRON_SPEAR());
+		$this->map1to1Item(Ids::GOLDEN_SPEAR, Items::GOLDEN_SPEAR());
+		$this->map1to1Item(Ids::DIAMOND_SPEAR, Items::DIAMOND_SPEAR());
+		$this->map1to1Item(Ids::NETHERITE_SPEAR, Items::NETHERITE_SPEAR());
 
 
 		$this->map1to1Item(Ids::WARD_ARMOR_TRIM_SMITHING_TEMPLATE, Items::WARD_ARMOR_TRIM_SMITHING_TEMPLATE());

@@ -2122,7 +2122,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			}
 		} else {
 			$firstEmpty = $this->inventory->firstEmpty();
-			if ($firstEmpty === -1) { //full inventory
+			if ($firstEmpty === -1) {
 				$this->inventory->setItemInHand($item);
 			} elseif ($firstEmpty < $this->inventory->getHotbarSize()) {
 				$this->inventory->setItem($firstEmpty, $item);

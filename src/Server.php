@@ -234,8 +234,6 @@ class Server
 	private BanList $banByIP;
 
 	private Config $operators;
-	private Config $eula;
-
 	private Config $whitelist;
 
 	private bool $isRunning = true;
@@ -947,24 +945,6 @@ class Server
 					$this->logger->emergency("Fallback language \"" . Language::FALLBACK_LANGUAGE . "\" not found");
 					return;
 				}
-			}
-
-			$eulaFile = Path::join($this->dataPath, "eula.txt");
-
-			if (!file_exists($eulaFile)) {
-				$date = gmdate("D M d H:i:s") . " GMT+03:00 " . gmdate("Y");
-				$content  = "#By changing the setting below to TRUE you are indicating your agreement to our EULA (https://aka.ms/MinecraftEULA)." . PHP_EOL;
-				$content .= "#" . $date . PHP_EOL;
-				$content .= "eula=false" . PHP_EOL;
-
-				file_put_contents($eulaFile, $content);
-			}
-
-			$this->eula = new Config($eulaFile, Config::PROPERTIES);
-
-			if ($this->eula->get("eula") !== true) {
-				$this->logger->emergency("You need to agree the EULA in order to run the server. Go to eula.txt for more info.");
-				$this->forceShutdownExit();
 			}
 
 			$this->logger->info($this->language->translate(KnownTranslationFactory::language_selected($this->language->getName(), $this->language->getLang())));

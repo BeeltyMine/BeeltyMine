@@ -252,11 +252,6 @@ class InventoryManager
 		}
 		$inventory = $this->networkIdToInventoryMap[$windowId] ?? null;
 		if ($inventory !== null && $inventory->slotExists($netSlotId)) {
-			try{
-				Server::getInstance()->getLogger()->warning("InventoryManager: locateWindowAndSlot matched windowId=$windowId to inventory=" . get_class($inventory) . "#" . spl_object_id($inventory) . ", netSlot=$netSlotId");
-			}catch(\Throwable $e){
-				// ignore
-			}
 			return [$inventory, $netSlotId];
 		}
 		return null;

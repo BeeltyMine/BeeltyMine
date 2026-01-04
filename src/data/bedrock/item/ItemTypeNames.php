@@ -26,6 +26,7 @@ namespace pocketmine\data\bedrock\item;
 /**
  * This class is generated automatically from the item type dictionary for the current version. Do not edit it manually.
  */
+if (!\class_exists('pocketmine\\data\\bedrock\\item\\ItemTypeNames', false)) {
 final class ItemTypeNames
 {
 	public const ACACIA_BOAT = "minecraft:acacia_boat";
@@ -172,14 +173,6 @@ final class ItemTypeNames
 	public const COPPER_SHOVEL = "minecraft:copper_shovel";
 	public const COPPER_SWORD = "minecraft:copper_sword";
 
-
-	// spear
-	public const WOODEN_SPEAR = "minecraft:wooden_spear";
-	public const STONE_SPEAR = "minecraft:stone_spear";
-	public const IRON_SPEAR = "minecraft:iron_spear";
-	public const GOLDEN_SPEAR = "minecraft:golden_spear";
-	public const DIAMOND_SPEAR = "minecraft:diamond_spear";
-	public const NETHERITE_SPEAR = "minecraft:netherite_spear";
 
 	public const CORAL = "minecraft:coral";
 	public const CORAL_BLOCK = "minecraft:coral_block";
@@ -664,4 +657,6 @@ final class ItemTypeNames
 	public const ZOMBIE_SPAWN_EGG = "minecraft:zombie_spawn_egg";
 	public const ZOMBIE_VILLAGER_SPAWN_EGG = "minecraft:zombie_villager_spawn_egg";
 	public const AXOLOTL_SPAWN_EGG = "minecraft:axolotl_spawn_egg";
+}
+
 }

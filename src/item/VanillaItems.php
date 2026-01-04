@@ -988,16 +988,7 @@ final class VanillaItems
 
 		// wind charge
 		self::register("wind_charge", fn(IID $id) => new WindCharge($id, "Wind Charge"));
-
-
-
-		self::register("wooden_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::WOOD, [EnchantmentTags::WEAPONS]));
-		self::register("stone_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::STONE, [EnchantmentTags::WEAPONS]));
-		self::register("iron_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::IRON, [EnchantmentTags::WEAPONS]));
-		self::register("golden_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::GOLD, [EnchantmentTags::WEAPONS]));
-		self::register("diamond_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::DIAMOND, [EnchantmentTags::WEAPONS]));
-		self::register("netherite_spear", fn(IID $id) => new Spear($id, "Spear", ToolTier::NETHERITE, [EnchantmentTags::WEAPONS]));
-
+		
 		// public const MACE = "minecraft:mace";
 
 

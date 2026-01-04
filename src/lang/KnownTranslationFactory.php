@@ -1779,11 +1779,6 @@ final class KnownTranslationFactory
 		return new Translatable(KnownTranslationKeys::ITEMGROUP_NAME_SPEAR, []);
 	}
 
-	public static function itemGroup_name_spear(): Translatable
-	{
-		return new Translatable(KnownTranslationKeys::ITEMGROUP_NAME_SPEAR, []);
-	}
-	
 	public static function itemGroup_name_trapdoor(): Translatable
 	{
 		return new Translatable(KnownTranslationKeys::ITEMGROUP_NAME_TRAPDOOR, []);

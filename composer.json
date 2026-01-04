@@ -5,7 +5,7 @@
    "homepage": "https://pmmp.io",
    "license": "LGPL-3.0",
    "require": {
-      "php": "^8.1",
+      "php": "^8.4",
       "php-64bit": "*",
       "ext-chunkutils2": "^0.3.1",
       "ext-crypto": "^0.3.1",
@@ -35,9 +35,9 @@
       "adhocore/json-comment": "~1.2.0",
       "netresearch/jsonmapper": "~v5.0.0",
       "pocketmine/bedrock-block-upgrade-schema": "~5.2.0+bedrock-1.21.110",
-      "pocketmine/bedrock-data": "dev-bedrock-1.21.130",
+      "pocketmine/bedrock-data": "6.3.0+bedrock-1.21.130",
       "pocketmine/bedrock-item-upgrade-schema": "~1.16.0+bedrock-1.21.110",
-      "pocketmine/bedrock-protocol": "dev-bedrock-1.21.130",
+      "pocketmine/bedrock-protocol": "54.0.0+bedrock-1.21.130",
       "pocketmine/binaryutils": "^0.2.1",
       "pocketmine/callback-validator": "^1.0.2",
       "pocketmine/color": "^0.3.0",
@@ -78,7 +78,7 @@
    },
    "config": {
       "platform": {
-         "php": "8.1.0"
+         "php": "8.4.0"
       },
       "sort-packages": true
    },

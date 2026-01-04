@@ -151,11 +151,6 @@ class InventoryManager
 	private function associateIdWithInventory(int $id, Inventory $inventory): void
 	{
 		$this->networkIdToInventoryMap[$id] = $inventory;
-		try{
-			Server::getInstance()->getLogger()->warning("InventoryManager: associated networkId=$id with inventory=" . get_class($inventory) . "#" . spl_object_id($inventory));
-		}catch(\Throwable $e){
-			// ignore
-		}
 	}
 
 	private function getNewWindowId(): int
@@ -171,22 +166,12 @@ class InventoryManager
 		}
 		$this->inventories[spl_object_id($inventory)] = new InventoryManagerEntry($inventory);
 		$this->associateIdWithInventory($id, $inventory);
-		try{
-			Server::getInstance()->getLogger()->debug("InventoryManager: add() tracked inventory=" . get_class($inventory) . "#" . spl_object_id($inventory) . " as networkId=$id");
-		}catch(\Throwable $e){
-			// ignore
-		}
 	}
 
 	private function addDynamic(Inventory $inventory): int
 	{
 		$id = $this->getNewWindowId();
 		$this->add($id, $inventory);
-		try{
-			Server::getInstance()->getLogger()->debug("InventoryManager: addDynamic assigned networkId=$id for inventory=" . get_class($inventory) . "#" . spl_object_id($inventory));
-		}catch(\Throwable $e){
-			// ignore
-		}
 		return $id;
 	}
 
@@ -261,11 +246,6 @@ class InventoryManager
 		}
 		$inventory = $this->networkIdToInventoryMap[$windowId] ?? null;
 		if ($inventory !== null && $inventory->slotExists($netSlotId)) {
-			try{
-				Server::getInstance()->getLogger()->warning("InventoryManager: locateWindowAndSlot matched windowId=$windowId to inventory=" . get_class($inventory) . "#" . spl_object_id($inventory) . ", netSlot=$netSlotId");
-			}catch(\Throwable $e){
-				// ignore
-			}
 			return [$inventory, $netSlotId];
 		}
 		return null;
@@ -432,11 +412,6 @@ class InventoryManager
 		}
 		// Allow virtual bundle inventories to provide their own open packets
 		if ($inv instanceof \pocketmine\inventory\VirtualBundleInventory) {
-			try{
-				Server::getInstance()->getLogger()->debug("InventoryManager: VirtualBundleInventory open requested for networkWindowId=$id, inventory=" . get_class($inv) . "#" . spl_object_id($inv));
-			}catch(\Throwable $e){
-				// ignore
-			}
 			return $inv->createInventoryOpenPackets($id);
 		}
 		//TODO: we should be using some kind of tagging system to identify the types. Instanceof is flaky especially
@@ -492,11 +467,6 @@ class InventoryManager
 			$windowId = $this->getNewWindowId();
 			$this->associateIdWithInventory($windowId, $this->player->getInventory());
 			$this->currentWindowType = WindowTypes::INVENTORY;
-			try{
-				Server::getInstance()->getLogger()->debug("InventoryManager::onClientOpenMainInventory sending open packet for windowId=$windowId to player=" . $this->player->getName());
-			} catch (\Throwable $e) {
-				// ignore
-			}
 
 			$this->session->sendDataPacket(ContainerOpenPacket::entityInv(
 				$windowId,

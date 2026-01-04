@@ -210,7 +210,6 @@ final class ItemSerializerDeserializerRegistrar
 		$this->deserializer?->map(Ids::BLACK_BUNDLE, fn() => clone Items::BUNDLE());
 		$this->deserializer?->map(Ids::BLUE_BUNDLE, fn() => clone Items::BLUE_BUNDLE());
 		// Register serializer for the runtime blue-bundle item type so serializing blue bundles does not crash.
-		$this->serializer?->map(Items::BLUE_BUNDLE(), fn() => new Data(Ids::BLUE_BUNDLE));
 		$this->deserializer?->map(Ids::BROWN_BUNDLE, fn() => clone Items::BUNDLE());
 		$this->deserializer?->map(Ids::CYAN_BUNDLE, fn() => clone Items::BUNDLE());
 		$this->deserializer?->map(Ids::GRAY_BUNDLE, fn() => clone Items::BUNDLE());

@@ -61,7 +61,6 @@ class ChunkCache implements ChunkListener{
 		}
 		if(!isset(self::$instances[$worldId][$compressorId])){
 			\GlobalLogger::get()->debug("Created new chunk packet cache (world#$worldId, compressor#$compressorId)");
-			// Determine appropriate network dimension id for this world based on its generator
 			$generator = $world->getProvider()->getWorldData()->getGenerator();
 			switch(strtolower($generator)){
 				case "nether":

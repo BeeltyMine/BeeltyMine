@@ -454,11 +454,6 @@ class InventoryManager
 	{
 		// If the player is currently a spectator, ignore client requests to open the main inventory
 		if ($this->player->isSpectator()) {
-			try{
-				Server::getInstance()->getLogger()->debug("Ignored client main-inventory open because player is spectator");
-			}catch(\Throwable $e){
-				// ignore
-			}
 			return;
 		}
 		$this->onCurrentWindowRemove();
@@ -509,64 +504,30 @@ class InventoryManager
 
 	public function onClientRemoveWindow(int $id): void
 	{
-
-
-		if (Binary::signByte($id) === ContainerIds::NONE) { //TODO: REMOVE signByte() once BedrockProtocol + ext-encoding are implemented
-			//TODO: HACK! Since 1.21.100 (and probably earlier), the client will send -1 to close windows that it can't
-			//view for some reason, e.g. if the chat window was already open. This is pretty awkward, since it means
-			//that we can only assume it refers to the most recently sent window, and if we don't handle it,
-			//InventoryManager will never get the green light to send subsequent windows, which breaks inventory UIs.
-			//Fortunately, we already wait for close acks anyway, so the window ID is technically useless...?
-			try{
-				Server::getInstance()->getLogger()->debug("Client rejected opening of a window, assuming it was $this->lastInventoryNetworkId");
-			}catch(\Throwable $e){
-				// ignore
-			}
+		if (Binary::signByte($id) === ContainerIds::NONE) { 
 			$id = $this->lastInventoryNetworkId;
 		}
 		if (($tradeInventory = $this->player->getCurrentWindow()) instanceof TradeInventory || $tradeInventory instanceof \pocketmine\inventory\VirtualTradeInventory) {
-			//TODO: The client always sends 255 as a container ID for trade window
-			//so we manually correct window ID here
 			$id = $this->getWindowId($tradeInventory) ?? throw new AssumptionFailedError("No opened trading inventory");
 		}
-		if ($id === $this->lastInventoryNetworkId) {
-			if (isset($this->networkIdToInventoryMap[$id]) && $id !== $this->pendingCloseWindowId) {
-				$this->remove($id);
-				$this->player->removeCurrentWindow();
-			}
-		} else {
-			try{
-				Server::getInstance()->getLogger()->debug("Attempted to close inventory with network ID $id, but current is $this->lastInventoryNetworkId");
-			}catch(\Throwable $e){
-				// ignore
-			}
+		if (isset($this->networkIdToInventoryMap[$id]) && $id !== $this->pendingCloseWindowId) {
+			$this->remove($id);
+			$this->player->removeCurrentWindow();
 		}
-
-		//Always send this, even if no window matches. If we told the client to close a window, it will behave as if it
-		//initiated the close and expect an ack.
+		
+		
 		$this->session->sendDataPacket(ContainerClosePacket::create($id, $this->currentWindowType, false));
 
 		if ($this->pendingCloseWindowId === $id) {
 			$this->pendingCloseWindowId = null;
 			if ($this->pendingOpenWindowCallback !== null) {
-				try{
-					Server::getInstance()->getLogger()->debug("Opening deferred window after close ack of window $id");
-				}catch(\Throwable $e){
-					// ignore
-				}
 				($this->pendingOpenWindowCallback)();
 				$this->pendingOpenWindowCallback = null;
 			}
 		}
 	}
 
-	/**
-	 * Compares itemstack extra data for equality. This is used to verify legacy InventoryTransaction slot predictions.
-	 *
-	 * TODO: It would be preferable if we didn't have to deserialize this, to improve performance and reduce attack
-	 * surface. However, the raw data may not match due to differences in ordering. Investigate whether the
-	 * client-provided NBT is consistently sorted.
-	 */
+
 	private function itemStackExtraDataEqual(ItemStack $left, ItemStack $right): bool
 	{
 		if ($left->getRawExtraData() === $right->getRawExtraData()) {
@@ -601,18 +562,14 @@ class InventoryManager
 	{
 		$inventoryEntry = $this->inventories[spl_object_id($inventory)] ?? null;
 		if ($inventoryEntry === null) {
-			//this can happen when an inventory changed during InventoryCloseEvent, or when a temporary inventory
-			//is cleared before removal.
 			return;
 		}
 		$currentItem = $this->session->getTypeConverter()->coreItemStackToNet($inventory->getItem($slot));
 		$clientSideItem = $inventoryEntry->predictions[$slot] ?? null;
 		if ($clientSideItem === null || !$this->itemStacksEqual($currentItem, $clientSideItem)) {
-			//no prediction or incorrect - do not associate this with the currently active itemstack request
 			$this->trackItemStack($inventoryEntry, $slot, $currentItem, null);
 			$inventoryEntry->pendingSyncs[$slot] = $currentItem;
 		} else {
-			//correctly predicted - associate the change with the currently active itemstack request
 			$this->trackItemStack($inventoryEntry, $slot, $currentItem, $this->currentItemStackRequestId);
 		}
 
@@ -707,8 +664,6 @@ class InventoryManager
 	{
 		$entry = $this->inventories[spl_object_id($inventory)] ?? null;
 		if ($entry === null) {
-			//this can happen when an inventory changed during InventoryCloseEvent, or when a temporary inventory
-			//is cleared before removal.
 			return;
 		}
 		if ($entry->complexSlotMap !== null) {
@@ -759,14 +714,7 @@ class InventoryManager
 			$inventory = $entry->inventory;
 			foreach ($entry->predictions as $slot => $expectedItem) {
 				if (!$inventory->slotExists($slot) || $entry->itemStackInfos[$slot] === null) {
-					continue; //TODO: size desync ???
-				}
-
-				//any prediction that still exists at this point is a slot that was predicted to change but didn't
-				try{
-					Server::getInstance()->getLogger()->debug("Detected prediction mismatch in inventory " . get_class($inventory) . "#" . spl_object_id($inventory) . " slot $slot");
-				}catch(\Throwable $e){
-					// ignore
+					continue;
 				}
 				$entry->pendingSyncs[$slot] = $typeConverter->coreItemStackToNet($inventory->getItem($slot));
 			}
@@ -779,11 +727,6 @@ class InventoryManager
 	{
 		if ($this->fullSyncRequested) {
 			$this->fullSyncRequested = false;
-			try{
-				Server::getInstance()->getLogger()->debug("Full inventory sync requested, sending contents of " . count($this->inventories) . " inventories");
-			}catch(\Throwable $e){
-				// ignore
-			}
 			$this->syncAll();
 		} else {
 			foreach ($this->inventories as $entry) {
@@ -791,11 +734,6 @@ class InventoryManager
 					continue;
 				}
 				$inventory = $entry->inventory;
-				try{
-					Server::getInstance()->getLogger()->debug("Syncing slots " . implode(", ", array_keys($entry->pendingSyncs)) . " in inventory " . get_class($inventory) . "#" . spl_object_id($inventory));
-				}catch(\Throwable $e){
-					// ignore
-				}
 				foreach ($entry->pendingSyncs as $slot => $itemStack) {
 					$this->syncSlot($inventory, $slot, $itemStack);
 				}
@@ -814,14 +752,7 @@ class InventoryManager
 
 	public function onClientSelectHotbarSlot(int $slot): void
 	{
-		// Ignore client hotbar selection attempts while the player is spectator to prevent
-		// the client-side UI from moving items into the hand without server approval.
 		if ($this->player->isSpectator()) {
-			try{
-				Server::getInstance()->getLogger()->debug("Ignored client select-hotbar-slot $slot because player is spectator");
-			}catch(\Throwable $e){
-				// ignore
-			}
 			return;
 		}
 
@@ -835,24 +766,11 @@ class InventoryManager
 		if ($selected !== $this->clientSelectedHotbarSlot) {
 			$inventoryEntry = $this->inventories[spl_object_id($playerInventory)] ?? null;
 			if ($inventoryEntry === null) {
-				// Defensive: inventory not tracked (race/ordering issue). Log and skip sync to avoid crash.
-					try{
-						Server::getInstance()->getLogger()->debug("syncSelectedHotbarSlot: Player inventory not tracked, skipping hotbar sync");
-					}catch(\Throwable $e){
-						// ignore
-					}
-				// Update clientSelectedHotbarSlot to avoid repeated log spam until tracking is restored
 				$this->clientSelectedHotbarSlot = $selected;
 				return;
 			}
 			$itemStackInfo = $inventoryEntry->itemStackInfos[$selected] ?? null;
 			if ($itemStackInfo === null) {
-				// Defensive: slot not tracked yet. Log and skip sync.
-						try{
-							Server::getInstance()->getLogger()->debug("syncSelectedHotbarSlot: Untracked player inventory slot $selected, skipping hotbar sync");
-						}catch(\Throwable $e){
-							// ignore
-						}
 				$this->clientSelectedHotbarSlot = $selected;
 				return;
 			}
@@ -889,8 +807,7 @@ class InventoryManager
 				fn(EnchantmentInstance $e) => new Enchant(EnchantmentIdMap::getInstance()->toId($e->getType()), $e->getLevel()),
 				$option->getEnchantments()
 			);
-			// We don't pay attention to the $slotFlags, $heldActivatedEnchantments and $selfActivatedEnchantments
-			// as everything works fine without them (perhaps these values are used somehow in the BDS).
+			
 			$protocolOptions[] = new ProtocolEnchantOption(
 				$option->getRequiredXpLevel(),
 				0,
@@ -923,7 +840,6 @@ class InventoryManager
 
 	private function trackItemStack(InventoryManagerEntry $entry, int $slotId, ItemStack $itemStack, ?int $itemStackRequestId): ItemStackInfo
 	{
-		//TODO: ItemStack->isNull() would be nice to have here
 		$info = new ItemStackInfo($itemStackRequestId, $itemStack->getId() === 0 ? 0 : $this->newItemStackId());
 		return $entry->itemStackInfos[$slotId] = $info;
 	}

@@ -52,7 +52,6 @@ final class Light extends Flowable{
 	public function canBeReplaced() : bool{ return true; }
 
 	public function canBePlacedAt(Block $blockReplace, Vector3 $clickVector, int $face, bool $isClickedBlock) : bool{
-		//light blocks behave like solid blocks when placing them on another light block
 		return $blockReplace->canBeReplaced() && $blockReplace->getTypeId() !== $this->getTypeId();
 	}
 

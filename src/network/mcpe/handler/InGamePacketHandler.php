@@ -675,11 +675,7 @@ class InGamePacketHandler extends PacketHandler
 				}
 				return true;
 			case UseItemTransactionData::ACTION_CLICK_AIR:
-				try{
-					Server::getInstance()->getLogger()->info("InGamePacketHandler: ACTION_CLICK_AIR received for player=" . $this->player->getName());
-				}catch(\Throwable $e){
-					// ignore
-				}
+			
 				// If the client is trying to start using an item, but the server deems it not startable
 				// (for example: a charged crossbow), immediately clear the using state so the client
 				// doesn't remain stuck in the hold animation.
@@ -879,15 +875,7 @@ class InGamePacketHandler extends PacketHandler
 
 	public function handleInteract(InteractPacket $packet): bool
 	{
-		try{
-			try{
-				Server::getInstance()->getLogger()->debug("InGamePacketHandler::handleInteract action=" . $packet->action . ", target=" . $packet->targetActorRuntimeId);
-			}catch(\Throwable $e){
-				// ignore
-			}
-		} catch (\Throwable $e) {
-			// ignore
-		}
+		
 		if ($packet->action === InteractPacket::ACTION_MOUSEOVER) {
 			//TODO HACK: silence useless spam (MCPE 1.8)
 			//due to some messy Mojang hacks, it sends this when changing the held item now, which causes us to think
@@ -901,19 +889,10 @@ class InGamePacketHandler extends PacketHandler
 			return false;
 		}
 		if ($packet->action === InteractPacket::ACTION_OPEN_INVENTORY && $target === $this->player) {
-			try{
-				try{
-					Server::getInstance()->getLogger()->debug("InGamePacketHandler: client requested open main inventory (E) from actorRuntimeId=" . $packet->targetActorRuntimeId);
-				}catch(\Throwable $e){
-					// ignore
-				}
-			} catch (\Throwable $e) {
-				// ignore
-			}
 			$this->inventoryManager->onClientOpenMainInventory();
 			return true;
 		}
-		return false; //TODO
+		return false;
 	}
 
 	public function handleBlockPickRequest(BlockPickRequestPacket $packet): bool

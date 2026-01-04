@@ -316,6 +316,7 @@ final class KnownTranslationParameterInfo{
 		Keys::ITEMGROUP_NAME_STAIRS => [],
 		Keys::ITEMGROUP_NAME_STONE => [],
 		Keys::ITEMGROUP_NAME_STONEBRICK => [],
+		Keys::ITEMGROUP_NAME_SPEAR => [],
 		Keys::ITEMGROUP_NAME_SWORD => [],
 		Keys::ITEMGROUP_NAME_SPEAR => [],
 		Keys::ITEMGROUP_NAME_TRAPDOOR => [],

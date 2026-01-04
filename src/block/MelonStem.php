@@ -32,6 +32,10 @@ class MelonStem extends Stem{
 		return VanillaBlocks::MELON();
 	}
 
+	protected function canBeSupportedAt(Block $block) : bool{
+		return $block->getTypeId() === VanillaBlocks::FARMLAND()->getTypeId();
+	}
+
 	public function asItem() : Item{
 		return VanillaItems::MELON_SEEDS();
 	}

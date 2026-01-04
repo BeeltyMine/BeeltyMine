@@ -171,6 +171,16 @@ final class ItemTypeNames
 	public const COPPER_PICKAXE = "minecraft:copper_pickaxe";
 	public const COPPER_SHOVEL = "minecraft:copper_shovel";
 	public const COPPER_SWORD = "minecraft:copper_sword";
+
+
+	// spear
+	public const WOODEN_SPEAR = "minecraft:wooden_spear";
+	public const STONE_SPEAR = "minecraft:stone_spear";
+	public const IRON_SPEAR = "minecraft:iron_spear";
+	public const GOLDEN_SPEAR = "minecraft:golden_spear";
+	public const DIAMOND_SPEAR = "minecraft:diamond_spear";
+	public const NETHERITE_SPEAR = "minecraft:netherite_spear";
+
 	public const CORAL = "minecraft:coral";
 	public const CORAL_BLOCK = "minecraft:coral_block";
 	public const CORAL_FAN = "minecraft:coral_fan";

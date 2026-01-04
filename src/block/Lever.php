@@ -105,5 +105,4 @@ class Lever extends Flowable{
 		return $block->getAdjacentSupportType($face)->hasCenterSupport();
 	}
 
-	//TODO
 }

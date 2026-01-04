@@ -163,6 +163,12 @@ use const PHP_INT_MIN;
  */
 class World implements ChunkManager
 {
+	private string $dimension = 'overworld';
+
+	public function getDimension() : string{ return $this->dimension; }
+
+	public function setDimension(string $dimension) : void{ $this->dimension = $dimension; }
+
 
 	private static int $worldIdCounter = 1;
 
@@ -658,6 +664,7 @@ class World implements ChunkManager
 		private WritableWorldProvider $provider,
 		private AsyncPool $workerPool
 	) {
+		$this->dimension = 'overworld';
 		$this->folderName = $name;
 		$this->worldId = self::$worldIdCounter++;
 

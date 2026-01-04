@@ -411,7 +411,6 @@ use function strtolower;
  * @method static Item AXOLOTL_BUCKET()
  * @method static ItemBlock SCAFFOLDING()
  * 
- * @method static Bundle BLUE_BUNDLE()
  * @method static Bundle BUNDLE()
  * 
  * @method static Spear WOODEN_SPEAR()
@@ -572,7 +571,7 @@ final class VanillaItems
 		self::register("book", fn(IID $id) => new Book($id, "Book", [EnchantmentTags::ALL]));
 		// Bundle item (custom): register so VanillaItems::BUNDLE() becomes available
 		self::register("bundle", fn(IID $id) => new Bundle($id, "Bundle"));
-		self::register("blue_bundle", fn(IID $id) => new Bundle($id, "Blue Bundle"));
+		// self::register("blue_bundle", fn(IID $id) => new Bundle($id, "Blue Bundle"));
 		self::register("bow", fn(IID $id) => new Bow($id, "Bow", [EnchantmentTags::BOW]));
 		self::register("crossbow", fn(IID $id) => new Crossbow($id, "Crossbow", [EnchantmentTags::CROSSBOW]));
 		self::register("bowl", fn(IID $id) => new Bowl($id, "Bowl"));

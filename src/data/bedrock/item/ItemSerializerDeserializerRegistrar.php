@@ -170,10 +170,10 @@ final class ItemSerializerDeserializerRegistrar
 		$this->map1to1Block(Ids::WOODEN_DOOR, Blocks::OAK_DOOR());
 
 
-	// The generated registry in some builds may not expose a NETHER_SPROUTS() accessor.
-	// Use a registered fallback (twisting_vines) so bedrock item serialization registration
-	// doesn't trigger a "No such registry member" exception during startup.
-	$this->map1to1Block(Ids::NETHER_SPROUTS, Blocks::TWISTING_VINES());
+		// The generated registry in some builds may not expose a NETHER_SPROUTS() accessor.
+		// Use a registered fallback (twisting_vines) so bedrock item serialization registration
+		// doesn't trigger a "No such registry member" exception during startup.
+		$this->map1to1Block(Ids::NETHER_SPROUTS, Blocks::TWISTING_VINES());
 	}
 
 	/**
@@ -207,24 +207,23 @@ final class ItemSerializerDeserializerRegistrar
 		// Colored Bedrock bundle IDs should deserialize to the same PocketMine Bundle.
 		// The blue bundle is registered as a separate runtime item type (VanillaItems::BLUE_BUNDLE()),
 		// so we must also register a serializer for it to avoid serialization errors when saving player data.
-		$this->deserializer?->map(Ids::BLACK_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::BLUE_BUNDLE, fn() => clone Items::BLUE_BUNDLE());
-		// Register serializer for the runtime blue-bundle item type so serializing blue bundles does not crash.
-		$this->serializer?->map(Items::BLUE_BUNDLE(), fn() => new Data(Ids::BLUE_BUNDLE));
-		$this->deserializer?->map(Ids::BROWN_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::CYAN_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::GRAY_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::GREEN_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::LIGHT_BLUE_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::LIGHT_GRAY_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::LIME_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::MAGENTA_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::ORANGE_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::PINK_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::PURPLE_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::RED_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::WHITE_BUNDLE, fn() => clone Items::BUNDLE());
-		$this->deserializer?->map(Ids::YELLOW_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::BLACK_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::BLUE_BUNDLE, fn() => clone Items::BLUE_BUNDLE());
+		// // Register serializer for the runtime blue-bundle item type so serializing blue bundles does not crash.
+		// $this->deserializer?->map(Ids::BROWN_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::CYAN_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::GRAY_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::GREEN_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::LIGHT_BLUE_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::LIGHT_GRAY_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::LIME_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::MAGENTA_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::ORANGE_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::PINK_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::PURPLE_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::RED_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::WHITE_BUNDLE, fn() => clone Items::BUNDLE());
+		// $this->deserializer?->map(Ids::YELLOW_BUNDLE, fn() => clone Items::BUNDLE());
 		$this->map1to1Item(Ids::BOW, Items::BOW());
 		$this->map1to1Item(Ids::CROSSBOW, Items::CROSSBOW());
 		$this->map1to1Item(Ids::BOWL, Items::BOWL());
@@ -421,6 +420,15 @@ final class ItemSerializerDeserializerRegistrar
 		$this->map1to1Item(Ids::NETHERITE_SCRAP, Items::NETHERITE_SCRAP());
 		$this->map1to1Item(Ids::NETHERITE_SHOVEL, Items::NETHERITE_SHOVEL());
 		$this->map1to1Item(Ids::NETHERITE_SWORD, Items::NETHERITE_SWORD());
+
+		$this->map1to1Item(Ids::WOODEN_SPEAR, Items::WOODEN_SPEAR());
+		$this->map1to1Item(Ids::STONE_SPEAR, Items::STONE_SPEAR());
+		$this->map1to1Item(Ids::COPPER_SPEAR, Items::COPPER_SPEAR());
+		$this->map1to1Item(Ids::IRON_SPEAR, Items::IRON_SPEAR());
+		$this->map1to1Item(Ids::GOLDEN_SPEAR, Items::GOLDEN_SPEAR());
+		$this->map1to1Item(Ids::DIAMOND_SPEAR, Items::DIAMOND_SPEAR());
+		$this->map1to1Item(Ids::NETHERITE_SPEAR, Items::NETHERITE_SPEAR());
+
 		$this->map1to1Item(Ids::NETHERITE_UPGRADE_SMITHING_TEMPLATE, Items::NETHERITE_UPGRADE_SMITHING_TEMPLATE());
 		$this->map1to1Item(Ids::OAK_BOAT, Items::OAK_BOAT());
 		$this->map1to1Item(Ids::OAK_HANGING_SIGN, Items::OAK_HANGING_SIGN());
@@ -530,7 +538,7 @@ final class ItemSerializerDeserializerRegistrar
 		$this->map1to1Item(Ids::ZOMBIE_SPAWN_EGG, Items::ZOMBIE_SPAWN_EGG());
 		$this->map1to1Item(Ids::ZOMBIE_PIGMAN_SPAWN_EGG, Items::ZOMBIE_PIGMAN_SPAWN_EGG());
 		$this->map1to1Item(Ids::AXOLOTL_SPAWN_EGG, Items::AXOLOTL_SPAWN_EGG());
-		
+
 		$this->map1to1Item(Ids::CHICKEN_SPAWN_EGG, Items::CHICKEN_SPAWN_EGG());
 		$this->map1to1Item(Ids::COW_SPAWN_EGG, Items::COW_SPAWN_EGG());
 		$this->map1to1Item(Ids::PIG_SPAWN_EGG, Items::PIG_SPAWN_EGG());

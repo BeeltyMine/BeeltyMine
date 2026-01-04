@@ -166,18 +166,12 @@ class InventoryManager
 		}
 		$this->inventories[spl_object_id($inventory)] = new InventoryManagerEntry($inventory);
 		$this->associateIdWithInventory($id, $inventory);
-
 	}
 
 	private function addDynamic(Inventory $inventory): int
 	{
 		$id = $this->getNewWindowId();
 		$this->add($id, $inventory);
-		try{
-			Server::getInstance()->getLogger()->debug("InventoryManager: addDynamic assigned networkId=$id for inventory=" . get_class($inventory) . "#" . spl_object_id($inventory));
-		}catch(\Throwable $e){
-			// ignore
-		}
 		return $id;
 	}
 
@@ -418,11 +412,6 @@ class InventoryManager
 		}
 		// Allow virtual bundle inventories to provide their own open packets
 		if ($inv instanceof \pocketmine\inventory\VirtualBundleInventory) {
-			try{
-				Server::getInstance()->getLogger()->debug("InventoryManager: VirtualBundleInventory open requested for networkWindowId=$id, inventory=" . get_class($inv) . "#" . spl_object_id($inv));
-			}catch(\Throwable $e){
-				// ignore
-			}
 			return $inv->createInventoryOpenPackets($id);
 		}
 		//TODO: we should be using some kind of tagging system to identify the types. Instanceof is flaky especially

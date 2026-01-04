@@ -1417,22 +1417,22 @@ final class StringToItemParser extends StringToTParser
 		// alias for custom bundle item
 		$result->register("bundle", fn() => Items::BUNDLE());
 		// Colored bundle aliases
-		$result->register("black_bundle", fn() => Items::BUNDLE());
-		$result->register("blue_bundle", fn() => Items::BLUE_BUNDLE());
-		$result->register("brown_bundle", fn() => Items::BUNDLE());
-		$result->register("cyan_bundle", fn() => Items::BUNDLE());
-		$result->register("gray_bundle", fn() => Items::BUNDLE());
-		$result->register("green_bundle", fn() => Items::BUNDLE());
-		$result->register("light_blue_bundle", fn() => Items::BUNDLE());
-		$result->register("light_gray_bundle", fn() => Items::BUNDLE());
-		$result->register("lime_bundle", fn() => Items::BUNDLE());
-		$result->register("magenta_bundle", fn() => Items::BUNDLE());
-		$result->register("orange_bundle", fn() => Items::BUNDLE());
-		$result->register("pink_bundle", fn() => Items::BUNDLE());
-		$result->register("purple_bundle", fn() => Items::BUNDLE());
-		$result->register("red_bundle", fn() => Items::BUNDLE());
-		$result->register("white_bundle", fn() => Items::BUNDLE());
-		$result->register("yellow_bundle", fn() => Items::BUNDLE());
+		// $result->register("black_bundle", fn() => Items::BUNDLE());
+		// // $result->register("blue_bundle", fn() => Items::BLUE_BUNDLE());
+		// $result->register("brown_bundle", fn() => Items::BUNDLE());
+		// $result->register("cyan_bundle", fn() => Items::BUNDLE());
+		// $result->register("gray_bundle", fn() => Items::BUNDLE());
+		// $result->register("green_bundle", fn() => Items::BUNDLE());
+		// $result->register("light_blue_bundle", fn() => Items::BUNDLE());
+		// $result->register("light_gray_bundle", fn() => Items::BUNDLE());
+		// $result->register("lime_bundle", fn() => Items::BUNDLE());
+		// $result->register("magenta_bundle", fn() => Items::BUNDLE());
+		// $result->register("orange_bundle", fn() => Items::BUNDLE());
+		// $result->register("pink_bundle", fn() => Items::BUNDLE());
+		// $result->register("purple_bundle", fn() => Items::BUNDLE());
+		// $result->register("red_bundle", fn() => Items::BUNDLE());
+		// $result->register("white_bundle", fn() => Items::BUNDLE());
+		// $result->register("yellow_bundle", fn() => Items::BUNDLE());
 		$result->register("bottle_o_enchanting", fn() => Items::EXPERIENCE_BOTTLE());
 		$result->register("bow", fn() => Items::BOW());
 		$result->register("crossbow", fn() => Items::CROSSBOW());
@@ -1532,16 +1532,13 @@ final class StringToItemParser extends StringToTParser
 		$result->register("diamond_shovel", fn() => Items::DIAMOND_SHOVEL());
 		$result->register("diamond_sword", fn() => Items::DIAMOND_SWORD());
 
-
-
-		// spear
 		$result->register("wooden_spear", fn() => Items::WOODEN_SPEAR());
 		$result->register("stone_spear", fn() => Items::STONE_SPEAR());
 		$result->register("iron_spear", fn() => Items::IRON_SPEAR());
 		$result->register("golden_spear", fn() => Items::GOLDEN_SPEAR());
 		$result->register("diamond_spear", fn() => Items::DIAMOND_SPEAR());
 		$result->register("netherite_spear", fn() => Items::NETHERITE_SPEAR());
-
+		
 		// mace
 		$result->register("mace", fn() => Items::MACE());
 		// wind charge

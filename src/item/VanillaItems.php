@@ -411,11 +411,11 @@ use function strtolower;
  * @method static Item AXOLOTL_BUCKET()
  * @method static ItemBlock SCAFFOLDING()
  * 
- * @method static Bundle BLUE_BUNDLE()
  * @method static Bundle BUNDLE()
  * 
  * @method static Spear WOODEN_SPEAR()
  * @method static Spear STONE_SPEAR()
+ * @method static Spear COPPER_SPEAR()
  * @method static Spear IRON_SPEAR()
  * @method static Spear GOLDEN_SPEAR()
  * @method static Spear DIAMOND_SPEAR()
@@ -571,7 +571,7 @@ final class VanillaItems
 		self::register("book", fn(IID $id) => new Book($id, "Book", [EnchantmentTags::ALL]));
 		// Bundle item (custom): register so VanillaItems::BUNDLE() becomes available
 		self::register("bundle", fn(IID $id) => new Bundle($id, "Bundle"));
-		self::register("blue_bundle", fn(IID $id) => new Bundle($id, "Blue Bundle"));
+		// self::register("blue_bundle", fn(IID $id) => new Bundle($id, "Blue Bundle"));
 		self::register("bow", fn(IID $id) => new Bow($id, "Bow", [EnchantmentTags::BOW]));
 		self::register("crossbow", fn(IID $id) => new Crossbow($id, "Crossbow", [EnchantmentTags::CROSSBOW]));
 		self::register("bowl", fn(IID $id) => new Bowl($id, "Bowl"));
@@ -835,6 +835,14 @@ final class VanillaItems
 		self::register("torchflower_seeds", fn(IID $id) => new TorchflowerSeeds($id, "Torchflower Seeds"));
 		self::register("totem", fn(IID $id) => new Totem($id, "Totem of Undying"));
 		self::register("trident", fn(IID $id) => new Trident($id, "Trident", [EnchantmentTags::TRIDENT]));
+		// Spears (variants)
+		self::register("wooden_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Wooden Spear", \pocketmine\item\ToolTier::WOOD, [EnchantmentTags::WEAPONS]));
+		self::register("golden_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Golden Spear", \pocketmine\item\ToolTier::GOLD, [EnchantmentTags::WEAPONS]));
+		self::register("stone_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Stone Spear", \pocketmine\item\ToolTier::STONE, [EnchantmentTags::WEAPONS]));
+		self::register("copper_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Copper Spear", \pocketmine\item\ToolTier::COPPER, [EnchantmentTags::WEAPONS]));
+		self::register("iron_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Iron Spear", \pocketmine\item\ToolTier::IRON, [EnchantmentTags::WEAPONS]));
+		self::register("diamond_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Diamond Spear", \pocketmine\item\ToolTier::DIAMOND, [EnchantmentTags::WEAPONS]));
+		self::register("netherite_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Netherite Spear", \pocketmine\item\ToolTier::NETHERITE, [EnchantmentTags::WEAPONS]));
 		self::register("warped_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::WARPED_SIGN(), Blocks::WARPED_WALL_SIGN()));
 		self::register("warped_hanging_sign", fn(IID $id) => new HangingSign($id, "Warped Hanging Sign", Blocks::WARPED_CEILING_CENTER_HANGING_SIGN(), Blocks::WARPED_CEILING_EDGES_HANGING_SIGN(), Blocks::WARPED_WALL_HANGING_SIGN()));
 		self::register("warped_shelf", fn() => new ItemBlock(Blocks::WARPED_SHELF()));
@@ -929,7 +937,7 @@ final class VanillaItems
 				return new Squid(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
-	
+
 		self::register("villager_spawn_egg", fn(IID $id) => new class($id, "Villager Spawn Egg") extends SpawnEgg {
 			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
 			{

@@ -53,6 +53,29 @@ class KillCommand extends CommandoCommand{
 		$targetName = $args["target"] ?? null;
 
 		// Special shortcuts: allow administrators to clear entities or fish hooks quickly
+		// Support target selector @e to kill all non-player entities
+		if(is_string($targetName) && trim($targetName) === "@e"){
+			if(!$sender->hasPermission(DefaultPermissionNames::COMMAND_KILL_OTHER)){
+				$sender->sendMessage(KnownTranslationFactory::commands_generic_permission());
+				return;
+			}
+			$count = 0;
+			if($sender instanceof Player){
+				$worlds = [$sender->getWorld()];
+			}else{
+				$worlds = $sender->getServer()->getWorldManager()->getWorlds();
+			}
+			foreach($worlds as $w){
+				foreach($w->getEntities() as $entity){
+					if(!($entity instanceof Player)){
+						$entity->flagForDespawn();
+						$count++;
+					}
+				}
+			}
+			$sender->sendMessage("Removed $count entities.");
+			return;
+		}
 		if($targetName === "entities"){
 			if(!($sender instanceof Player)){
 				$sender->sendMessage(KnownTranslationFactory::commands_generic_player_notFound());

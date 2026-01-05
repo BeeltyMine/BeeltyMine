@@ -26,27 +26,38 @@ namespace pocketmine\item;
 use pocketmine\block\utils\BannerPatternType;
 use pocketmine\block\utils\RecordType;
 use pocketmine\block\VanillaBlocks as Blocks;
+use pocketmine\entity\Axolotl;
+use pocketmine\entity\Bee;
+use pocketmine\entity\Cow;
 use pocketmine\entity\Entity;
+use pocketmine\entity\EntityFactory;
+use pocketmine\entity\hostile\Creeper;
 use pocketmine\entity\Location;
-use pocketmine\entity\Squid;
+use pocketmine\entity\passive\Allay;
 use pocketmine\entity\passive\Chicken;
-// use pocketmine\entity\Villager;
+use pocketmine\entity\Pig;
+use pocketmine\entity\Sheep;
+use pocketmine\entity\Squid;
 use pocketmine\entity\VillagerV2;
 use pocketmine\entity\Zombie;
-use pocketmine\entity\Axolotl;
 use pocketmine\entity\ZombiePigman;
 use pocketmine\inventory\ArmorInventory;
 use pocketmine\item\enchantment\ItemEnchantmentTags as EnchantmentTags;
 use pocketmine\item\ItemIdentifier as IID;
 use pocketmine\item\VanillaArmorMaterials as ArmorMaterials;
 use pocketmine\math\Vector3;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\DoubleTag;
+use pocketmine\nbt\tag\FloatTag;
+use pocketmine\nbt\tag\ListTag;
 use pocketmine\utils\CloningRegistryTrait;
+use pocketmine\utils\GlobalLogger;
 use pocketmine\world\World;
 use pocketmine\world\sound\BucketEmptyPowderSnowSound;
 use pocketmine\utils\Utils;
-
 use function is_int;
 use function mb_strtoupper;
+use function mt_rand;
 use function strtolower;
 
 /**
@@ -408,6 +419,8 @@ use function strtolower;
  * @method static SpawnEgg COW_SPAWN_EGG()
  * @method static SpawnEgg PIG_SPAWN_EGG()
  * @method static SpawnEgg SHEEP_SPAWN_EGG()
+ * @method static SpawnEgg ALLAY_SPAWN_EGG()
+ * @method static SpawnEgg BEE_SPAWN_EGG()
  * @method static Item AXOLOTL_BUCKET()
  * @method static ItemBlock SCAFFOLDING()
  * 
@@ -914,21 +927,21 @@ final class VanillaItems
 		self::register("cow_spawn_egg", fn(IID $id) => new class($id, "Cow Spawn Egg") extends SpawnEgg {
 			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
 			{
-				return new \pocketmine\entity\Cow(Location::fromObject($pos, $world, $yaw, $pitch));
+				return new Cow(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
 
 		self::register("pig_spawn_egg", fn(IID $id) => new class($id, "Pig Spawn Egg") extends SpawnEgg {
 			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
 			{
-				return new \pocketmine\entity\Pig(Location::fromObject($pos, $world, $yaw, $pitch));
+				return new Pig(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
 
 		self::register("sheep_spawn_egg", fn(IID $id) => new class($id, "Sheep Spawn Egg") extends SpawnEgg {
 			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
 			{
-				return new \pocketmine\entity\Sheep(Location::fromObject($pos, $world, $yaw, $pitch));
+				return new Sheep(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
 		self::register("squid_spawn_egg", fn(IID $id) => new class($id, "Squid Spawn Egg") extends SpawnEgg {
@@ -942,6 +955,27 @@ final class VanillaItems
 			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
 			{
 				return new VillagerV2(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
+
+		self::register("allay_spawn_egg", fn(IID $id) => new class($id, "Allay Spawn Egg") extends SpawnEgg {
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
+			{
+				return new Allay(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
+
+		self::register("bee_spawn_egg", fn(IID $id) => new class($id, "Bee Spawn Egg") extends SpawnEgg {
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
+			{
+				return new Bee(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
+
+		self::register("creeper_spawn_egg", fn(IID $id) => new class($id, "Creeper Spawn Egg") extends SpawnEgg {
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
+			{
+				return new Creeper(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
 	}

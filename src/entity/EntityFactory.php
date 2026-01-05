@@ -32,6 +32,7 @@ use pocketmine\data\bedrock\PotionTypeIdMap;
 use pocketmine\data\bedrock\PotionTypeIds;
 use pocketmine\data\SavedDataLoadingException;
 use pocketmine\entity\EntityDataHelper as Helper;
+use pocketmine\entity\hostile\Creeper;
 use pocketmine\entity\object\EndCrystal;
 use pocketmine\entity\object\ExperienceOrb;
 use pocketmine\entity\object\FallingBlock;
@@ -40,6 +41,7 @@ use pocketmine\entity\object\Painting;
 use pocketmine\entity\object\PaintingMotive;
 use pocketmine\entity\object\ArmorStand;
 use pocketmine\entity\object\PrimedTNT;
+use pocketmine\entity\passive\Allay;
 use pocketmine\entity\passive\Chicken;
 use pocketmine\entity\projectile\Arrow;
 use pocketmine\entity\projectile\Egg;
@@ -260,6 +262,14 @@ final class EntityFactory
 		$this->register(Human::class, function (World $world, CompoundTag $nbt): Human {
 			return new Human(Helper::parseLocation($nbt, $world), Human::parseSkinNBT($nbt), $nbt);
 		}, ['Human']);
+
+		$this->register(Allay::class, function (World $world, CompoundTag $nbt): Allay {
+			return new Allay(Helper::parseLocation($nbt, $world), $nbt);
+		}, ['Allay', 'minecraft:allay']);
+
+		$this->register(Creeper::class, function (World $world, CompoundTag $nbt): Creeper {
+			return new Creeper(Helper::parseLocation($nbt, $world), $nbt);
+		}, ['Creeper', 'minecraft:creeper']);
 	}
 
 	/**

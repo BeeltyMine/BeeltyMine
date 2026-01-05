@@ -65,6 +65,7 @@ final class ItemSerializerDeserializerRegistrar
 		$this->register1ToNItemMappings();
 		$this->registerMiscBlockMappings();
 		$this->registerMiscItemMappings();
+		$this->registerEggsAndSpawnEggs();
 	}
 
 	public function map1to1Item(string $id, Item $item): void
@@ -135,12 +136,7 @@ final class ItemSerializerDeserializerRegistrar
 			$this->serializer?->map($item, fn() => new Data($id, $meta));
 		}
 	}
-
-	/**
-	 * Registers mappings for item IDs which directly correspond to PocketMine-MP blockitems.
-	 * Mappings here are only necessary when the item has a dedicated item ID; in these cases, the blockstate is not
-	 * included in the itemstack, and the item ID may be different from the block ID.
-	 */
+	
 	private function register1to1BlockMappings(): void
 	{
 		$this->map1to1Block(Ids::ACACIA_DOOR, Blocks::ACACIA_DOOR());
@@ -168,17 +164,9 @@ final class ItemSerializerDeserializerRegistrar
 		$this->map1to1Block(Ids::SUGAR_CANE, Blocks::SUGARCANE());
 		$this->map1to1Block(Ids::WARPED_DOOR, Blocks::WARPED_DOOR());
 		$this->map1to1Block(Ids::WOODEN_DOOR, Blocks::OAK_DOOR());
-
-
-		// The generated registry in some builds may not expose a NETHER_SPROUTS() accessor.
-		// Use a registered fallback (twisting_vines) so bedrock item serialization registration
-		// doesn't trigger a "No such registry member" exception during startup.
 		$this->map1to1Block(Ids::NETHER_SPROUTS, Blocks::TWISTING_VINES());
 	}
 
-	/**
-	 * Registers mappings for item IDs which directly correspond to PocketMine-MP items.
-	 */
 	private function register1to1ItemMappings(): void
 	{
 		$this->map1to1Item(Ids::ACACIA_BOAT, Items::ACACIA_BOAT());
@@ -203,27 +191,6 @@ final class ItemSerializerDeserializerRegistrar
 		$this->map1to1Item(Ids::BOOK, Items::BOOK());
 		// Bundle (vanilla) mapping
 		$this->map1to1Item(Ids::BUNDLE, Items::BUNDLE());
-
-		// Colored Bedrock bundle IDs should deserialize to the same PocketMine Bundle.
-		// The blue bundle is registered as a separate runtime item type (VanillaItems::BLUE_BUNDLE()),
-		// so we must also register a serializer for it to avoid serialization errors when saving player data.
-		// $this->deserializer?->map(Ids::BLACK_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::BLUE_BUNDLE, fn() => clone Items::BLUE_BUNDLE());
-		// // Register serializer for the runtime blue-bundle item type so serializing blue bundles does not crash.
-		// $this->deserializer?->map(Ids::BROWN_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::CYAN_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::GRAY_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::GREEN_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::LIGHT_BLUE_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::LIGHT_GRAY_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::LIME_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::MAGENTA_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::ORANGE_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::PINK_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::PURPLE_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::RED_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::WHITE_BUNDLE, fn() => clone Items::BUNDLE());
-		// $this->deserializer?->map(Ids::YELLOW_BUNDLE, fn() => clone Items::BUNDLE());
 		$this->map1to1Item(Ids::BOW, Items::BOW());
 		$this->map1to1Item(Ids::CROSSBOW, Items::CROSSBOW());
 		$this->map1to1Item(Ids::BOWL, Items::BOWL());
@@ -483,7 +450,6 @@ final class ItemSerializerDeserializerRegistrar
 		$this->map1to1Item(Ids::SPYGLASS, Items::SPYGLASS());
 		$this->map1to1Item(Ids::SHIELD, Items::SHIELD());
 		$this->map1to1Item(Ids::BRUSH, Items::BRUSH());
-		$this->map1to1Item(Ids::SQUID_SPAWN_EGG, Items::SQUID_SPAWN_EGG());
 		$this->map1to1Item(Ids::STICK, Items::STICK());
 		$this->map1to1Item(Ids::STONE_AXE, Items::STONE_AXE());
 		$this->map1to1Item(Ids::STONE_HOE, Items::STONE_HOE());
@@ -502,10 +468,6 @@ final class ItemSerializerDeserializerRegistrar
 		$this->map1to1Item(Ids::TROPICAL_FISH, Items::CLOWNFISH());
 		$this->map1to1Item(Ids::TURTLE_HELMET, Items::TURTLE_HELMET());
 		$this->map1to1Item(Ids::VEX_ARMOR_TRIM_SMITHING_TEMPLATE, Items::VEX_ARMOR_TRIM_SMITHING_TEMPLATE());
-
-		// egg mappings
-		// egg
-
 		$this->map1to1Item(Ids::WARD_ARMOR_TRIM_SMITHING_TEMPLATE, Items::WARD_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$this->map1to1Item(Ids::WARPED_HANGING_SIGN, Items::WARPED_HANGING_SIGN());
 		$this->map1to1Item(Ids::WARPED_SIGN, Items::WARPED_SIGN());
@@ -523,15 +485,7 @@ final class ItemSerializerDeserializerRegistrar
 		$this->map1to1Item(Ids::WRITTEN_BOOK, Items::WRITTEN_BOOK());
 
 
-		$this->map1to1Item(Ids::ZOMBIE_SPAWN_EGG, Items::ZOMBIE_SPAWN_EGG());
-		$this->map1to1Item(Ids::ZOMBIE_PIGMAN_SPAWN_EGG, Items::ZOMBIE_PIGMAN_SPAWN_EGG());
-		$this->map1to1Item(Ids::AXOLOTL_SPAWN_EGG, Items::AXOLOTL_SPAWN_EGG());
-
-		$this->map1to1Item(Ids::CHICKEN_SPAWN_EGG, Items::CHICKEN_SPAWN_EGG());
-		$this->map1to1Item(Ids::COW_SPAWN_EGG, Items::COW_SPAWN_EGG());
-		$this->map1to1Item(Ids::PIG_SPAWN_EGG, Items::PIG_SPAWN_EGG());
-		$this->map1to1Item(Ids::SHEEP_SPAWN_EGG, Items::SHEEP_SPAWN_EGG());
-
+		
 		$this->map1to1Item(Ids::POWDER_SNOW_BUCKET, Items::POWDER_SNOW_BUCKET());
 	}
 
@@ -625,6 +579,96 @@ final class ItemSerializerDeserializerRegistrar
 			CompoundTypeIds::AMMONIA => Items::CHEMICAL_AMMONIA(),
 			CompoundTypeIds::SODIUM_HYPOCHLORITE => Items::CHEMICAL_SODIUM_HYPOCHLORITE(),
 		]);
+	}
+
+
+	private function registerEggsAndSpawnEggs(): void
+	{
+		// Register all known spawn eggs from Bedrock -> PocketMine items
+		// $this->map1to1Item(Ids::AGENT_SPAWN_EGG, Items::AGENT_SPAWN_EGG());
+		$this->map1to1Item(Ids::ALLAY_SPAWN_EGG, Items::ALLAY_SPAWN_EGG());
+		// $this->map1to1Item(Ids::ARMADILLO_SPAWN_EGG, Items::ARMADILLO_SPAWN_EGG());
+		// $this->map1to1Item(Ids::AXOLOTL_SPAWN_EGG, Items::AXOLOTL_SPAWN_EGG());
+		// $this->map1to1Item(Ids::BAT_SPAWN_EGG, Items::BAT_SPAWN_EGG());
+		$this->map1to1Item(Ids::BEE_SPAWN_EGG, Items::BEE_SPAWN_EGG());
+		// $this->map1to1Item(Ids::BLAZE_SPAWN_EGG, Items::BLAZE_SPAWN_EGG());
+		// $this->map1to1Item(Ids::BOGGED_SPAWN_EGG, Items::BOGGED_SPAWN_EGG());
+		// $this->map1to1Item(Ids::BREEZE_SPAWN_EGG, Items::BREEZE_SPAWN_EGG());
+		// $this->map1to1Item(Ids::CAMEL_SPAWN_EGG, Items::CAMEL_SPAWN_EGG());
+		// $this->map1to1Item(Ids::CAT_SPAWN_EGG, Items::CAT_SPAWN_EGG());
+		// $this->map1to1Item(Ids::CAVE_SPIDER_SPAWN_EGG, Items::CAVE_SPIDER_SPAWN_EGG());
+		$this->map1to1Item(Ids::CHICKEN_SPAWN_EGG, Items::CHICKEN_SPAWN_EGG());
+		// $this->map1to1Item(Ids::COD_SPAWN_EGG, Items::COD_SPAWN_EGG());
+		// $this->map1to1Item(Ids::COPPER_GOLEM_SPAWN_EGG, Items::COPPER_GOLEM_SPAWN_EGG());
+		// $this->map1to1Item(Ids::COW_SPAWN_EGG, Items::COW_SPAWN_EGG());
+		// $this->map1to1Item(Ids::CREAKING_SPAWN_EGG, Items::CREAKING_SPAWN_EGG());
+		$this->map1to1Item(Ids::CREEPER_SPAWN_EGG, Items::CREEPER_SPAWN_EGG());
+		// $this->map1to1Item(Ids::DOLPHIN_SPAWN_EGG, Items::DOLPHIN_SPAWN_EGG());
+		// $this->map1to1Item(Ids::DONKEY_SPAWN_EGG, Items::DONKEY_SPAWN_EGG());
+		// $this->map1to1Item(Ids::DROWNED_SPAWN_EGG, Items::DROWNED_SPAWN_EGG());
+		// $this->map1to1Item(Ids::ELDER_GUARDIAN_SPAWN_EGG, Items::ELDER_GUARDIAN_SPAWN_EGG());
+		// $this->map1to1Item(Ids::ENDER_DRAGON_SPAWN_EGG, Items::ENDER_DRAGON_SPAWN_EGG());
+		// $this->map1to1Item(Ids::ENDERMAN_SPAWN_EGG, Items::ENDERMAN_SPAWN_EGG());
+		// $this->map1to1Item(Ids::ENDERMITE_SPAWN_EGG, Items::ENDERMITE_SPAWN_EGG());
+		// $this->map1to1Item(Ids::EVOKER_SPAWN_EGG, Items::EVOKER_SPAWN_EGG());
+		// $this->map1to1Item(Ids::FOX_SPAWN_EGG, Items::FOX_SPAWN_EGG());
+		// $this->map1to1Item(Ids::FROG_SPAWN_EGG, Items::FROG_SPAWN_EGG());
+		// $this->map1to1Item(Ids::GHAST_SPAWN_EGG, Items::GHAST_SPAWN_EGG());
+		// $this->map1to1Item(Ids::GLOW_SQUID_SPAWN_EGG, Items::GLOW_SQUID_SPAWN_EGG());
+		// $this->map1to1Item(Ids::GOAT_SPAWN_EGG, Items::GOAT_SPAWN_EGG());
+		// $this->map1to1Item(Ids::GUARDIAN_SPAWN_EGG, Items::GUARDIAN_SPAWN_EGG());
+		// $this->map1to1Item(Ids::HAPPY_GHAST_SPAWN_EGG, Items::HAPPY_GHAST_SPAWN_EGG());
+		// $this->map1to1Item(Ids::HOGLIN_SPAWN_EGG, Items::HOGLIN_SPAWN_EGG());
+		// $this->map1to1Item(Ids::HORSE_SPAWN_EGG, Items::HORSE_SPAWN_EGG());
+		// $this->map1to1Item(Ids::HUSK_SPAWN_EGG, Items::HUSK_SPAWN_EGG());
+		// $this->map1to1Item(Ids::IRON_GOLEM_SPAWN_EGG, Items::IRON_GOLEM_SPAWN_EGG());
+		// $this->map1to1Item(Ids::LLAMA_SPAWN_EGG, Items::LLAMA_SPAWN_EGG());
+		// $this->map1to1Item(Ids::MAGMA_CUBE_SPAWN_EGG, Items::MAGMA_CUBE_SPAWN_EGG());
+		// $this->map1to1Item(Ids::MOOSHROOM_SPAWN_EGG, Items::MOOSHROOM_SPAWN_EGG());
+		// $this->map1to1Item(Ids::MULE_SPAWN_EGG, Items::MULE_SPAWN_EGG());
+		// $this->map1to1Item(Ids::NPC_SPAWN_EGG, Items::NPC_SPAWN_EGG());
+		// $this->map1to1Item(Ids::OCELOT_SPAWN_EGG, Items::OCELOT_SPAWN_EGG());
+		// $this->map1to1Item(Ids::PANDA_SPAWN_EGG, Items::PANDA_SPAWN_EGG());
+		// $this->map1to1Item(Ids::PARROT_SPAWN_EGG, Items::PARROT_SPAWN_EGG());
+		// $this->map1to1Item(Ids::PHANTOM_SPAWN_EGG, Items::PHANTOM_SPAWN_EGG());
+		// $this->map1to1Item(Ids::PIG_SPAWN_EGG, Items::PIG_SPAWN_EGG());
+		// $this->map1to1Item(Ids::PIGLIN_SPAWN_EGG, Items::PIGLIN_SPAWN_EGG());
+		// $this->map1to1Item(Ids::PIGLIN_BRUTE_SPAWN_EGG, Items::PIGLIN_BRUTE_SPAWN_EGG());
+		// $this->map1to1Item(Ids::PILLAGER_SPAWN_EGG, Items::PILLAGER_SPAWN_EGG());
+		// $this->map1to1Item(Ids::POLAR_BEAR_SPAWN_EGG, Items::POLAR_BEAR_SPAWN_EGG());
+		// $this->map1to1Item(Ids::PUFFERFISH_SPAWN_EGG, Items::PUFFERFISH_SPAWN_EGG());
+		// $this->map1to1Item(Ids::RABBIT_SPAWN_EGG, Items::RABBIT_SPAWN_EGG());
+		// $this->map1to1Item(Ids::RAVAGER_SPAWN_EGG, Items::RAVAGER_SPAWN_EGG());
+		// $this->map1to1Item(Ids::SALMON_SPAWN_EGG, Items::SALMON_SPAWN_EGG());
+		// $this->map1to1Item(Ids::SHEEP_SPAWN_EGG, Items::SHEEP_SPAWN_EGG());
+		// $this->map1to1Item(Ids::SHULKER_SPAWN_EGG, Items::SHULKER_SPAWN_EGG());
+		// $this->map1to1Item(Ids::SILVERFISH_SPAWN_EGG, Items::SILVERFISH_SPAWN_EGG());
+		// $this->map1to1Item(Ids::SKELETON_SPAWN_EGG, Items::SKELETON_SPAWN_EGG());
+		// $this->map1to1Item(Ids::SKELETON_HORSE_SPAWN_EGG, Items::SKELETON_HORSE_SPAWN_EGG());
+		// $this->map1to1Item(Ids::SLIME_SPAWN_EGG, Items::SLIME_SPAWN_EGG());
+		// $this->map1to1Item(Ids::SNIFFER_SPAWN_EGG, Items::SNIFFER_SPAWN_EGG());
+		// $this->map1to1Item(Ids::SNOW_GOLEM_SPAWN_EGG, Items::SNOW_GOLEM_SPAWN_EGG());
+		// $this->map1to1Item(Ids::SPIDER_SPAWN_EGG, Items::SPIDER_SPAWN_EGG());
+		// $this->map1to1Item(Ids::SQUID_SPAWN_EGG, Items::SQUID_SPAWN_EGG());
+		// $this->map1to1Item(Ids::STRAY_SPAWN_EGG, Items::STRAY_SPAWN_EGG());
+		// $this->map1to1Item(Ids::STRIDER_SPAWN_EGG, Items::STRIDER_SPAWN_EGG());
+		// $this->map1to1Item(Ids::TADPOLE_SPAWN_EGG, Items::TADPOLE_SPAWN_EGG());
+		// $this->map1to1Item(Ids::TRADER_LLAMA_SPAWN_EGG, Items::TRADER_LLAMA_SPAWN_EGG());
+		// $this->map1to1Item(Ids::TROPICAL_FISH_SPAWN_EGG, Items::TROPICAL_FISH_SPAWN_EGG());
+		// $this->map1to1Item(Ids::TURTLE_SPAWN_EGG, Items::TURTLE_SPAWN_EGG());
+		// $this->map1to1Item(Ids::VEX_SPAWN_EGG, Items::VEX_SPAWN_EGG());
+		// $this->map1to1Item(Ids::VILLAGER_SPAWN_EGG, Items::VILLAGER_SPAWN_EGG());
+		// $this->map1to1Item(Ids::VINDICATOR_SPAWN_EGG, Items::VINDICATOR_SPAWN_EGG());
+		// $this->map1to1Item(Ids::WANDERING_TRADER_SPAWN_EGG, Items::WANDERING_TRADER_SPAWN_EGG());
+		// $this->map1to1Item(Ids::WARDEN_SPAWN_EGG, Items::WARDEN_SPAWN_EGG());
+		// $this->map1to1Item(Ids::WITCH_SPAWN_EGG, Items::WITCH_SPAWN_EGG());
+		// $this->map1to1Item(Ids::WITHER_SPAWN_EGG, Items::WITHER_SPAWN_EGG());
+		// $this->map1to1Item(Ids::WITHER_SKELETON_SPAWN_EGG, Items::WITHER_SKELETON_SPAWN_EGG());
+		// $this->map1to1Item(Ids::WOLF_SPAWN_EGG, Items::WOLF_SPAWN_EGG());
+		// $this->map1to1Item(Ids::ZOGLIN_SPAWN_EGG, Items::ZOGLIN_SPAWN_EGG());
+		$this->map1to1Item(Ids::ZOMBIE_SPAWN_EGG, Items::ZOMBIE_SPAWN_EGG());
+		$this->map1to1Item(Ids::ZOMBIE_PIGMAN_SPAWN_EGG, Items::ZOMBIE_PIGMAN_SPAWN_EGG());
+		// $this->map1to1Item(Ids::ZOMBIE_VILLAGER_SPAWN_EGG, Items::ZOMBIE_VILLAGER_SPAWN_EGG());
 	}
 
 	/**

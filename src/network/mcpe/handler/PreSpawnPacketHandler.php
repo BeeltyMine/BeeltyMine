@@ -85,17 +85,7 @@ class PreSpawnPacketHandler extends PacketHandler
 			$this->session->getLogger()->debug("Preparing StartGamePacket");
 			$levelSettings = new LevelSettings();
 			$levelSettings->seed = -1;
-			$dimensionId = match($world->getDimension()){
-				"nether" => DimensionIds::NETHER,
-				"the_end", "end" => DimensionIds::THE_END,
-				default => DimensionIds::OVERWORLD
-			};
-			$levelSettings->spawnSettings = new SpawnSettings(SpawnSettings::BIOME_TYPE_DEFAULT, "", $dimensionId); //TODO: implement this properly
-			$levelSettings->generator = match($world->getDimension()){
-				"nether" => GeneratorType::NETHER,
-				"the_end", "end" => GeneratorType::THE_END,
-				default => GeneratorType::OVERWORLD
-			};
+			$levelSettings->spawnSettings = new SpawnSettings(SpawnSettings::BIOME_TYPE_DEFAULT, "", DimensionIds::OVERWORLD); //TODO: implement this properly
 			$levelSettings->worldGamemode = $typeConverter->coreGameModeToProtocol($this->server->getGamemode());
 			$levelSettings->difficulty = $world->getDifficulty();
 			$levelSettings->spawnPosition = BlockPosition::fromVector3($world->getSpawnLocation());

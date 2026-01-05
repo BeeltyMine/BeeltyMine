@@ -1076,23 +1076,12 @@ class NetworkSession
 	public function syncPlayerSpawnPoint(Position $newSpawn): void
 	{
 		$newSpawnBlockPosition = BlockPosition::fromVector3($newSpawn);
-		$dimensionId = match($newSpawn->getWorld()->getDimension()){
-			"nether" => DimensionIds::NETHER,
-			"the_end", "end" => DimensionIds::THE_END,
-			default => DimensionIds::OVERWORLD
-		};
-		//TODO: respawn causing block position (bed, respawn anchor)
-		$this->sendDataPacket(SetSpawnPositionPacket::playerSpawn($newSpawnBlockPosition, $dimensionId, $newSpawnBlockPosition));
+		$this->sendDataPacket(SetSpawnPositionPacket::playerSpawn($newSpawnBlockPosition, DimensionIds::OVERWORLD, $newSpawnBlockPosition));
 	}
 
 	public function syncWorldSpawnPoint(Position $newSpawn): void
 	{
-		$dimensionId = match($newSpawn->getWorld()->getDimension()){
-			"nether" => DimensionIds::NETHER,
-			"the_end", "end" => DimensionIds::THE_END,
-			default => DimensionIds::OVERWORLD
-		};
-		$this->sendDataPacket(SetSpawnPositionPacket::worldSpawn(BlockPosition::fromVector3($newSpawn), $dimensionId));
+		$this->sendDataPacket(SetSpawnPositionPacket::worldSpawn(BlockPosition::fromVector3($newSpawn), DimensionIds::OVERWORLD));
 	}
 
 	public function syncGameMode(GameMode $mode, bool $isRollback = false): void
@@ -1189,7 +1178,7 @@ class NetworkSession
 			}
 
 			$description = $command->getDescription();
-			
+
 			// Generate proper overloads for Commando-style commands (IArgumentable)
 			$overloads = [];
 			if ($command instanceof \pocketmine\command\traits\IArgumentable) {
@@ -1200,14 +1189,14 @@ class NetworkSession
 					$paramCombinations = [];
 					$outputLength = array_product(array_map("count", $argumentList));
 					$indexes = array_fill(0, count($argumentList), 0);
-					
+
 					for ($i = 0; $i < $outputLength; $i++) {
 						$params = [];
 						foreach ($indexes as $pos => $idx) {
 							$params[] = $argumentList[$pos][$idx]->getNetworkParameterData();
 						}
 						$paramCombinations[] = new CommandOverload(chaining: false, parameters: $params);
-						
+
 						// Increment indexes
 						for ($j = 0; $j < count($indexes); $j++) {
 							$indexes[$j]++;
@@ -1228,7 +1217,7 @@ class NetworkSession
 					new CommandOverload(chaining: false, parameters: [CommandParameter::standard("args", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, true)])
 				];
 			}
-			
+
 			$data = new CommandData(
 				$lname, //TODO: commands containing uppercase letters in the name crash 1.9.0 client
 				$description instanceof Translatable ? $this->player->getLanguage()->translate($description) : $description,
@@ -1244,7 +1233,7 @@ class NetworkSession
 
 		// Include soft-enums (e.g., dynamic player list for /tp command autocomplete)
 		$softEnums = \pocketmine\command\store\SoftEnumStore::getEnums();
-		
+
 		// Debug: Log what we're sending
 		$this->server->getLogger()->debug("Sending AvailableCommandsPacket: " . count($commandData) . " commands, " . count($softEnums) . " soft-enums");
 		foreach ($softEnums as $name => $enum) {
@@ -1252,7 +1241,7 @@ class NetworkSession
 				$this->server->getLogger()->debug("  Soft-enum '$name': " . implode(", ", $enum->getValues()));
 			}
 		}
-		
+
 		// Debug: Check /tp command specifically
 		if (isset($commandData['tp'])) {
 			$tpData = $commandData['tp'];
@@ -1270,7 +1259,7 @@ class NetworkSession
 				$this->server->getLogger()->debug("    Overload $idx: " . implode("; ", $paramInfo));
 			}
 		}
-		
+
 		$this->sendDataPacket(AvailableCommandsPacketAssembler::assemble(array_values($commandData), [], $softEnums));
 	}
 
@@ -1389,7 +1378,7 @@ class NetworkSession
 		if ($this->player !== null) {
 			$world = $this->player->getWorld();
 
-			$dimensionId = match($world->getDimension()){
+			$dimensionId = match ($world->getDimension()) {
 				"nether" => DimensionIds::NETHER,
 				"the_end", "end" => DimensionIds::THE_END,
 				default => DimensionIds::OVERWORLD

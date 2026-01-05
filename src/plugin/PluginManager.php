@@ -136,7 +136,6 @@ class PluginManager{
 
 	private function internalLoadPlugin(string $path, PluginLoader $loader, PluginDescription $description) : ?Plugin{
 		$language = $this->server->getLanguage();
-		$this->server->getLogger()->info(TextFormat::YELLOW . $this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_plugin_load($description->getFullName())));
 
 		$dataFolder = $this->getDataDirectory($path, $description->getName());
 		if(file_exists($dataFolder) && !is_dir($dataFolder)){

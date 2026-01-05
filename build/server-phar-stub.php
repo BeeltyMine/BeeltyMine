@@ -107,12 +107,10 @@ function cleanupPharCache(string $tmpPath): void
 			unlink($lockFilePath);
 			unlink($baseTmpPath . ".tar");
 			unlink($baseTmpPath);
-			echo "Deleted stale phar cache at $baseTmpPath\n";
 		} else {
 			$pid = stream_get_contents($file);
 			fclose($file);
 
-			echo "Phar cache at $baseTmpPath is still in use by PID $pid\n";
 		}
 	}
 }
@@ -174,10 +172,8 @@ $tmpDir = preparePharCacheDirectory();
 cleanupPharCache($tmpDir);
 // Use the phar filename dynamically so distributions built from this repo show the correct name
 $pharBaseName = basename(__FILE__); // e.g. "BeeltyMine-MP.phar" when packaged
-echo "Preparing $pharBaseName decompressed cache...\n";
 $start = hrtime(true);
 $cacheName = preparePharCache($tmpDir, __FILE__);
-echo "Cache ready at $cacheName in " . number_format((hrtime(true) - $start) / 1e9, 2) . "s\n";
 
 define('pocketmine\ORIGINAL_PHAR_PATH', __FILE__);
 require 'phar://' . str_replace(DIRECTORY_SEPARATOR, '/', $cacheName) . '/src/PocketMine.php';

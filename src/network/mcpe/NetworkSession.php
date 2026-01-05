@@ -1377,20 +1377,6 @@ class NetworkSession
 	{
 		if ($this->player !== null) {
 			$world = $this->player->getWorld();
-
-			$dimensionId = match ($world->getDimension()) {
-				"nether" => DimensionIds::NETHER,
-				"the_end", "end" => DimensionIds::THE_END,
-				default => DimensionIds::OVERWORLD
-			};
-
-			$this->sendDataPacket(ChangeDimensionPacket::create(
-				$dimensionId,
-				$this->player->getPosition()->asVector3(),
-				true,
-				null
-			));
-
 			$this->syncWorldTime($world->getTime());
 			$this->syncWorldDifficulty($world->getDifficulty());
 			$this->syncWorldSpawnPoint($world->getSpawnLocation());

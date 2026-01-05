@@ -32,7 +32,8 @@ use function count;
 use function preg_last_error_msg;
 use function preg_replace;
 
-abstract class DefaultPermissions{
+abstract class DefaultPermissions
+{
 	public const ROOT_CONSOLE = Names::GROUP_CONSOLE;
 	public const ROOT_OPERATOR = Names::GROUP_OPERATOR;
 	public const ROOT_USER = Names::GROUP_USER;
@@ -41,11 +42,12 @@ abstract class DefaultPermissions{
 	 * @param Permission[] $grantedBy
 	 * @param Permission[] $deniedBy
 	 */
-	public static function registerPermission(Permission $candidate, array $grantedBy = [], array $deniedBy = []) : Permission{
-		foreach($grantedBy as $permission){
+	public static function registerPermission(Permission $candidate, array $grantedBy = [], array $deniedBy = []): Permission
+	{
+		foreach ($grantedBy as $permission) {
 			$permission->addChild($candidate->getName(), true);
 		}
-		foreach($deniedBy as $permission){
+		foreach ($deniedBy as $permission) {
 			$permission->addChild($candidate->getName(), false);
 		}
 		PermissionManager::getInstance()->addPermission($candidate);
@@ -53,13 +55,15 @@ abstract class DefaultPermissions{
 		return PermissionManager::getInstance()->getPermission($candidate->getName());
 	}
 
-	public static function registerCorePermissions() : void{
+	public static function registerCorePermissions(): void
+	{
 		$consoleRoot = self::registerPermission(new Permission(self::ROOT_CONSOLE, l10n::pocketmine_permission_group_console()));
 		$operatorRoot = self::registerPermission(new Permission(self::ROOT_OPERATOR, l10n::pocketmine_permission_group_operator()), [$consoleRoot]);
 		$everyoneRoot = self::registerPermission(new Permission(self::ROOT_USER, l10n::pocketmine_permission_group_user()), [$operatorRoot]);
 
 		self::registerPermission(new Permission(Names::COMMAND_WEATHER, l10n::pocketmine_permission_command_weather()), [$operatorRoot]);
 		self::registerPermission(new Permission(Names::BROADCAST_ADMIN, l10n::pocketmine_permission_broadcast_admin()), [$operatorRoot]);
+		self::registerPermission(new Permission(Names::COMMAND_WORLD_MANAGE, "Allows creating, loading and deleting worlds"), [$operatorRoot]);
 		self::registerPermission(new Permission(Names::BROADCAST_USER, l10n::pocketmine_permission_broadcast_user()), [$everyoneRoot]);
 		self::registerPermission(new Permission(Names::COMMAND_BAN_IP, l10n::pocketmine_permission_command_ban_ip()), [$operatorRoot]);
 		self::registerPermission(new Permission(Names::COMMAND_BAN_LIST, l10n::pocketmine_permission_command_ban_list()), [$operatorRoot]);

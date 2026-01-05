@@ -93,4 +93,5 @@ final class DefaultPermissionNames
 	public const GROUP_CONSOLE = "pocketmine.group.console";
 	public const GROUP_OPERATOR = "pocketmine.group.operator";
 	public const GROUP_USER = "pocketmine.group.user";
+	public const COMMAND_WORLD_MANAGE = "pocketmine.command.world.manage";
 }

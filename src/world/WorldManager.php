@@ -283,9 +283,8 @@ class WorldManager
 
 		$path = $this->getWorldPath($name);
 		$providerEntry->generate($path, $name, $options);
-
+		$world = new World($this->server, $name, $providerEntry->fromPath($path, new \PrefixedLogger($this->server->getLogger(), "World Provider: $name")), $this->server->getAsyncPool());
 		$this->worlds[$world->getId()] = $world;
-
 		$world->setAutoSave($this->autoSave);
 
 		(new WorldInitEvent($world))->call();

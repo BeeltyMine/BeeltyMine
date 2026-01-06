@@ -20,7 +20,7 @@ jobs:
     - name: Setup PHP
       uses: pmmp/setup-php-action@3.2.0
       with:
-        php-version: "8.1"
+        php-version: "8.4"
         install-path: "./bin"
         pm-version-major: 5
 
@@ -76,7 +76,7 @@ jobs:
       id: php-binary-url
       run: |
         PM_MAJOR=$(php build/dump-version-info.php major_version)
-        echo PHP_BINARY_URL="${{ github.server_url }}/${{ github.repository_owner }}/PHP-Binaries/releases/tag/pm${PM_MAJOR}-php-8.1-latest" >> $GITHUB_OUTPUT
+        echo PHP_BINARY_URL="${{ github.server_url }}/${{ github.repository_owner }}/PHP-Binaries/releases/tag/pm${PM_MAJOR}-php-8.4-latest" >> $GITHUB_OUTPUT
 
     - name: Generate build info
       if: github.event_name == 'push'

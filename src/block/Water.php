@@ -102,4 +102,3 @@ class Water extends Liquid
 		return WaterHelper::getWater($block) ?? $block;
 	}
 }
-}

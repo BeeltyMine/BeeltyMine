@@ -494,14 +494,30 @@ class World implements ChunkManager
 	 */
 	public function delayDisplacedBlockUpdate(Vector3 $pos, int $delay): void
 	{
+		$x = (int) $pos->x;
+		$y = (int) $pos->y;
+		$z = (int) $pos->z;
+
+		if (!$this->isInWorld($x, $y, $z)) {
+			return;
+		}
+
+		if ($delay < 0) {
+			$delay = 0;
+		}
+
+		$index = World::blockHash($x, $y, $z);
+		$targetTick = $this->server->getTick() + $delay;
+
 		if (
-			!$this->isInWorld($pos->x, $pos->y, $pos->z) ||
-			(isset($this->scheduledDisplacedBlockUpdateQueueIndex[$index = World::blockHash($pos->x, $pos->y, $pos->z)]) && $this->scheduledDisplacedBlockUpdateQueueIndex[$index] <= $delay)
+			isset($this->scheduledDisplacedBlockUpdateQueueIndex[$index]) &&
+			$this->scheduledDisplacedBlockUpdateQueueIndex[$index] <= $targetTick
 		) {
 			return;
 		}
-		$this->scheduledDisplacedBlockUpdateQueueIndex[$index] = $delay;
-		$this->scheduledDisplacedBlockUpdateQueue->insert(new Vector3((int) $pos->x, (int) $pos->y, (int) $pos->z), $delay + $this->server->getTick());
+
+		$this->scheduledDisplacedBlockUpdateQueueIndex[$index] = $targetTick;
+		$this->scheduledDisplacedBlockUpdateQueue->insert(new Vector3($x, $y, $z), $targetTick);
 	}
 
 	public function tickWeather(): void
@@ -701,11 +717,11 @@ class World implements ChunkManager
 		} else {
 			$this->maxParallelLightPopulationTasks = $defaultParallel;
 		}
-	// pending queue init
-	$this->pendingLightPopulationQueue = new \SplQueue();
-	$this->pendingLightPopulationQueueIndex = [];
-	// Light population throttling
-	$this->outstandingLightPopulationTasks = 0;
+		// pending queue init
+		$this->pendingLightPopulationQueue = new \SplQueue();
+		$this->pendingLightPopulationQueueIndex = [];
+		// Light population throttling
+		$this->outstandingLightPopulationTasks = 0;
 		$this->addOnUnloadCallback(function (): void {
 			$this->logger->debug("Cancelling unfulfilled generation requests");
 
@@ -1665,51 +1681,51 @@ class World implements ChunkManager
 
 			// create task and store terrain hash so we can validate results without reserializing on completion
 			$task = new LightPopulationTask(
-					$this->chunks[$chunkHash],
-					function (array $blockLight, array $skyLight, array $heightMap, string $terrainHash) use ($chunkX, $chunkZ, $chunkHash): void {
-						/**
-						 * TODO: phpstan can't infer these types yet :(
-						 * @phpstan-var array<int, LightArray> $blockLight
-						 * @phpstan-var array<int, LightArray> $skyLight
-						 * @phpstan-var non-empty-list<int>    $heightMap
-						 */
-						try {
-							if ($this->unloaded || ($chunk = $this->getChunk($chunkX, $chunkZ)) === null || $chunk->isLightPopulated() === true) {
-								return;
-							}
-							// Koruma: validate using terrain hash saved at submission time to avoid reserializing the chunk here
-							if (!isset($this->pendingChunkTerrainHash[$chunkHash]) || $this->pendingChunkTerrainHash[$chunkHash] !== $terrainHash) {
-								$this->logger->debug("Discarding light result for chunk $chunkX $chunkZ due to terrain mismatch");
-								return;
-							}
-
-							$chunk->setHeightMapArray($heightMap);
-							foreach ($blockLight as $y => $lightArray) {
-								$chunk->getSubChunk($y)->setBlockLightArray($lightArray);
-							}
-							foreach ($skyLight as $y => $lightArray) {
-								$chunk->getSubChunk($y)->setBlockSkyLightArray($lightArray);
-							}
-							$chunk->setLightPopulated(true);
-							$this->markTickingChunkForRecheck($chunkX, $chunkZ);
-						} finally {
-							// cleanup pending terrain hash for this chunk
-							unset($this->pendingChunkTerrainHash[$chunkHash]);
-							// decrement outstanding counter and try to flush pending queue
-							$this->outstandingLightPopulationTasks--;
-							while ($this->outstandingLightPopulationTasks < $this->maxParallelLightPopulationTasks && !$this->pendingLightPopulationQueue->isEmpty()) {
-								$nextHash = $this->pendingLightPopulationQueue->dequeue();
-								unset($this->pendingLightPopulationQueueIndex[$nextHash]);
-								self::getXZ($nextHash, $nx, $nz);
-								$this->orderLightPopulation($nx, $nz);
-							}
+				$this->chunks[$chunkHash],
+				function (array $blockLight, array $skyLight, array $heightMap, string $terrainHash) use ($chunkX, $chunkZ, $chunkHash): void {
+					/**
+					 * TODO: phpstan can't infer these types yet :(
+					 * @phpstan-var array<int, LightArray> $blockLight
+					 * @phpstan-var array<int, LightArray> $skyLight
+					 * @phpstan-var non-empty-list<int>    $heightMap
+					 */
+					try {
+						if ($this->unloaded || ($chunk = $this->getChunk($chunkX, $chunkZ)) === null || $chunk->isLightPopulated() === true) {
+							return;
 						}
+						// Koruma: validate using terrain hash saved at submission time to avoid reserializing the chunk here
+						if (!isset($this->pendingChunkTerrainHash[$chunkHash]) || $this->pendingChunkTerrainHash[$chunkHash] !== $terrainHash) {
+							$this->logger->debug("Discarding light result for chunk $chunkX $chunkZ due to terrain mismatch");
+							return;
 						}
-				);
 
-				$this->pendingChunkTerrainHash[$chunkHash] = $task->terrainHash;
-				$this->outstandingLightPopulationTasks++;
-				$this->workerPool->submitTask($task);
+						$chunk->setHeightMapArray($heightMap);
+						foreach ($blockLight as $y => $lightArray) {
+							$chunk->getSubChunk($y)->setBlockLightArray($lightArray);
+						}
+						foreach ($skyLight as $y => $lightArray) {
+							$chunk->getSubChunk($y)->setBlockSkyLightArray($lightArray);
+						}
+						$chunk->setLightPopulated(true);
+						$this->markTickingChunkForRecheck($chunkX, $chunkZ);
+					} finally {
+						// cleanup pending terrain hash for this chunk
+						unset($this->pendingChunkTerrainHash[$chunkHash]);
+						// decrement outstanding counter and try to flush pending queue
+						$this->outstandingLightPopulationTasks--;
+						while ($this->outstandingLightPopulationTasks < $this->maxParallelLightPopulationTasks && !$this->pendingLightPopulationQueue->isEmpty()) {
+							$nextHash = $this->pendingLightPopulationQueue->dequeue();
+							unset($this->pendingLightPopulationQueueIndex[$nextHash]);
+							self::getXZ($nextHash, $nx, $nz);
+							$this->orderLightPopulation($nx, $nz);
+						}
+					}
+				}
+			);
+
+			$this->pendingChunkTerrainHash[$chunkHash] = $task->terrainHash;
+			$this->outstandingLightPopulationTasks++;
+			$this->workerPool->submitTask($task);
 		}
 	}
 

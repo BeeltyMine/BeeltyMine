@@ -60,8 +60,8 @@ final class ItemSerializerDeserializerRegistrar
 	) {
 		$this->register1to1BlockMappings();
 		$this->register1to1ItemMappings();
-		$this->register1to1BlockWithMetaMappings();
-		$this->register1to1ItemWithMetaMappings();
+		$this->registerBlocksWithComplexMeta();
+		$this->registerItemsWithComplexMeta();
 		$this->register1ToNItemMappings();
 		$this->registerMiscBlockMappings();
 		$this->registerMiscItemMappings();
@@ -676,7 +676,7 @@ final class ItemSerializerDeserializerRegistrar
 	 * TODO: try and make this less ugly; for the most part the logic is symmetrical, it's just difficult to write it
 	 * in a unified manner.
 	 */
-	private function register1to1BlockWithMetaMappings(): void
+	private function registerBlocksWithComplexMeta(): void
 	{
 		$this->map1to1BlockWithMeta(
 			Ids::BED,
@@ -693,7 +693,7 @@ final class ItemSerializerDeserializerRegistrar
 	 * TODO: try and make this less ugly; for the most part the logic is symmetrical, it's just difficult to write it
 	 * in a unified manner.
 	 */
-	private function register1to1ItemWithMetaMappings(): void
+	private function registerItemsWithComplexMeta(): void
 	{
 		$this->map1to1ItemWithMeta(
 			Ids::FIREWORK_STAR,

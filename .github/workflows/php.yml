@@ -7,7 +7,7 @@ on:
     branches: [ "stable" ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -47,3 +47,65 @@ jobs:
       with:
         name: BeeltyMine-MP
         path: build/*.phar
+
+    - name: Get release version info
+      if: github.event_name == 'push'
+      id: version
+      run: |
+        PM_VERSION=$(php build/dump-version-info.php base_version)
+        echo PM_VERSION=$PM_VERSION >> $GITHUB_OUTPUT
+        echo MCPE_VERSION=$(php build/dump-version-info.php mcpe_version) >> $GITHUB_OUTPUT
+        echo CHANGELOG_FILE_NAME=$(php build/dump-version-info.php changelog_file_name) >> $GITHUB_OUTPUT
+        echo CHANGELOG_MD_HEADER=$(php build/dump-version-info.php changelog_md_header) >> $GITHUB_OUTPUT
+        echo PRERELEASE=$(php build/dump-version-info.php prerelease) >> $GITHUB_OUTPUT
+        echo TAG_NAME=$PM_VERSION >> $GITHUB_OUTPUT
+
+    - name: Calculate build number
+      if: github.event_name == 'push'
+      id: build-number
+      run: |
+        BUILD_NUMBER=$((2300+$GITHUB_RUN_NUMBER))
+        echo BUILD_NUMBER=$BUILD_NUMBER >> $GITHUB_OUTPUT
+
+    - name: Minify BedrockData JSON files
+      if: github.event_name == 'push'
+      run: php vendor/pocketmine/bedrock-data/.minify_json.php
+
+    - name: Generate PHP binary download URL
+      if: github.event_name == 'push'
+      id: php-binary-url
+      run: |
+        PM_MAJOR=$(php build/dump-version-info.php major_version)
+        echo PHP_BINARY_URL="${{ github.server_url }}/${{ github.repository_owner }}/PHP-Binaries/releases/tag/pm${PM_MAJOR}-php-8.1-latest" >> $GITHUB_OUTPUT
+
+    - name: Generate build info
+      if: github.event_name == 'push'
+      run: |
+        php build/generate-build-info-json.php \
+          ${{ github.sha }} \
+          ${{ steps.version.outputs.TAG_NAME }} \
+          ${{ github.repository }} \
+          ${{ steps.build-number.outputs.BUILD_NUMBER }} \
+          ${{ github.run_id }} \
+          ${{ steps.php-binary-url.outputs.PHP_BINARY_URL }} \
+          > build_info.json
+
+    - name: Generate core permission doc
+      if: github.event_name == 'push'
+      run: php tools/generate-permission-doc.php rst
+
+    - name: Publish GitHub release
+      if: github.event_name == 'push'
+      uses: ncipollo/release-action@v1.20.0
+      with:
+        artifacts: build/*.phar,start.*,build_info.json,core-permissions.rst
+        allowUpdates: true
+        replacesArtifacts: true
+        commit: ${{ github.sha }}
+        prerelease: ${{ steps.version.outputs.PRERELEASE }}
+        name: BeeltyMine-MP ${{ steps.version.outputs.PM_VERSION }}
+        tag: ${{ steps.version.outputs.TAG_NAME }}
+        body: |
+          **For Minecraft: Bedrock Edition ${{ steps.version.outputs.MCPE_VERSION }}**
+
+          Please see the [changelogs](${{ github.server_url }}/${{ github.repository }}/blob/${{ steps.version.outputs.PM_VERSION }}/changelogs/${{ steps.version.outputs.CHANGELOG_FILE_NAME }}#${{ steps.version.outputs.CHANGELOG_MD_HEADER }}) for details.

@@ -40,7 +40,7 @@ jobs:
 
     - name: Build BeeltyMine Server (make-server)
       run: |
-        php build/server-phar.php
+        php -dphar.readonly=0 build/server-phar.php
 
     - name: Upload built server
       uses: actions/upload-artifact@v4

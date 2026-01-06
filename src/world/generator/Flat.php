@@ -30,6 +30,8 @@ use pocketmine\world\format\SubChunk;
 use pocketmine\world\generator\object\OreType;
 use pocketmine\world\generator\populator\Ore;
 use pocketmine\world\generator\populator\Populator;
+use pocketmine\world\format\PalettedBlockArray;
+use pocketmine\block\Block;
 use function count;
 
 class Flat extends Generator{
@@ -67,6 +69,11 @@ class Flat extends Generator{
 
 	protected function generateBaseChunk() : void{
 		$this->chunk = new Chunk([], false);
+
+		$biomeArray = new PalettedBlockArray($this->options->getBiomeId());
+		foreach($this->chunk->getSubChunks() as $y => $subChunk){
+			$this->chunk->setSubChunk($y, new SubChunk(Block::EMPTY_STATE_ID, [], clone $biomeArray));
+		}
 
 		$structure = $this->options->getStructure();
 		$count = count($structure);

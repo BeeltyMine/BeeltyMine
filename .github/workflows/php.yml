@@ -40,13 +40,14 @@ jobs:
 
     - name: Build BeeltyMine Server (make-server)
       run: |
-        php -dphar.readonly=0 build/server-phar.php
+        mkdir -p build
+        php -dphar.readonly=0 build/server-phar.php --out build/BeeltyMine-MP.phar
 
     - name: Upload built server
       uses: actions/upload-artifact@v4
       with:
         name: BeeltyMine-MP
-        path: build/*.phar
+        path: build/BeeltyMine-MP.phar
 
     - name: Get release version info
       if: github.event_name == 'push'
@@ -98,7 +99,7 @@ jobs:
       if: github.event_name == 'push'
       uses: ncipollo/release-action@v1.20.0
       with:
-        artifacts: build/*.phar,start.*,build_info.json,core-permissions.rst
+        artifacts: build/BeeltyMine-MP.phar,start.*,build_info.json,core-permissions.rst
         allowUpdates: true
         replacesArtifacts: true
         commit: ${{ github.sha }}

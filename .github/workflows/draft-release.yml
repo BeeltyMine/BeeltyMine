@@ -170,7 +170,7 @@ jobs:
         with:
           artifacts: ${{ github.workspace }}/BeeltyMine-MP.phar,${{ github.workspace }}/start.*,${{ github.workspace }}/build_info.json,${{ github.workspace }}/core-permissions.rst
           commit: ${{ github.sha }}
-          draft: true
+          draft: false
           prerelease: ${{ steps.get-pm-version.outputs.PRERELEASE }}
           name: PocketMine-MP ${{ steps.get-pm-version.outputs.PM_VERSION }}
           tag: ${{ steps.get-pm-version.outputs.TAG_NAME }}

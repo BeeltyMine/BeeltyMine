@@ -919,13 +919,15 @@ class InGamePacketHandler extends PacketHandler
 		try {
 			$this->player->getPlayerInfo()->setRawSkinData($packet->skin);
 		} catch (\Throwable $e) {
-			// ignore - best effort
+			// Best effort - ignore failures when updating raw skin data cache
+			// This is non-critical and shouldn't prevent the skin change from proceeding
 		}
 
 		// Handle the case where the client sends all-zero skin data but wants to update geometry
+		// This occurs when the client updates only geometry/cape without changing the skin texture
 		$skinData = $skin->getSkinData();
 		if (strlen($skinData) > 0 && strspn($skinData, "\x00") === strlen($skinData)) {
-			// Skin data is all zeros - attempt to merge geometry from new skin with data from old skin
+			// Skin data is all zeros - merge geometry from new skin with texture data from old skin
 			$this->session->getLogger()->debug("Received all-zero skin data, attempting to merge with existing skin");
 			$oldSkin = $this->player->getSkin();
 			try {

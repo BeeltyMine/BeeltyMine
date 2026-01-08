@@ -940,6 +940,7 @@ class InGamePacketHandler extends PacketHandler
 				}
 			}
 		} catch (\Throwable $e) {
+			$this->session->getLogger()->warning("Unexpected error while processing skin data for " . $this->player->getName() . ": " . $e->getMessage());
 		}
 		return $this->player->changeSkin($skin, $packet->newSkinName, $packet->oldSkinName);
 	}

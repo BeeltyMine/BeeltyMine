@@ -315,6 +315,13 @@ class WindCharge extends Throwable
         }
 
         parent::move($dx, $dy, $dz);
+
+        $pos = $this->getPosition();
+        $hitBlock = $this->getWorld()->getBlock($pos);
+        if ($hitBlock instanceof Door || $hitBlock instanceof Trapdoor || $hitBlock instanceof FenceGate || $hitBlock instanceof Button || $hitBlock instanceof Lever || $hitBlock instanceof Bell || $hitBlock instanceof Candle) {
+            $this->processBlockInteraction($hitBlock, $hitBlock->getPosition());
+            $this->flagForDespawn();
+        }
     }
 
     /**

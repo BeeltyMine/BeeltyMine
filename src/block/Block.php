@@ -387,7 +387,6 @@ class Block{
 			throw new AssumptionFailedError("World::setBlock() should have loaded the chunk before calling this method");
 		}
 		$chunk->setBlockStateId($this->position->x & Chunk::COORD_MASK, $this->position->y, $this->position->z & Chunk::COORD_MASK, $this->getStateId());
-		$chunk->setDisplacedBlockStateId($this->position->x & Chunk::COORD_MASK, $this->position->y, $this->position->z & Chunk::COORD_MASK, $this->getDisplacedBlock()?->getStateId() ?? self::EMPTY_STATE_ID);
 
 		$tileType = $this->idInfo->getTileClass();
 		$oldTile = $world->getTile($this->position);
@@ -407,15 +406,6 @@ class Block{
 			$tile = new $tileType($world, $this->position->asVector3());
 			$world->addTile($tile);
 		}
-	}
-
-	/**
-	 * @internal
-	 * Returns a block which has been displaced by another block to the second layer.
-	 * Used in waterlogging and snowlogging.
-	 */
-	public function getDisplacedBlock() : ?Block{
-		return null;
 	}
 
 	/**
@@ -497,7 +487,7 @@ class Block{
 		if(($t = $world->getTile($this->position)) !== null){
 			$t->onBlockDestroyed();
 		}
-		$world->setBlock($this->position, $this->getDisplacedBlock() ?? VanillaBlocks::AIR());
+		$world->setBlock($this->position, VanillaBlocks::AIR());
 		return true;
 	}
 
@@ -528,17 +518,6 @@ class Block{
 	 */
 	public function onScheduledUpdate() : void{
 
-	}
-
-	/**
-	 * @internal
-	 * Similar to onScheduledUpdate(), but called for "displaced" blocks (e.g. water),
-	 * placed at the same position with their owning blocks.
-	 *
-	 * This is internal and used only in things such as waterlogging, plugins should NOT use this.
-	 */
-	public function onDisplacedScheduledUpdate() : void{
-		//NOOP
 	}
 
 	/**
@@ -644,10 +623,6 @@ class Block{
 	final public function position(World $world, int $x, int $y, int $z) : void{
 		$this->position = new Position($x, $y, $z, $world);
 		$this->collisionBoxes = null;
-
-		if(($block = $this->getDisplacedBlock()) !== null){
-			$block->position($world, $x, $y, $z);
-		}
 	}
 
 	/**

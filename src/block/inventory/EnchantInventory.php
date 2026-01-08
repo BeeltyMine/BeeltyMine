@@ -29,7 +29,6 @@ use pocketmine\inventory\TemporaryInventory;
 use pocketmine\item\enchantment\EnchantingHelper as Helper;
 use pocketmine\item\enchantment\EnchantingOption;
 use pocketmine\item\Item;
-use pocketmine\player\Player;
 use pocketmine\world\Position;
 use function array_values;
 use function count;
@@ -46,47 +45,23 @@ class EnchantInventory extends SimpleInventory implements BlockInventory, Tempor
 	 */
 	private array $options = [];
 
-	/**
-	 * Options mapped by viewer (spl_object_id(player) => list<EnchantingOption>)
-	 * @phpstan-var array<int, list<EnchantingOption>>
-	 */
-	private array $optionsByViewer = [];
-
 	public function __construct(Position $holder){
 		$this->holder = $holder;
 		parent::__construct(2);
 	}
 
-	public function onClose(Player $who) : void{
-		parent::onClose($who);
-		// Clean up any viewer-specific cached options to avoid unbounded growth
-		unset($this->optionsByViewer[spl_object_id($who)]);
-	}
-
 	protected function onSlotChange(int $index, Item $before) : void{
 		if($index === self::SLOT_INPUT){
 			foreach($this->viewers as $viewer){
+				$this->options = [];
 				$item = $this->getInput();
 				$options = Helper::generateOptions($this->holder, $item, $viewer->getEnchantmentSeed());
 
 				$event = new PlayerEnchantingOptionsRequestEvent($viewer, $this, $options);
 				$event->call();
-
-				// Normalize options array and update per-viewer cache. Always update the client
-				// (including sending an empty list) so the client doesn't keep stale options.
-				// Filter out options that don't contain any enchantments (these show up as empty
-				// slots on the client). Only send options that actually apply enchantments.
-				$optionsArr = array_values(array_filter($event->getOptions(), fn(EnchantingOption $o) => count($o->getEnchantments()) > 0));
-
-				if (!$event->isCancelled() && count($optionsArr) > 0) {
-					$this->optionsByViewer[spl_object_id($viewer)] = $optionsArr;
-					$this->options = $optionsArr;
-					$viewer->getNetworkSession()->getInvManager()?->syncEnchantingTableOptions($optionsArr);
-				} else {
-					// Clear cached options for this viewer and notify client to clear UI
-					$this->optionsByViewer[spl_object_id($viewer)] = [];
-					$this->options = [];
-					$viewer->getNetworkSession()->getInvManager()?->syncEnchantingTableOptions([]);
+				if(!$event->isCancelled() && count($event->getOptions()) > 0){
+					$this->options = array_values($event->getOptions());
+					$viewer->getNetworkSession()->getInvManager()?->syncEnchantingTableOptions($this->options);
 				}
 			}
 		}
@@ -102,22 +77,12 @@ class EnchantInventory extends SimpleInventory implements BlockInventory, Tempor
 		return $this->getItem(self::SLOT_LAPIS);
 	}
 
-	public function getOutput(int $optionId, ?Player $viewer = null) : ?Item{
-		$option = $this->getOption($optionId, $viewer);
+	public function getOutput(int $optionId) : ?Item{
+		$option = $this->getOption($optionId);
 		return $option === null ? null : Helper::enchantItem($this->getInput(), $option->getEnchantments());
 	}
 
-	public function getOption(int $optionId, ?Player $viewer = null) : ?EnchantingOption{
-		if($viewer !== null){
-			$opts = $this->optionsByViewer[spl_object_id($viewer)] ?? null;
-			return $opts[$optionId] ?? null;
-		}
-		// Fallback: if only one viewer has options, return that
-		if(count($this->optionsByViewer) === 1){
-			$only = array_values($this->optionsByViewer)[0];
-			return $only[$optionId] ?? null;
-		}
-		// Last-writer fallback for compatibility
+	public function getOption(int $optionId) : ?EnchantingOption{
 		return $this->options[$optionId] ?? null;
 	}
 }

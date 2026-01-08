@@ -27,14 +27,12 @@ use pocketmine\entity\effect\Effect;
 use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\utils\SingletonTrait;
 
-final class EffectIdMap
-{
+final class EffectIdMap{
 	use SingletonTrait;
 	/** @phpstan-use IntSaveIdMapTrait<Effect> */
 	use IntSaveIdMapTrait;
 
-	private function __construct()
-	{
+	private function __construct(){
 		$this->register(EffectIds::SPEED, VanillaEffects::SPEED());
 		$this->register(EffectIds::SLOWNESS, VanillaEffects::SLOWNESS());
 		$this->register(EffectIds::HASTE, VanillaEffects::HASTE());
@@ -56,7 +54,6 @@ final class EffectIdMap
 		$this->register(EffectIds::POISON, VanillaEffects::POISON());
 		$this->register(EffectIds::WITHER, VanillaEffects::WITHER());
 		$this->register(EffectIds::HEALTH_BOOST, VanillaEffects::HEALTH_BOOST());
-		$this->register(EffectIds::SLOW_FALLING, VanillaEffects::SLOW_FALLING()); 
 		$this->register(EffectIds::ABSORPTION, VanillaEffects::ABSORPTION());
 		$this->register(EffectIds::SATURATION, VanillaEffects::SATURATION());
 		$this->register(EffectIds::LEVITATION, VanillaEffects::LEVITATION());

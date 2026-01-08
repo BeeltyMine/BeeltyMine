@@ -29,11 +29,8 @@ use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\world\BlockTransaction;
-use pocketmine\block\utils\WaterloggedTrait;
-use pocketmine\block\utils\Waterloggable;
 
-class SeaPickle extends Transparent implements Waterloggable{
-	use WaterloggedTrait;
+class SeaPickle extends Transparent{
 	public const MIN_COUNT = 1;
 	public const MAX_COUNT = 4;
 
@@ -43,8 +40,6 @@ class SeaPickle extends Transparent implements Waterloggable{
 	protected function describeBlockOnlyState(RuntimeDataDescriber $w) : void{
 		$w->boundedIntAuto(self::MIN_COUNT, self::MAX_COUNT, $this->count);
 		$w->bool($this->underwater);
-		// include waterlogged state
-		$this->describeWaterloggedState($w);
 	}
 
 	public function getCount() : int{ return $this->count; }
@@ -88,19 +83,7 @@ class SeaPickle extends Transparent implements Waterloggable{
 	}
 
 	public function place(BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
-		// If placing into liquid, mark as underwater and waterlogged
-		if($blockReplace instanceof \pocketmine\block\Liquid){
-			$b = clone $this;
-			$b->underwater = true;
-			$b->setWaterlogged(true);
-			if($blockReplace instanceof SeaPickle && $blockReplace->count < self::MAX_COUNT){
-				$b->count = $blockReplace->count + 1;
-			}
-			$tx->addBlock($blockReplace->position, $b);
-			return true;
-		}
-
-		$this->underwater = false;
+		$this->underwater = false; //TODO: implement this once we have new water logic in place
 		if($blockReplace instanceof SeaPickle && $blockReplace->count < self::MAX_COUNT){
 			$this->count = $blockReplace->count + 1;
 		}

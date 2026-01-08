@@ -23,41 +23,22 @@ declare(strict_types=1);
 
 namespace pocketmine\item;
 
-use pocketmine\block\utils\BannerPatternType;
 use pocketmine\block\utils\RecordType;
 use pocketmine\block\VanillaBlocks as Blocks;
-use pocketmine\entity\Axolotl;
-use pocketmine\entity\Bee;
-use pocketmine\entity\Cow;
 use pocketmine\entity\Entity;
-use pocketmine\entity\EntityFactory;
-use pocketmine\entity\hostile\Creeper;
 use pocketmine\entity\Location;
-use pocketmine\entity\passive\Allay;
-use pocketmine\entity\passive\Chicken;
-use pocketmine\entity\Pig;
-use pocketmine\entity\Sheep;
 use pocketmine\entity\Squid;
-use pocketmine\entity\VillagerV2;
+use pocketmine\entity\Villager;
 use pocketmine\entity\Zombie;
-use pocketmine\entity\ZombiePigman;
 use pocketmine\inventory\ArmorInventory;
 use pocketmine\item\enchantment\ItemEnchantmentTags as EnchantmentTags;
 use pocketmine\item\ItemIdentifier as IID;
 use pocketmine\item\VanillaArmorMaterials as ArmorMaterials;
 use pocketmine\math\Vector3;
-use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\nbt\tag\DoubleTag;
-use pocketmine\nbt\tag\FloatTag;
-use pocketmine\nbt\tag\ListTag;
 use pocketmine\utils\CloningRegistryTrait;
-use pocketmine\utils\GlobalLogger;
 use pocketmine\world\World;
-use pocketmine\world\sound\BucketEmptyPowderSnowSound;
-use pocketmine\utils\Utils;
 use function is_int;
 use function mb_strtoupper;
-use function mt_rand;
 use function strtolower;
 
 /**
@@ -68,7 +49,6 @@ use function strtolower;
  *
  * @method static Boat ACACIA_BOAT()
  * @method static HangingSign ACACIA_HANGING_SIGN()
- * @method static ItemBlock ACACIA_SHELF()
  * @method static ItemBlockWallOrFloor ACACIA_SIGN()
  * @method static ItemBlock AIR()
  * @method static Item AMETHYST_SHARD()
@@ -82,7 +62,6 @@ use function strtolower;
  * @method static BeetrootSoup BEETROOT_SOUP()
  * @method static Boat BIRCH_BOAT()
  * @method static HangingSign BIRCH_HANGING_SIGN()
- * @method static ItemBlock BIRCH_SHELF()
  * @method static ItemBlockWallOrFloor BIRCH_SIGN()
  * @method static Item BLAZE_POWDER()
  * @method static BlazeRod BLAZE_ROD()
@@ -140,7 +119,6 @@ use function strtolower;
  * @method static Item CHEMICAL_TUNGSTEN_CHLORIDE()
  * @method static Item CHEMICAL_WATER()
  * @method static HangingSign CHERRY_HANGING_SIGN()
- * @method static ItemBlock CHERRY_SHELF()
  * @method static ItemBlockWallOrFloor CHERRY_SIGN()
  * @method static ChorusFruit CHORUS_FRUIT()
  * @method static Item CLAY()
@@ -159,24 +137,20 @@ use function strtolower;
  * @method static Cookie COOKIE()
  * @method static Axe COPPER_AXE()
  * @method static Armor COPPER_BOOTS()
- * @method static ItemBlock COPPER_CHEST()
  * @method static Armor COPPER_CHESTPLATE()
- * @method static ItemBlock COPPER_GOLEM_STATUE()
  * @method static Armor COPPER_HELMET()
  * @method static Hoe COPPER_HOE()
  * @method static Item COPPER_INGOT()
  * @method static Armor COPPER_LEGGINGS()
+ * @method static Item COPPER_NUGGET()
  * @method static Pickaxe COPPER_PICKAXE()
  * @method static Shovel COPPER_SHOVEL()
  * @method static Sword COPPER_SWORD()
  * @method static CoralFan CORAL_FAN()
  * @method static HangingSign CRIMSON_HANGING_SIGN()
- * @method static ItemBlock CRIMSON_SHELF()
  * @method static ItemBlockWallOrFloor CRIMSON_SIGN()
- * @method static Crossbow CROSSBOW()
  * @method static Boat DARK_OAK_BOAT()
  * @method static HangingSign DARK_OAK_HANGING_SIGN()
- * @method static ItemBlock DARK_OAK_SHELF()
  * @method static ItemBlockWallOrFloor DARK_OAK_SIGN()
  * @method static Item DIAMOND()
  * @method static Axe DIAMOND_AXE()
@@ -195,14 +169,12 @@ use function strtolower;
  * @method static Dye DYE()
  * @method static Item ECHO_SHARD()
  * @method static Egg EGG()
- * @method static Elytra ELYTRA()
  * @method static Item EMERALD()
  * @method static EnchantedBook ENCHANTED_BOOK()
  * @method static GoldenAppleEnchanted ENCHANTED_GOLDEN_APPLE()
  * @method static EnderPearl ENDER_PEARL()
  * @method static EndCrystal END_CRYSTAL()
  * @method static ExperienceBottle EXPERIENCE_BOTTLE()
- * @method static ItemBlock EXPOSED_COPPER_GOLEM_STATUE()
  * @method static Item EYE_ARMOR_TRIM_SMITHING_TEMPLATE()
  * @method static Item FEATHER()
  * @method static Item FERMENTED_SPIDER_EYE()
@@ -232,7 +204,6 @@ use function strtolower;
  * @method static Sword GOLDEN_SWORD()
  * @method static Item GOLD_INGOT()
  * @method static Item GOLD_NUGGET()
- * @method static Item COPPER_NUGGET()
  * @method static Item GUNPOWDER()
  * @method static Item HEART_OF_THE_SEA()
  * @method static Item HONEYCOMB()
@@ -253,7 +224,6 @@ use function strtolower;
  * @method static Sword IRON_SWORD()
  * @method static Boat JUNGLE_BOAT()
  * @method static HangingSign JUNGLE_HANGING_SIGN()
- * @method static ItemBlock JUNGLE_SHELF()
  * @method static ItemBlockWallOrFloor JUNGLE_SIGN()
  * @method static Item LAPIS_LAZULI()
  * @method static LiquidBucket LAVA_BUCKET()
@@ -262,11 +232,10 @@ use function strtolower;
  * @method static Armor LEATHER_CAP()
  * @method static Armor LEATHER_PANTS()
  * @method static Armor LEATHER_TUNIC()
- * @method static Mace MACE()
+ * @method static SplashPotion LINGERING_POTION()
  * @method static Item MAGMA_CREAM()
  * @method static Boat MANGROVE_BOAT()
  * @method static HangingSign MANGROVE_HANGING_SIGN()
- * @method static ItemBlock MANGROVE_SHELF()
  * @method static ItemBlockWallOrFloor MANGROVE_SIGN()
  * @method static Medicine MEDICINE()
  * @method static Melon MELON()
@@ -293,13 +262,10 @@ use function strtolower;
  * @method static Item NETHER_STAR()
  * @method static Boat OAK_BOAT()
  * @method static HangingSign OAK_HANGING_SIGN()
- * @method static ItemBlock OAK_SHELF()
  * @method static ItemBlockWallOrFloor OAK_SIGN()
  * @method static ItemBlockWallOrFloor OMINOUS_BANNER()
- * @method static ItemBlock OXIDIZED_COPPER_GOLEM_STATUE()
  * @method static PaintingItem PAINTING()
  * @method static HangingSign PALE_OAK_HANGING_SIGN()
- * @method static ItemBlock PALE_OAK_SHELF()
  * @method static ItemBlockWallOrFloor PALE_OAK_SIGN()
  * @method static Item PAPER()
  * @method static Item PHANTOM_MEMBRANE()
@@ -308,7 +274,6 @@ use function strtolower;
  * @method static Item POPPED_CHORUS_FRUIT()
  * @method static Potato POTATO()
  * @method static Potion POTION()
- * @method static SolidBucket POWDER_SNOW_BUCKET()
  * @method static Item PRISMARINE_CRYSTALS()
  * @method static Item PRISMARINE_SHARD()
  * @method static Pufferfish PUFFERFISH()
@@ -337,7 +302,6 @@ use function strtolower;
  * @method static Record RECORD_CREATOR()
  * @method static Record RECORD_CREATOR_MUSIC_BOX()
  * @method static Record RECORD_FAR()
- * @method static Record RECORD_LAVA_CHICKEN()
  * @method static Record RECORD_MALL()
  * @method static Record RECORD_MELLOHI()
  * @method static Record RECORD_OTHERSIDE()
@@ -354,7 +318,6 @@ use function strtolower;
  * @method static Item RIB_ARMOR_TRIM_SMITHING_TEMPLATE()
  * @method static RottenFlesh ROTTEN_FLESH()
  * @method static Item SCUTE()
- * @method static Seagrass SEAGRASS()
  * @method static Item SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE()
  * @method static Item SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE()
  * @method static Shears SHEARS()
@@ -368,7 +331,6 @@ use function strtolower;
  * @method static SplashPotion SPLASH_POTION()
  * @method static Boat SPRUCE_BOAT()
  * @method static HangingSign SPRUCE_HANGING_SIGN()
- * @method static ItemBlock SPRUCE_SHELF()
  * @method static ItemBlockWallOrFloor SPRUCE_SIGN()
  * @method static Spyglass SPYGLASS()
  * @method static SpawnEgg SQUID_SPAWN_EGG()
@@ -392,19 +354,12 @@ use function strtolower;
  * @method static SpawnEgg VILLAGER_SPAWN_EGG()
  * @method static Item WARD_ARMOR_TRIM_SMITHING_TEMPLATE()
  * @method static HangingSign WARPED_HANGING_SIGN()
- * @method static ItemBlock WARPED_SHELF()
  * @method static ItemBlockWallOrFloor WARPED_SIGN()
  * @method static LiquidBucket WATER_BUCKET()
- * @method static ItemBlock WAXED_COPPER_GOLEM_STATUE()
- * @method static ItemBlock WAXED_EXPOSED_COPPER_GOLEM_STATUE()
- * @method static ItemBlock WAXED_OXIDIZED_COPPER_GOLEM_STATUE()
- * @method static ItemBlock WAXED_WEATHERED_COPPER_GOLEM_STATUE()
  * @method static Item WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE()
- * @method static ItemBlock WEATHERED_COPPER_GOLEM_STATUE()
  * @method static Item WHEAT()
  * @method static WheatSeeds WHEAT_SEEDS()
  * @method static Item WILD_ARMOR_TRIM_SMITHING_TEMPLATE()
- * @method static WindCharge WIND_CHARGE()
  * @method static Axe WOODEN_AXE()
  * @method static Hoe WOODEN_HOE()
  * @method static Pickaxe WOODEN_PICKAXE()
@@ -413,33 +368,11 @@ use function strtolower;
  * @method static WritableBook WRITABLE_BOOK()
  * @method static WrittenBook WRITTEN_BOOK()
  * @method static SpawnEgg ZOMBIE_SPAWN_EGG()
- * @method static SpawnEgg ZOMBIE_PIGMAN_SPAWN_EGG()
- * @method static SpawnEgg AXOLOTL_SPAWN_EGG()
- * @method static SpawnEgg CHICKEN_SPAWN_EGG()
- * @method static SpawnEgg COW_SPAWN_EGG()
- * @method static SpawnEgg PIG_SPAWN_EGG()
- * @method static SpawnEgg SHEEP_SPAWN_EGG()
- * @method static SpawnEgg ALLAY_SPAWN_EGG()
- * @method static SpawnEgg BEE_SPAWN_EGG()
- * @method static Item AXOLOTL_BUCKET()
- * @method static ItemBlock SCAFFOLDING()
- * 
- * @method static Bundle BUNDLE()
- * 
- * @method static Spear WOODEN_SPEAR()
- * @method static Spear STONE_SPEAR()
- * @method static Spear COPPER_SPEAR()
- * @method static Spear IRON_SPEAR()
- * @method static Spear GOLDEN_SPEAR()
- * @method static Spear DIAMOND_SPEAR()
- * @method static Spear NETHERITE_SPEAR()
  */
-final class VanillaItems
-{
+final class VanillaItems{
 	use CloningRegistryTrait;
 
-	private function __construct()
-	{
+	private function __construct(){
 		//NOOP
 	}
 
@@ -448,14 +381,13 @@ final class VanillaItems
 	 * @phpstan-param \Closure(IID) : TItem $createItem
 	 * @phpstan-return TItem
 	 */
-	protected static function register(string $name, \Closure $createItem): Item
-	{
+	protected static function register(string $name, \Closure $createItem) : Item{
 		//this sketchy hack allows us to avoid manually writing the constants inline
 		//since type IDs are generated from this class anyway, I'm OK with this hack
 		//nonetheless, we should try to get rid of it in a future major version (e.g by using string type IDs)
 		$reflect = new \ReflectionClass(ItemTypeIds::class);
 		$typeId = $reflect->getConstant(mb_strtoupper($name));
-		if (!is_int($typeId)) {
+		if(!is_int($typeId)){
 			//this allows registering new stuff without adding new type ID constants
 			//this reduces the number of mandatory steps to test new features in local development
 			\GlobalLogger::get()->error(self::class . ": No constant type ID found for $name, generating a new one");
@@ -473,16 +405,14 @@ final class VanillaItems
 	 * @return Item[]
 	 * @phpstan-return array<string, Item>
 	 */
-	public static function getAll(): array
-	{
+	public static function getAll() : array{
 		//phpstan doesn't support generic traits yet :(
 		/** @var Item[] $result */
 		$result = self::_registryGetAll();
 		return $result;
 	}
 
-	protected static function setup(): void
-	{
+	protected static function setup() : void{
 		self::registerArmorItems();
 		self::registerSpawnEggs();
 		self::registerTierToolItems();
@@ -494,115 +424,32 @@ final class VanillaItems
 
 		self::register("acacia_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::ACACIA_SIGN(), Blocks::ACACIA_WALL_SIGN()));
 		self::register("acacia_hanging_sign", fn(IID $id) => new HangingSign($id, "Acacia Hanging Sign", Blocks::ACACIA_CEILING_CENTER_HANGING_SIGN(), Blocks::ACACIA_CEILING_EDGES_HANGING_SIGN(), Blocks::ACACIA_WALL_HANGING_SIGN()));
-		self::register("acacia_shelf", fn() => new ItemBlock(Blocks::ACACIA_SHELF()));
 		self::register("amethyst_shard", fn(IID $id) => new Item($id, "Amethyst Shard"));
 		self::register("apple", fn(IID $id) => new Apple($id, "Apple"));
 		self::register("arrow", fn(IID $id) => new Arrow($id, "Arrow"));
-		// Spectral and tipped arrow variants (appear in creative/inventories)
-		self::register("spectral_arrow", fn(IID $id) => new Arrow($id, "Spectral Arrow"));
-		// Tipped arrows for potion effects (named to match vanilla-like identifiers)
-		self::register("tipped_arrow_night_vision", fn(IID $id) => new Arrow($id, "Tipped Arrow (Night Vision)"));
-		self::register("tipped_arrow_long_night_vision", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Night Vision)"));
-		self::register("tipped_arrow_invisibility", fn(IID $id) => new Arrow($id, "Tipped Arrow (Invisibility)"));
-		self::register("tipped_arrow_long_invisibility", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Invisibility)"));
-		self::register("tipped_arrow_leaping", fn(IID $id) => new Arrow($id, "Tipped Arrow (Leaping)"));
-		self::register("tipped_arrow_long_leaping", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Leaping)"));
-		self::register("tipped_arrow_strong_leaping", fn(IID $id) => new Arrow($id, "Tipped Arrow (Strong Leaping)"));
-		self::register("tipped_arrow_fire_resistance", fn(IID $id) => new Arrow($id, "Tipped Arrow (Fire Resistance)"));
-		self::register("tipped_arrow_long_fire_resistance", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Fire Resistance)"));
-		self::register("tipped_arrow_swiftness", fn(IID $id) => new Arrow($id, "Tipped Arrow (Swiftness)"));
-		self::register("tipped_arrow_long_swiftness", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Swiftness)"));
-		self::register("tipped_arrow_strong_swiftness", fn(IID $id) => new Arrow($id, "Tipped Arrow (Strong Swiftness)"));
-		self::register("tipped_arrow_slowness", fn(IID $id) => new Arrow($id, "Tipped Arrow (Slowness)"));
-		self::register("tipped_arrow_long_slowness", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Slowness)"));
-		self::register("tipped_arrow_water_breathing", fn(IID $id) => new Arrow($id, "Tipped Arrow (Water Breathing)"));
-		self::register("tipped_arrow_long_water_breathing", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Water Breathing)"));
-		self::register("tipped_arrow_healing", fn(IID $id) => new Arrow($id, "Tipped Arrow (Healing)"));
-		self::register("tipped_arrow_strong_healing", fn(IID $id) => new Arrow($id, "Tipped Arrow (Strong Healing)"));
-		self::register("tipped_arrow_harming", fn(IID $id) => new Arrow($id, "Tipped Arrow (Harming)"));
-		self::register("tipped_arrow_strong_harming", fn(IID $id) => new Arrow($id, "Tipped Arrow (Strong Harming)"));
-		self::register("tipped_arrow_poison", fn(IID $id) => new Arrow($id, "Tipped Arrow (Poison)"));
-		self::register("tipped_arrow_long_poison", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Poison)"));
-		self::register("tipped_arrow_strong_poison", fn(IID $id) => new Arrow($id, "Tipped Arrow (Strong Poison)"));
-		self::register("tipped_arrow_regeneration", fn(IID $id) => new Arrow($id, "Tipped Arrow (Regeneration)"));
-		self::register("tipped_arrow_long_regeneration", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Regeneration)"));
-		self::register("tipped_arrow_strong_regeneration", fn(IID $id) => new Arrow($id, "Tipped Arrow (Strong Regeneration)"));
-		self::register("tipped_arrow_strength", fn(IID $id) => new Arrow($id, "Tipped Arrow (Strength)"));
-		self::register("tipped_arrow_long_strength", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Strength)"));
-		self::register("tipped_arrow_strong_strength", fn(IID $id) => new Arrow($id, "Tipped Arrow (Strong Strength)"));
-		self::register("tipped_arrow_weakness", fn(IID $id) => new Arrow($id, "Tipped Arrow (Weakness)"));
-		self::register("tipped_arrow_long_weakness", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Weakness)"));
-		self::register("tipped_arrow_wither", fn(IID $id) => new Arrow($id, "Tipped Arrow (Wither)"));
-		self::register("tipped_arrow_turtle_master", fn(IID $id) => new Arrow($id, "Tipped Arrow (Turtle Master)"));
-		self::register("tipped_arrow_long_turtle_master", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Turtle Master)"));
-		self::register("tipped_arrow_strong_turtle_master", fn(IID $id) => new Arrow($id, "Tipped Arrow (Strong Turtle Master)"));
-		self::register("tipped_arrow_slow_falling", fn(IID $id) => new Arrow($id, "Tipped Arrow (Slow Falling)"));
-		self::register("tipped_arrow_long_slow_falling", fn(IID $id) => new Arrow($id, "Tipped Arrow (Long Slow Falling)"));
-		self::register("tipped_arrow_strong_slowness", fn(IID $id) => new Arrow($id, "Tipped Arrow (Strong Slowness)"));
 		self::register("baked_potato", fn(IID $id) => new BakedPotato($id, "Baked Potato"));
 		self::register("bamboo", fn(IID $id) => new Bamboo($id, "Bamboo"));
-		self::register("bamboo_planks", fn() => new ItemBlock(Blocks::BAMBOO_PLANKS()));
-		self::register("bamboo_mosaic", fn() => new ItemBlock(Blocks::BAMBOO_MOSAIC()));
-		self::register("bamboo_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::BAMBOO_SIGN(), Blocks::BAMBOO_WALL_SIGN()));
-		self::register("bamboo_hanging_sign", fn(IID $id) => new HangingSign($id, "Bamboo Hanging Sign", Blocks::BAMBOO_CEILING_CENTER_HANGING_SIGN(), Blocks::BAMBOO_CEILING_EDGES_HANGING_SIGN(), Blocks::BAMBOO_WALL_HANGING_SIGN()));
-		self::register("bamboo_shelf", fn() => new ItemBlock(Blocks::BAMBOO_SHELF()));
-
-		// Additional bamboo block-items so all bamboo variants appear in inventories and /give
-		self::register("bamboo_log", fn() => new ItemBlock(Blocks::BAMBOO_LOG()));
-		self::register("bamboo_wood", fn() => new ItemBlock(Blocks::BAMBOO_WOOD()));
-		self::register("bamboo_fence", fn() => new ItemBlock(Blocks::BAMBOO_FENCE()));
-		self::register("bamboo_slab", fn() => new ItemBlock(Blocks::BAMBOO_SLAB()));
-		self::register("bamboo_fence_gate", fn() => new ItemBlock(Blocks::BAMBOO_FENCE_GATE()));
-		self::register("bamboo_stairs", fn() => new ItemBlock(Blocks::BAMBOO_STAIRS()));
-		self::register("bamboo_door", fn() => new ItemBlock(Blocks::BAMBOO_DOOR()));
-		self::register("bamboo_button", fn() => new ItemBlock(Blocks::BAMBOO_BUTTON()));
-		self::register("bamboo_pressure_plate", fn() => new ItemBlock(Blocks::BAMBOO_PRESSURE_PLATE()));
-		self::register("bamboo_trapdoor", fn() => new ItemBlock(Blocks::BAMBOO_TRAPDOOR()));
 		self::register("banner", fn(IID $id) => new Banner($id, Blocks::BANNER(), Blocks::WALL_BANNER()));
-		self::register("bordure_indented_banner_pattern", fn(IID $id) => new BannerPatternItem($id, "Bordure Indented Banner Pattern", BannerPatternType::CURLY_BORDER));
-		self::register("creeper_banner_pattern", fn(IID $id) => new BannerPatternItem($id, "Creeper Charge Banner Pattern", BannerPatternType::CREEPER));
-		self::register("field_masoned_banner_pattern", fn(IID $id) => new BannerPatternItem($id, "Field Masoned Banner Pattern", BannerPatternType::BRICKS));
-		self::register("flow_banner_pattern", fn(IID $id) => new BannerPatternItem($id, "Flow Banner Pattern", BannerPatternType::FLOW));
-		self::register("flower_banner_pattern", fn(IID $id) => new BannerPatternItem($id, "Flower Charge Banner Pattern", BannerPatternType::FLOWER));
-		self::register("globe_banner_pattern", fn(IID $id) => new BannerPatternItem($id, "Globe Banner Pattern", BannerPatternType::GLOBE));
-		self::register("guster_banner_pattern", fn(IID $id) => new BannerPatternItem($id, "Guster Banner Pattern", BannerPatternType::GUSTER));
-		self::register("mojang_banner_pattern", fn(IID $id) => new BannerPatternItem($id, "Mojang Banner Pattern", BannerPatternType::MOJANG));
-		self::register("piglin_banner_pattern", fn(IID $id) => new BannerPatternItem($id, "Snout Banner Pattern", BannerPatternType::PIGLIN));
-		self::register("skull_banner_pattern", fn(IID $id) => new BannerPatternItem($id, "Skull Charge Banner Pattern", BannerPatternType::SKULL));
 		self::register("beetroot", fn(IID $id) => new Beetroot($id, "Beetroot"));
 		self::register("beetroot_seeds", fn(IID $id) => new BeetrootSeeds($id, "Beetroot Seeds"));
 		self::register("beetroot_soup", fn(IID $id) => new BeetrootSoup($id, "Beetroot Soup"));
 		self::register("birch_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::BIRCH_SIGN(), Blocks::BIRCH_WALL_SIGN()));
 		self::register("birch_hanging_sign", fn(IID $id) => new HangingSign($id, "Birch Hanging Sign", Blocks::BIRCH_CEILING_CENTER_HANGING_SIGN(), Blocks::BIRCH_CEILING_EDGES_HANGING_SIGN(), Blocks::BIRCH_WALL_HANGING_SIGN()));
-		self::register("birch_shelf", fn() => new ItemBlock(Blocks::BIRCH_SHELF()));
 		self::register("blaze_powder", fn(IID $id) => new Item($id, "Blaze Powder"));
 		self::register("blaze_rod", fn(IID $id) => new BlazeRod($id, "Blaze Rod"));
-		self::register("breeze_rod", fn(IID $id) => new BreezeRod($id));
 		self::register("bleach", fn(IID $id) => new Item($id, "Bleach"));
 		self::register("bone", fn(IID $id) => new Item($id, "Bone"));
 		self::register("bone_meal", fn(IID $id) => new Fertilizer($id, "Bone Meal"));
 		self::register("book", fn(IID $id) => new Book($id, "Book", [EnchantmentTags::ALL]));
-		// Bundle item (custom): register so VanillaItems::BUNDLE() becomes available
-		self::register("bundle", fn(IID $id) => new Bundle($id, "Bundle"));
-		// self::register("blue_bundle", fn(IID $id) => new Bundle($id, "Blue Bundle"));
 		self::register("bow", fn(IID $id) => new Bow($id, "Bow", [EnchantmentTags::BOW]));
-		self::register("crossbow", fn(IID $id) => new Crossbow($id, "Crossbow", [EnchantmentTags::CROSSBOW]));
 		self::register("bowl", fn(IID $id) => new Bowl($id, "Bowl"));
 		self::register("bread", fn(IID $id) => new Bread($id, "Bread"));
 		self::register("brick", fn(IID $id) => new Item($id, "Brick"));
 		self::register("bucket", fn(IID $id) => new Bucket($id, "Bucket"));
-		self::register("axolotl_bucket", fn(IID $id) => new MobBucketItem($id, "Bucket of Axolotl"));
-		self::register("bee_bucket", fn(IID $id) => new BeeBucket($id, "Bee Bucket"));
-		self::register("cod_bucket", fn(IID $id) => new MobBucketItem($id, "Bucket of Cod"));
-		self::register("pufferfish_bucket", fn(IID $id) => new MobBucketItem($id, "Bucket of Pufferfish"));
-		self::register("salmon_bucket", fn(IID $id) => new MobBucketItem($id, "Bucket of Salmon"));
-		self::register("tadpole_bucket", fn(IID $id) => new MobBucketItem($id, "Bucket of Tadpole"));
-		self::register("tropical_fish_bucket", fn(IID $id) => new MobBucketItem($id, "Bucket of Tropical Fish"));
 		self::register("carrot", fn(IID $id) => new Carrot($id, "Carrot"));
 		self::register("charcoal", fn(IID $id) => new Coal($id, "Charcoal"));
 		self::register("cherry_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::CHERRY_SIGN(), Blocks::CHERRY_WALL_SIGN()));
 		self::register("cherry_hanging_sign", fn(IID $id) => new HangingSign($id, "Cherry Hanging Sign", Blocks::CHERRY_CEILING_CENTER_HANGING_SIGN(), Blocks::CHERRY_CEILING_EDGES_HANGING_SIGN(), Blocks::CHERRY_WALL_HANGING_SIGN()));
-		self::register("cherry_shelf", fn() => new ItemBlock(Blocks::CHERRY_SHELF()));
 		self::register("chemical_aluminium_oxide", fn(IID $id) => new Item($id, "Aluminium Oxide"));
 		self::register("chemical_ammonia", fn(IID $id) => new Item($id, "Ammonia"));
 		self::register("chemical_barium_sulphate", fn(IID $id) => new Item($id, "Barium Sulphate"));
@@ -656,18 +503,16 @@ final class VanillaItems
 		self::register("cooked_salmon", fn(IID $id) => new CookedSalmon($id, "Cooked Salmon"));
 		self::register("cookie", fn(IID $id) => new Cookie($id, "Cookie"));
 		self::register("copper_ingot", fn(IID $id) => new Item($id, "Copper Ingot"));
+		self::register("copper_nugget", fn(IID $id) => new Item($id, "Copper Nugget"));
 		self::register("coral_fan", fn(IID $id) => new CoralFan($id));
 		self::register("crimson_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::CRIMSON_SIGN(), Blocks::CRIMSON_WALL_SIGN()));
 		self::register("crimson_hanging_sign", fn(IID $id) => new HangingSign($id, "Crimson Hanging Sign", Blocks::CRIMSON_CEILING_CENTER_HANGING_SIGN(), Blocks::CRIMSON_CEILING_EDGES_HANGING_SIGN(), Blocks::CRIMSON_WALL_HANGING_SIGN()));
-		self::register("crimson_shelf", fn() => new ItemBlock(Blocks::CRIMSON_SHELF()));
 		self::register("dark_oak_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::DARK_OAK_SIGN(), Blocks::DARK_OAK_WALL_SIGN()));
 		self::register("dark_oak_hanging_sign", fn(IID $id) => new HangingSign($id, "Dark Oak Hanging Sign", Blocks::DARK_OAK_CEILING_CENTER_HANGING_SIGN(), Blocks::DARK_OAK_CEILING_EDGES_HANGING_SIGN(), Blocks::DARK_OAK_WALL_HANGING_SIGN()));
-		self::register("dark_oak_shelf", fn() => new ItemBlock(Blocks::DARK_OAK_SHELF()));
 		self::register("diamond", fn(IID $id) => new Item($id, "Diamond"));
 		self::register("disc_fragment_5", fn(IID $id) => new Item($id, "Disc Fragment (5)"));
 		self::register("dragon_breath", fn(IID $id) => new Item($id, "Dragon's Breath"));
 		self::register("dried_kelp", fn(IID $id) => new DriedKelp($id, "Dried Kelp"));
-		self::register("seagrass", fn(IID $id) => new Seagrass($id, "Seagrass"));
 		//TODO: add interface to dye-colour objects
 		self::register("dye", fn(IID $id) => new Dye($id, "Dye"));
 		self::register("echo_shard", fn(IID $id) => new Item($id, "Echo Shard"));
@@ -695,33 +540,25 @@ final class VanillaItems
 		self::register("goat_horn", fn(IID $id) => new GoatHorn($id, "Goat Horn"));
 		self::register("gold_ingot", fn(IID $id) => new Item($id, "Gold Ingot"));
 		self::register("gold_nugget", fn(IID $id) => new Item($id, "Gold Nugget"));
-		self::register("copper_nugget", fn(IID $id) => new Item($id, "Copper Nugget"));
 		self::register("golden_apple", fn(IID $id) => new GoldenApple($id, "Golden Apple"));
 		self::register("golden_carrot", fn(IID $id) => new GoldenCarrot($id, "Golden Carrot"));
 		self::register("gunpowder", fn(IID $id) => new Item($id, "Gunpowder"));
 		self::register("heart_of_the_sea", fn(IID $id) => new Item($id, "Heart of the Sea"));
-		self::register("heavy_core", fn(IID $id) => new HeavyCore($id));
 		self::register("honey_bottle", fn(IID $id) => new HoneyBottle($id, "Honey Bottle"));
 		self::register("honeycomb", fn(IID $id) => new Item($id, "Honeycomb"));
-		self::register("honey_block", fn() => new ItemBlock(Blocks::HONEY_BLOCK()));
-		// Register beehive as a block-item so it appears in inventories and can be placed
-		self::_registryRegister("beehive", Blocks::BEEHIVE()->asItem());
-		self::register("scaffolding", fn() => new ItemBlock(Blocks::SCAFFOLDING()));
 		self::register("ice_bomb", fn(IID $id) => new IceBomb($id, "Ice Bomb"));
 		self::register("ink_sac", fn(IID $id) => new Item($id, "Ink Sac"));
-		self::register("lightning_rod", fn() => new ItemBlock(Blocks::LIGHTNING_ROD()));
 		self::register("iron_ingot", fn(IID $id) => new Item($id, "Iron Ingot"));
 		self::register("iron_nugget", fn(IID $id) => new Item($id, "Iron Nugget"));
 		self::register("jungle_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::JUNGLE_SIGN(), Blocks::JUNGLE_WALL_SIGN()));
 		self::register("jungle_hanging_sign", fn(IID $id) => new HangingSign($id, "Jungle Hanging Sign", Blocks::JUNGLE_CEILING_CENTER_HANGING_SIGN(), Blocks::JUNGLE_CEILING_EDGES_HANGING_SIGN(), Blocks::JUNGLE_WALL_HANGING_SIGN()));
-		self::register("jungle_shelf", fn() => new ItemBlock(Blocks::JUNGLE_SHELF()));
 		self::register("lapis_lazuli", fn(IID $id) => new Item($id, "Lapis Lazuli"));
 		self::register("lava_bucket", fn(IID $id) => new LiquidBucket($id, "Lava Bucket", Blocks::LAVA()));
 		self::register("leather", fn(IID $id) => new Item($id, "Leather"));
+		self::register("lingering_potion", fn(IID $id) => new SplashPotion($id, "Lingering Potion", linger: true));
 		self::register("magma_cream", fn(IID $id) => new Item($id, "Magma Cream"));
 		self::register("mangrove_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::MANGROVE_SIGN(), Blocks::MANGROVE_WALL_SIGN()));
 		self::register("mangrove_hanging_sign", fn(IID $id) => new HangingSign($id, "Mangrove Hanging Sign", Blocks::MANGROVE_CEILING_CENTER_HANGING_SIGN(), Blocks::MANGROVE_CEILING_EDGES_HANGING_SIGN(), Blocks::MANGROVE_WALL_HANGING_SIGN()));
-		self::register("mangrove_shelf", fn() => new ItemBlock(Blocks::MANGROVE_SHELF()));
 		self::register("medicine", fn(IID $id) => new Medicine($id, "Medicine"));
 		self::register("melon", fn(IID $id) => new Melon($id, "Melon"));
 		self::register("melon_seeds", fn(IID $id) => new MelonSeeds($id, "Melon Seeds"));
@@ -733,28 +570,18 @@ final class VanillaItems
 		self::register("nether_brick", fn(IID $id) => new Item($id, "Nether Brick"));
 		self::register("nether_quartz", fn(IID $id) => new Item($id, "Nether Quartz"));
 		self::register("nether_star", fn(IID $id) => new Item($id, "Nether Star"));
-		self::register("netherite_ingot", fn(IID $id) => new class($id, "Netherite Ingot") extends Item {
-			public function isFireProof(): bool
-			{
-				return true;
-			}
+		self::register("netherite_ingot", fn(IID $id) => new class($id, "Netherite Ingot") extends Item{
+			public function isFireProof() : bool{ return true; }
 		});
-		self::register("netherite_scrap", fn(IID $id) => new class($id, "Netherite Scrap") extends Item {
-			public function isFireProof(): bool
-			{
-				return true;
-			}
+		self::register("netherite_scrap", fn(IID $id) => new class($id, "Netherite Scrap") extends Item{
+			public function isFireProof() : bool{ return true; }
 		});
 		self::register("oak_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::OAK_SIGN(), Blocks::OAK_WALL_SIGN()));
 		self::register("oak_hanging_sign", fn(IID $id) => new HangingSign($id, "Oak Hanging Sign", Blocks::OAK_CEILING_CENTER_HANGING_SIGN(), Blocks::OAK_CEILING_EDGES_HANGING_SIGN(), Blocks::OAK_WALL_HANGING_SIGN()));
-		self::register("oak_shelf", fn() => new ItemBlock(Blocks::OAK_SHELF()));
-
 		self::register("ominous_banner", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::OMINOUS_BANNER(), Blocks::OMINOUS_WALL_BANNER()));
 		self::register("painting", fn(IID $id) => new PaintingItem($id, "Painting"));
-		self::register("armor_stand", fn(IID $id) => new ArmorStandItem($id, "Armor Stand"));
 		self::register("pale_oak_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::PALE_OAK_SIGN(), Blocks::PALE_OAK_WALL_SIGN()));
 		self::register("pale_oak_hanging_sign", fn(IID $id) => new HangingSign($id, "Pale Oak Hanging Sign", Blocks::PALE_OAK_CEILING_CENTER_HANGING_SIGN(), Blocks::PALE_OAK_CEILING_EDGES_HANGING_SIGN(), Blocks::PALE_OAK_WALL_HANGING_SIGN()));
-		self::register("pale_oak_shelf", fn() => new ItemBlock(Blocks::PALE_OAK_SHELF()));
 		self::register("paper", fn(IID $id) => new Item($id, "Paper"));
 		self::register("phantom_membrane", fn(IID $id) => new Item($id, "Phantom Membrane"));
 		self::register("pitcher_pod", fn(IID $id) => new PitcherPod($id, "Pitcher Pod"));
@@ -762,8 +589,6 @@ final class VanillaItems
 		self::register("popped_chorus_fruit", fn(IID $id) => new Item($id, "Popped Chorus Fruit"));
 		self::register("potato", fn(IID $id) => new Potato($id, "Potato"));
 		self::register("potion", fn(IID $id) => new Potion($id, "Potion"));
-		self::register("powder_snow_bucket", fn(IID $id) => new SolidBucket($id, "Powder Snow Bucket", Blocks::POWDER_SNOW(), new BucketEmptyPowderSnowSound()));
-
 		self::register("prismarine_crystals", fn(IID $id) => new Item($id, "Prismarine Crystals"));
 		self::register("prismarine_shard", fn(IID $id) => new Item($id, "Prismarine Shard"));
 		self::register("pufferfish", fn(IID $id) => new Pufferfish($id, "Pufferfish"));
@@ -775,18 +600,6 @@ final class VanillaItems
 		self::register("raw_beef", fn(IID $id) => new RawBeef($id, "Raw Beef"));
 		self::register("raw_chicken", fn(IID $id) => new RawChicken($id, "Raw Chicken"));
 		self::register("raw_copper", fn(IID $id) => new Item($id, "Raw Copper"));
-		// register copper chest as a block-item (use the block's asItem() to get proper block-based item identifier)
-		self::_registryRegister("copper_chest", Blocks::COPPER_CHEST()->asItem());
-
-		self::_registryRegister("copper_golem_statue", Blocks::COPPER_GOLEM_STATUE()->asItem());
-		self::_registryRegister("exposed_copper_golem_statue", Blocks::EXPOSED_COPPER_GOLEM_STATUE()->asItem());
-		self::_registryRegister("weathered_copper_golem_statue", Blocks::WEATHERED_COPPER_GOLEM_STATUE()->asItem());
-		self::_registryRegister("oxidized_copper_golem_statue", Blocks::OXIDIZED_COPPER_GOLEM_STATUE()->asItem());
-		self::_registryRegister("waxed_copper_golem_statue", Blocks::WAXED_COPPER_GOLEM_STATUE()->asItem());
-		self::_registryRegister("waxed_exposed_copper_golem_statue", Blocks::WAXED_EXPOSED_COPPER_GOLEM_STATUE()->asItem());
-		self::_registryRegister("waxed_weathered_copper_golem_statue", Blocks::WAXED_WEATHERED_COPPER_GOLEM_STATUE()->asItem());
-		self::_registryRegister("waxed_oxidized_copper_golem_statue", Blocks::WAXED_OXIDIZED_COPPER_GOLEM_STATUE()->asItem());
-
 		self::register("raw_fish", fn(IID $id) => new RawFish($id, "Raw Fish"));
 		self::register("raw_gold", fn(IID $id) => new Item($id, "Raw Gold"));
 		self::register("raw_iron", fn(IID $id) => new Item($id, "Raw Iron"));
@@ -795,13 +608,6 @@ final class VanillaItems
 		self::register("raw_rabbit", fn(IID $id) => new RawRabbit($id, "Raw Rabbit"));
 		self::register("raw_salmon", fn(IID $id) => new RawSalmon($id, "Raw Salmon"));
 		self::register("record_11", fn(IID $id) => new Record($id, RecordType::DISK_11, "Record 11"));
-
-		// minecraft:music_disc_lava_chicken
-		// Register under the "record_*" name to match existing RECORD_* accessors used elsewhere
-		self::register("record_lava_chicken", fn(IID $id) => new Record($id, RecordType::MUSIC_DISC_LAVA_CHICKEN, "Music Disc Lava Chicken"));
-
-
-
 		self::register("record_13", fn(IID $id) => new Record($id, RecordType::DISK_13, "Record 13"));
 		self::register("record_5", fn(IID $id) => new Record($id, RecordType::DISK_5, "Record 5"));
 		self::register("record_blocks", fn(IID $id) => new Record($id, RecordType::DISK_BLOCKS, "Record Blocks"));
@@ -833,204 +639,69 @@ final class VanillaItems
 		self::register("splash_potion", fn(IID $id) => new SplashPotion($id, "Splash Potion"));
 		self::register("spruce_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::SPRUCE_SIGN(), Blocks::SPRUCE_WALL_SIGN()));
 		self::register("spruce_hanging_sign", fn(IID $id) => new HangingSign($id, "Spruce Hanging Sign", Blocks::SPRUCE_CEILING_CENTER_HANGING_SIGN(), Blocks::SPRUCE_CEILING_EDGES_HANGING_SIGN(), Blocks::SPRUCE_WALL_HANGING_SIGN()));
-		self::register("spruce_shelf", fn() => new ItemBlock(Blocks::SPRUCE_SHELF()));
 		self::register("spyglass", fn(IID $id) => new Spyglass($id, "Spyglass"));
-		self::register("shield", fn(IID $id) => new Shield($id, "Shield"));
-		self::register("brush", fn(IID $id) => new Brush($id, "Brush"));
 		self::register("steak", fn(IID $id) => new Steak($id, "Steak"));
 		self::register("stick", fn(IID $id) => new Stick($id, "Stick"));
 		self::register("string", fn(IID $id) => new StringItem($id, "String"));
 		self::register("sugar", fn(IID $id) => new Item($id, "Sugar"));
-		self::register("suspicious_gravel", fn() => new ItemBlock(Blocks::SUSPICIOUS_GRAVEL()));
-		self::register("suspicious_sand", fn() => new ItemBlock(Blocks::SUSPICIOUS_SAND()));
 		self::register("suspicious_stew", fn(IID $id) => new SuspiciousStew($id, "Suspicious Stew"));
 		self::register("sweet_berries", fn(IID $id) => new SweetBerries($id, "Sweet Berries"));
 		self::register("torchflower_seeds", fn(IID $id) => new TorchflowerSeeds($id, "Torchflower Seeds"));
 		self::register("totem", fn(IID $id) => new Totem($id, "Totem of Undying"));
-		self::register("trident", fn(IID $id) => new Trident($id, "Trident", [EnchantmentTags::TRIDENT]));
-		// Spears (variants)
-		self::register("wooden_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Wooden Spear", \pocketmine\item\ToolTier::WOOD, [EnchantmentTags::WEAPONS]));
-		self::register("golden_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Golden Spear", \pocketmine\item\ToolTier::GOLD, [EnchantmentTags::WEAPONS]));
-		self::register("stone_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Stone Spear", \pocketmine\item\ToolTier::STONE, [EnchantmentTags::WEAPONS]));
-		self::register("copper_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Copper Spear", \pocketmine\item\ToolTier::COPPER, [EnchantmentTags::WEAPONS]));
-		self::register("iron_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Iron Spear", \pocketmine\item\ToolTier::IRON, [EnchantmentTags::WEAPONS]));
-		self::register("diamond_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Diamond Spear", \pocketmine\item\ToolTier::DIAMOND, [EnchantmentTags::WEAPONS]));
-		self::register("netherite_spear", fn(IID $id) => new \pocketmine\item\Spear($id, "Netherite Spear", \pocketmine\item\ToolTier::NETHERITE, [EnchantmentTags::WEAPONS]));
+		self::register("trident", fn(IID $id) => new Trident($id, "Trident"));
 		self::register("warped_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::WARPED_SIGN(), Blocks::WARPED_WALL_SIGN()));
 		self::register("warped_hanging_sign", fn(IID $id) => new HangingSign($id, "Warped Hanging Sign", Blocks::WARPED_CEILING_CENTER_HANGING_SIGN(), Blocks::WARPED_CEILING_EDGES_HANGING_SIGN(), Blocks::WARPED_WALL_HANGING_SIGN()));
-		self::register("warped_shelf", fn() => new ItemBlock(Blocks::WARPED_SHELF()));
 		self::register("water_bucket", fn(IID $id) => new LiquidBucket($id, "Water Bucket", Blocks::WATER()));
 		self::register("wheat", fn(IID $id) => new Item($id, "Wheat"));
 		self::register("wheat_seeds", fn(IID $id) => new WheatSeeds($id, "Wheat Seeds"));
 		self::register("writable_book", fn(IID $id) => new WritableBook($id, "Book & Quill"));
 		self::register("written_book", fn(IID $id) => new WrittenBook($id, "Written Book"));
 
-		foreach (BoatType::cases() as $type) {
+		foreach(BoatType::cases() as $type){
 			//boat type is static, because different types of wood may have different properties
 			self::register(strtolower($type->name) . "_boat", fn(IID $id) => new Boat($id, $type->getDisplayName() . " Boat", $type));
 		}
 	}
 
-	private static function registerSpawnEggs(): void
-	{
-		self::register("zombie_spawn_egg", fn(IID $id) => new class($id, "Zombie Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
+	private static function registerSpawnEggs() : void{
+		self::register("zombie_spawn_egg", fn(IID $id) => new class($id, "Zombie Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
 				return new Zombie(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
-		// zombie pigman
-		self::register("zombie_pigman_spawn_egg", fn(IID $id) => new class($id, "Zombie Pigman Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
-				return new ZombiePigman(Location::fromObject($pos, $world, $yaw, $pitch));
-			}
-		});
-
-		self::register("axolotl_spawn_egg", fn(IID $id) => new class($id, "Axolotl Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
-				$entity = new Axolotl(Location::fromObject($pos, $world, $yaw, $pitch));
-
-				// If the spawn egg has a Variant tag, use it. Otherwise pick a random variant.
-				$nbt = $this->getNamedTag();
-				$variant = $nbt->getInt("Variant", mt_rand(0, 4));
-				$entity->setVariant($variant);
-
-				// If the egg includes baby/entity_born/Age tags, honor them so eggs can spawn babies
-				// e.g. /summon axolotl {entity_born:1b} or egg with {Baby:1b}.
-				$isBaby = false;
-				if ($nbt->getByte("Baby", 0) === 1 || $nbt->getByte("entity_born", 0) === 1 || $nbt->getByte("EntityBorn", 0) === 1) {
-					$isBaby = true;
-				}
-				// Some tools use Age negative to indicate baby (Java). Honor that too if present.
-				if ($nbt->getInt("Age", 0) < 0) {
-					$isBaby = true;
-				}
-				$entity->setBaby($isBaby);
-
-				// Give spawned axolotls full air supply so they do not instantly suffocate when
-				// spawned via eggs.
-				$entity->setAirSupplyTicks($entity->getMaxAirSupplyTicks());
-
-				return $entity;
-			}
-		});
-
-		self::register("chicken_spawn_egg", fn(IID $id) => new class($id, "Chicken Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
-				return new Chicken(Location::fromObject($pos, $world, $yaw, $pitch));
-			}
-		});
-
-		self::register("cow_spawn_egg", fn(IID $id) => new class($id, "Cow Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
-				return new Cow(Location::fromObject($pos, $world, $yaw, $pitch));
-			}
-		});
-
-		self::register("pig_spawn_egg", fn(IID $id) => new class($id, "Pig Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
-				return new Pig(Location::fromObject($pos, $world, $yaw, $pitch));
-			}
-		});
-
-		self::register("sheep_spawn_egg", fn(IID $id) => new class($id, "Sheep Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
-				return new Sheep(Location::fromObject($pos, $world, $yaw, $pitch));
-			}
-		});
-		self::register("squid_spawn_egg", fn(IID $id) => new class($id, "Squid Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
+		self::register("squid_spawn_egg", fn(IID $id) => new class($id, "Squid Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
 				return new Squid(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
-
-		self::register("villager_spawn_egg", fn(IID $id) => new class($id, "Villager Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
-				return new VillagerV2(Location::fromObject($pos, $world, $yaw, $pitch));
-			}
-		});
-
-		self::register("allay_spawn_egg", fn(IID $id) => new class($id, "Allay Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
-				return new Allay(Location::fromObject($pos, $world, $yaw, $pitch));
-			}
-		});
-
-		self::register("bee_spawn_egg", fn(IID $id) => new class($id, "Bee Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
-				return new Bee(Location::fromObject($pos, $world, $yaw, $pitch));
-			}
-		});
-
-		self::register("creeper_spawn_egg", fn(IID $id) => new class($id, "Creeper Spawn Egg") extends SpawnEgg {
-			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch): Entity
-			{
-				return new Creeper(Location::fromObject($pos, $world, $yaw, $pitch));
+		self::register("villager_spawn_egg", fn(IID $id) => new class($id, "Villager Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
+				return new Villager(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
 	}
 
-	private static function registerTierToolItems(): void
-	{
-		self::register("diamond_axe", fn(IID $id) => new Axe($id, "Diamond Axe", ToolTier::DIAMOND, [EnchantmentTags::AXE]));
-		self::register("golden_axe", fn(IID $id) => new Axe($id, "Golden Axe", ToolTier::GOLD, [EnchantmentTags::AXE]));
-		self::register("iron_axe", fn(IID $id) => new Axe($id, "Iron Axe", ToolTier::IRON, [EnchantmentTags::AXE]));
-		self::register("netherite_axe", fn(IID $id) => new Axe($id, "Netherite Axe", ToolTier::NETHERITE, [EnchantmentTags::AXE]));
-		self::register("stone_axe", fn(IID $id) => new Axe($id, "Stone Axe", ToolTier::STONE, [EnchantmentTags::AXE]));
-		self::register("wooden_axe", fn(IID $id) => new Axe($id, "Wooden Axe", ToolTier::WOOD, [EnchantmentTags::AXE]));
-		self::register("diamond_hoe", fn(IID $id) => new Hoe($id, "Diamond Hoe", ToolTier::DIAMOND, [EnchantmentTags::HOE]));
-		self::register("golden_hoe", fn(IID $id) => new Hoe($id, "Golden Hoe", ToolTier::GOLD, [EnchantmentTags::HOE]));
-		self::register("iron_hoe", fn(IID $id) => new Hoe($id, "Iron Hoe", ToolTier::IRON, [EnchantmentTags::HOE]));
-		self::register("netherite_hoe", fn(IID $id) => new Hoe($id, "Netherite Hoe", ToolTier::NETHERITE, [EnchantmentTags::HOE]));
-		self::register("stone_hoe", fn(IID $id) => new Hoe($id, "Stone Hoe", ToolTier::STONE, [EnchantmentTags::HOE]));
-		self::register("wooden_hoe", fn(IID $id) => new Hoe($id, "Wooden Hoe", ToolTier::WOOD, [EnchantmentTags::HOE]));
-		self::register("copper_hoe", fn(IID $id) => new Hoe($id, "Copper Hoe", ToolTier::COPPER, [EnchantmentTags::HOE]));
-		self::register("diamond_pickaxe", fn(IID $id) => new Pickaxe($id, "Diamond Pickaxe", ToolTier::DIAMOND, [EnchantmentTags::PICKAXE]));
-		self::register("golden_pickaxe", fn(IID $id) => new Pickaxe($id, "Golden Pickaxe", ToolTier::GOLD, [EnchantmentTags::PICKAXE]));
-		self::register("iron_pickaxe", fn(IID $id) => new Pickaxe($id, "Iron Pickaxe", ToolTier::IRON, [EnchantmentTags::PICKAXE]));
-		self::register("netherite_pickaxe", fn(IID $id) => new Pickaxe($id, "Netherite Pickaxe", ToolTier::NETHERITE, [EnchantmentTags::PICKAXE]));
-		self::register("stone_pickaxe", fn(IID $id) => new Pickaxe($id, "Stone Pickaxe", ToolTier::STONE, [EnchantmentTags::PICKAXE]));
-		self::register("wooden_pickaxe", fn(IID $id) => new Pickaxe($id, "Wooden Pickaxe", ToolTier::WOOD, [EnchantmentTags::PICKAXE]));
-		self::register("diamond_shovel", fn(IID $id) => new Shovel($id, "Diamond Shovel", ToolTier::DIAMOND, [EnchantmentTags::SHOVEL]));
-		self::register("golden_shovel", fn(IID $id) => new Shovel($id, "Golden Shovel", ToolTier::GOLD, [EnchantmentTags::SHOVEL]));
-		self::register("iron_shovel", fn(IID $id) => new Shovel($id, "Iron Shovel", ToolTier::IRON, [EnchantmentTags::SHOVEL]));
-		self::register("netherite_shovel", fn(IID $id) => new Shovel($id, "Netherite Shovel", ToolTier::NETHERITE, [EnchantmentTags::SHOVEL]));
-		self::register("stone_shovel", fn(IID $id) => new Shovel($id, "Stone Shovel", ToolTier::STONE, [EnchantmentTags::SHOVEL]));
-		self::register("wooden_shovel", fn(IID $id) => new Shovel($id, "Wooden Shovel", ToolTier::WOOD, [EnchantmentTags::SHOVEL]));
-		self::register("diamond_sword", fn(IID $id) => new Sword($id, "Diamond Sword", ToolTier::DIAMOND, [EnchantmentTags::SWORD]));
-		self::register("golden_sword", fn(IID $id) => new Sword($id, "Golden Sword", ToolTier::GOLD, [EnchantmentTags::SWORD]));
-		self::register("iron_sword", fn(IID $id) => new Sword($id, "Iron Sword", ToolTier::IRON, [EnchantmentTags::SWORD]));
-		self::register("netherite_sword", fn(IID $id) => new Sword($id, "Netherite Sword", ToolTier::NETHERITE, [EnchantmentTags::SWORD]));
-		self::register("stone_sword", fn(IID $id) => new Sword($id, "Stone Sword", ToolTier::STONE, [EnchantmentTags::SWORD]));
-		self::register("wooden_sword", fn(IID $id) => new Sword($id, "Wooden Sword", ToolTier::WOOD, [EnchantmentTags::SWORD]));
-		self::register("copper_sword", fn(IID $id) => new Sword($id, "Copper Sword", ToolTier::COPPER, [EnchantmentTags::SWORD]));
-		self::register("copper_pickaxe", fn(IID $id) => new Pickaxe($id, "Copper Pickaxe", ToolTier::COPPER, [EnchantmentTags::PICKAXE]));
-		self::register("copper_shovel", fn(IID $id) => new Shovel($id, "Copper Shovel", ToolTier::COPPER, [EnchantmentTags::SHOVEL]));
-		self::register("copper_axe", fn(IID $id) => new Axe($id, "Copper Axe", ToolTier::COPPER, [EnchantmentTags::AXE]));
-		// mace
-		self::register("mace", fn(IID $id) => new Mace($id, "Mace", ToolTier::IRON, [EnchantmentTags::WEAPONS]));
-
-		// wind charge
-		self::register("wind_charge", fn(IID $id) => new WindCharge($id, "Wind Charge"));
-		
-		// public const MACE = "minecraft:mace";
-
-
+	private static function registerTierToolItems() : void{
+		foreach([
+			[ToolTier::COPPER, "copper", "Copper"],
+			[ToolTier::DIAMOND, "diamond", "Diamond"],
+			[ToolTier::GOLD, "golden", "Golden"],
+			[ToolTier::IRON, "iron", "Iron"],
+			[ToolTier::NETHERITE, "netherite", "Netherite"],
+			[ToolTier::STONE, "stone", "Stone"],
+			[ToolTier::WOOD, "wooden", "Wooden"]
+		] as [$tier, $idPrefix, $namePrefix]){
+			self::register($idPrefix . "_axe", fn(IID $id) => new Axe($id, $namePrefix . " Axe", $tier, [EnchantmentTags::AXE]));
+			self::register($idPrefix . "_hoe", fn(IID $id) => new Hoe($id, $namePrefix . " Hoe", $tier, [EnchantmentTags::HOE]));
+			self::register($idPrefix . "_pickaxe", fn(IID $id) => new Pickaxe($id, $namePrefix . " Pickaxe", $tier, [EnchantmentTags::PICKAXE]));
+			self::register($idPrefix . "_shovel", fn(IID $id) => new Shovel($id, $namePrefix . " Shovel", $tier, [EnchantmentTags::SHOVEL]));
+			self::register($idPrefix . "_sword", fn(IID $id) => new Sword($id, $namePrefix . " Sword", $tier, [EnchantmentTags::SWORD]));
+		}
 	}
 
-	private static function registerArmorItems(): void
-	{
+	private static function registerArmorItems() : void{
 		self::register("chainmail_boots", fn(IID $id) => new Armor($id, "Chainmail Boots", new ArmorTypeInfo(1, 196, ArmorInventory::SLOT_FEET, material: ArmorMaterials::CHAINMAIL()), [EnchantmentTags::BOOTS]));
+		self::register("copper_boots", fn(IID $id) => new Armor($id, "Copper Boots", new ArmorTypeInfo(1, 144, ArmorInventory::SLOT_FEET, material: ArmorMaterials::COPPER()), [EnchantmentTags::BOOTS]));
 		self::register("diamond_boots", fn(IID $id) => new Armor($id, "Diamond Boots", new ArmorTypeInfo(3, 430, ArmorInventory::SLOT_FEET, 2, material: ArmorMaterials::DIAMOND()), [EnchantmentTags::BOOTS]));
 		self::register("golden_boots", fn(IID $id) => new Armor($id, "Golden Boots", new ArmorTypeInfo(1, 92, ArmorInventory::SLOT_FEET, material: ArmorMaterials::GOLD()), [EnchantmentTags::BOOTS]));
 		self::register("iron_boots", fn(IID $id) => new Armor($id, "Iron Boots", new ArmorTypeInfo(2, 196, ArmorInventory::SLOT_FEET, material: ArmorMaterials::IRON()), [EnchantmentTags::BOOTS]));
@@ -1038,14 +709,15 @@ final class VanillaItems
 		self::register("netherite_boots", fn(IID $id) => new Armor($id, "Netherite Boots", new ArmorTypeInfo(3, 482, ArmorInventory::SLOT_FEET, 3, true, material: ArmorMaterials::NETHERITE()), [EnchantmentTags::BOOTS]));
 
 		self::register("chainmail_chestplate", fn(IID $id) => new Armor($id, "Chainmail Chestplate", new ArmorTypeInfo(5, 241, ArmorInventory::SLOT_CHEST, material: ArmorMaterials::CHAINMAIL()), [EnchantmentTags::CHESTPLATE]));
+		self::register("copper_chestplate", fn(IID $id) => new Armor($id, "Copper Chestplate", new ArmorTypeInfo(4, 177, ArmorInventory::SLOT_CHEST, material: ArmorMaterials::COPPER()), [EnchantmentTags::CHESTPLATE]));
 		self::register("diamond_chestplate", fn(IID $id) => new Armor($id, "Diamond Chestplate", new ArmorTypeInfo(8, 529, ArmorInventory::SLOT_CHEST, 2, material: ArmorMaterials::DIAMOND()), [EnchantmentTags::CHESTPLATE]));
 		self::register("golden_chestplate", fn(IID $id) => new Armor($id, "Golden Chestplate", new ArmorTypeInfo(5, 113, ArmorInventory::SLOT_CHEST, material: ArmorMaterials::GOLD()), [EnchantmentTags::CHESTPLATE]));
 		self::register("iron_chestplate", fn(IID $id) => new Armor($id, "Iron Chestplate", new ArmorTypeInfo(6, 241, ArmorInventory::SLOT_CHEST, material: ArmorMaterials::IRON()), [EnchantmentTags::CHESTPLATE]));
 		self::register("leather_tunic", fn(IID $id) => new Armor($id, "Leather Tunic", new ArmorTypeInfo(3, 81, ArmorInventory::SLOT_CHEST, material: ArmorMaterials::LEATHER()), [EnchantmentTags::CHESTPLATE]));
 		self::register("netherite_chestplate", fn(IID $id) => new Armor($id, "Netherite Chestplate", new ArmorTypeInfo(8, 593, ArmorInventory::SLOT_CHEST, 3, true, material: ArmorMaterials::NETHERITE()), [EnchantmentTags::CHESTPLATE]));
-		self::register("elytra", fn(IID $id) => new Elytra($id, "Elytra", new ArmorTypeInfo(0, 432, ArmorInventory::SLOT_CHEST, material: ArmorMaterials::LEATHER()), [EnchantmentTags::CHESTPLATE]));
 
 		self::register("chainmail_helmet", fn(IID $id) => new Armor($id, "Chainmail Helmet", new ArmorTypeInfo(2, 166, ArmorInventory::SLOT_HEAD, material: ArmorMaterials::CHAINMAIL()), [EnchantmentTags::HELMET]));
+		self::register("copper_helmet", fn(IID $id) => new Armor($id, "Copper Helmet", new ArmorTypeInfo(2, 122, ArmorInventory::SLOT_HEAD, material: ArmorMaterials::COPPER()), [EnchantmentTags::HELMET]));
 		self::register("diamond_helmet", fn(IID $id) => new Armor($id, "Diamond Helmet", new ArmorTypeInfo(3, 364, ArmorInventory::SLOT_HEAD, 2, material: ArmorMaterials::DIAMOND()), [EnchantmentTags::HELMET]));
 		self::register("golden_helmet", fn(IID $id) => new Armor($id, "Golden Helmet", new ArmorTypeInfo(2, 78, ArmorInventory::SLOT_HEAD, material: ArmorMaterials::GOLD()), [EnchantmentTags::HELMET]));
 		self::register("iron_helmet", fn(IID $id) => new Armor($id, "Iron Helmet", new ArmorTypeInfo(2, 166, ArmorInventory::SLOT_HEAD, material: ArmorMaterials::IRON()), [EnchantmentTags::HELMET]));
@@ -1054,20 +726,15 @@ final class VanillaItems
 		self::register("turtle_helmet", fn(IID $id) => new TurtleHelmet($id, "Turtle Shell", new ArmorTypeInfo(2, 276, ArmorInventory::SLOT_HEAD, material: ArmorMaterials::TURTLE()), [EnchantmentTags::HELMET]));
 
 		self::register("chainmail_leggings", fn(IID $id) => new Armor($id, "Chainmail Leggings", new ArmorTypeInfo(4, 226, ArmorInventory::SLOT_LEGS, material: ArmorMaterials::CHAINMAIL()), [EnchantmentTags::LEGGINGS]));
+		self::register("copper_leggings", fn(IID $id) => new Armor($id, "Copper Leggings", new ArmorTypeInfo(3, 166, ArmorInventory::SLOT_LEGS, material: ArmorMaterials::COPPER()), [EnchantmentTags::LEGGINGS]));
 		self::register("diamond_leggings", fn(IID $id) => new Armor($id, "Diamond Leggings", new ArmorTypeInfo(6, 496, ArmorInventory::SLOT_LEGS, 2, material: ArmorMaterials::DIAMOND()), [EnchantmentTags::LEGGINGS]));
 		self::register("golden_leggings", fn(IID $id) => new Armor($id, "Golden Leggings", new ArmorTypeInfo(3, 106, ArmorInventory::SLOT_LEGS, material: ArmorMaterials::GOLD()), [EnchantmentTags::LEGGINGS]));
 		self::register("iron_leggings", fn(IID $id) => new Armor($id, "Iron Leggings", new ArmorTypeInfo(5, 226, ArmorInventory::SLOT_LEGS, material: ArmorMaterials::IRON()), [EnchantmentTags::LEGGINGS]));
 		self::register("leather_pants", fn(IID $id) => new Armor($id, "Leather Pants", new ArmorTypeInfo(2, 76, ArmorInventory::SLOT_LEGS, material: ArmorMaterials::LEATHER()), [EnchantmentTags::LEGGINGS]));
 		self::register("netherite_leggings", fn(IID $id) => new Armor($id, "Netherite Leggings", new ArmorTypeInfo(6, 556, ArmorInventory::SLOT_LEGS, 3, true, material: ArmorMaterials::NETHERITE()), [EnchantmentTags::LEGGINGS]));
-
-		self::register("copper_leggings", fn(IID $id) => new Armor($id, "Copper Leggings", new ArmorTypeInfo(5, 201, ArmorInventory::SLOT_LEGS, material: ArmorMaterials::COPPER()), [EnchantmentTags::LEGGINGS]));
-		self::register("copper_chestplate", fn(IID $id) => new Armor($id, "Copper Chestplate", new ArmorTypeInfo(4, 176, ArmorInventory::SLOT_CHEST, material: ArmorMaterials::COPPER()), [EnchantmentTags::CHESTPLATE]));
-		self::register("copper_boots", fn(IID $id) => new Armor($id, "Copper Boots", new ArmorTypeInfo(2, 151, ArmorInventory::SLOT_FEET, material: ArmorMaterials::COPPER()), [EnchantmentTags::BOOTS]));
-		self::register("copper_helmet", fn(IID $id) => new Armor($id, "Copper Helmet", new ArmorTypeInfo(2, 121, ArmorInventory::SLOT_HEAD, material: ArmorMaterials::COPPER()), [EnchantmentTags::HELMET]));
 	}
 
-	private static function registerSmithingTemplates(): void
-	{
+	private static function registerSmithingTemplates() : void{
 		self::register("netherite_upgrade_smithing_template", fn(IID $id) => new Item($id, "Netherite Upgrade Smithing Template"));
 		self::register("coast_armor_trim_smithing_template", fn(IID $id) => new Item($id, "Coast Armor Trim Smithing Template"));
 		self::register("dune_armor_trim_smithing_template", fn(IID $id) => new Item($id, "Dune Armor Trim Smithing Template"));
@@ -1086,4 +753,5 @@ final class VanillaItems
 		self::register("wayfinder_armor_trim_smithing_template", fn(IID $id) => new Item($id, "Wayfinder Armor Trim Smithing Template"));
 		self::register("wild_armor_trim_smithing_template", fn(IID $id) => new Item($id, "Wild Armor Trim Smithing Template"));
 	}
+
 }

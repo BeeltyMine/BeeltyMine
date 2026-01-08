@@ -165,21 +165,8 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 	 * @param Player[]|null $targets
 	 */
 	public function sendSkin(?array $targets = null) : void{
-		// Debug: log when server is sending skin data (cape length)
-		$skinData = null;
-		if($this instanceof Player){
-			try{
-				$skinData = $this->getPlayerInfo()->getRawSkinData();
-			}catch(\Throwable $e){
-				$skinData = null;
-			}
-		}
-		if($skinData === null){
-			$skinData = TypeConverter::getInstance()->getSkinAdapter()->toSkinData($this->skin);
-		}
-
 		NetworkBroadcastUtils::broadcastPackets($targets ?? $this->hasSpawned, [
-			PlayerSkinPacket::create($this->getUniqueId(), "", "", $skinData)
+			PlayerSkinPacket::create($this->getUniqueId(), "", "", TypeConverter::getInstance()->getSkinAdapter()->toSkinData($this->skin))
 		]);
 	}
 
@@ -318,14 +305,15 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 			$armorInventoryItems = [];
 
 			foreach($inventoryTag as $i => $item){
-				/** @var CompoundTag $item */
 				$slot = $item->getByte(SavedItemStackData::TAG_SLOT);
 				if($slot >= 0 && $slot < 9){ //Hotbar
 					//Old hotbar saving stuff, ignore it
 				}elseif($slot >= 100 && $slot < 104){ //Armor
-					$armorInventoryItems[$slot - 100] = Item::nbtDeserialize($item);
+					$armorSlot = $slot - 100;
+					$armorInventoryItems[$armorSlot] = Item::safeNbtDeserialize($item, "Human armor slot $armorSlot");
 				}elseif($slot >= 9 && $slot < $this->inventory->getSize() + 9){
-					$inventoryItems[$slot - 9] = Item::nbtDeserialize($item);
+					$inventorySlot = $slot - 9;
+					$inventoryItems[$inventorySlot] = Item::safeNbtDeserialize($item, "Human inventory slot $inventorySlot");
 				}
 			}
 
@@ -334,7 +322,7 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 		}
 		$offHand = $nbt->getCompoundTag(self::TAG_OFF_HAND_ITEM);
 		if($offHand !== null){
-			$this->offHandInventory->setItem(0, Item::nbtDeserialize($offHand));
+			$this->offHandInventory->setItem(0, Item::safeNbtDeserialize($offHand, "Human off-hand item"));
 		}
 		$this->offHandInventory->getListeners()->add(CallbackInventoryListener::onAnyChange(fn() => NetworkBroadcastUtils::broadcastEntityEvent(
 			$this->getViewers(),
@@ -345,9 +333,9 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 		if($enderChestInventoryTag !== null){
 			$enderChestInventoryItems = [];
 
-			foreach($enderChestInventoryTag as $i => $item){
-				/** @var CompoundTag $item */
-				$enderChestInventoryItems[$item->getByte(SavedItemStackData::TAG_SLOT)] = Item::nbtDeserialize($item);
+			foreach($enderChestInventoryTag as $item){
+				$slot = $item->getByte(SavedItemStackData::TAG_SLOT);
+				$enderChestInventoryItems[$slot] = Item::safeNbtDeserialize($item, "Human ender chest slot $slot");
 			}
 			self::populateInventoryFromListTag($this->enderInventory, $enderChestInventoryItems);
 		}
@@ -357,8 +345,6 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 			$this->getViewers(),
 			fn(EntityEventBroadcaster $broadcaster, array $recipients) => $broadcaster->onMobMainHandItemChange($recipients, $this)
 		));
-
- 
 
 		$this->hungerManager->setFood((float) $nbt->getInt(self::TAG_FOOD_LEVEL, (int) $this->hungerManager->getFood()));
 		$this->hungerManager->setExhaustion($nbt->getFloat(self::TAG_FOOD_EXHAUSTION_LEVEL, $this->hungerManager->getExhaustion()));
@@ -509,15 +495,8 @@ class Human extends Living implements ProjectileSource, InventoryHolder{
 	protected function sendSpawnPacket(Player $player) : void{
 		$networkSession = $player->getNetworkSession();
 		$typeConverter = $networkSession->getTypeConverter();
-		$skinData = null;
-		if($this instanceof Player){
-			$skinData = $this->getPlayerInfo()->getRawSkinData();
-		}
-		if($skinData === null){
-			$skinData = $typeConverter->getSkinAdapter()->toSkinData($this->skin);
-		}
 		if(!($this instanceof Player)){
-			$networkSession->sendDataPacket(PlayerListPacket::add([PlayerListEntry::createAdditionEntry($this->uuid, $this->id, $this->getName(), $skinData)]));
+			$networkSession->sendDataPacket(PlayerListPacket::add([PlayerListEntry::createAdditionEntry($this->uuid, $this->id, $this->getName(), $typeConverter->getSkinAdapter()->toSkinData($this->skin))]));
 		}
 
 		$networkSession->sendDataPacket(AddPlayerPacket::create(

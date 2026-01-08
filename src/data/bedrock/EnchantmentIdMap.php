@@ -68,16 +68,5 @@ final class EnchantmentIdMap{
 		$this->register(EnchantmentIds::SWIFT_SNEAK, VanillaEnchantments::SWIFT_SNEAK());
 
 		$this->register(EnchantmentIds::FROST_WALKER, VanillaEnchantments::FROST_WALKER());
-		// Trident enchantments
-		$this->register(EnchantmentIds::IMPALING, VanillaEnchantments::TRIDENT_IMPALING());
-		$this->register(EnchantmentIds::RIPTIDE, VanillaEnchantments::TRIDENT_RIPTIDE());
-		$this->register(EnchantmentIds::LOYALTY, VanillaEnchantments::TRIDENT_LOYALTY());
-		$this->register(EnchantmentIds::CHANNELING, VanillaEnchantments::TRIDENT_CHANNELING());
-
-		$this->register(EnchantmentIds::LUCK_OF_THE_SEA, VanillaEnchantments::LUCK_OF_THE_SEA());
-		$this->register(EnchantmentIds::LURE, VanillaEnchantments::LURE());
-		$this->register(EnchantmentIds::QUICK_CHARGE, VanillaEnchantments::QUICK_CHARGE());
-		$this->register(EnchantmentIds::MULTISHOT, VanillaEnchantments::MULTISHOT());
-		$this->register(EnchantmentIds::PIERCING, VanillaEnchantments::PIERCING());
 	}
 }

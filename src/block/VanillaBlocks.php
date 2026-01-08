@@ -33,7 +33,6 @@ use pocketmine\block\tile\Barrel as TileBarrel;
 use pocketmine\block\tile\Beacon as TileBeacon;
 use pocketmine\block\tile\Bed as TileBed;
 use pocketmine\block\tile\Bell as TileBell;
-use pocketmine\block\tile\BeeHive as TileBeeHive;
 use pocketmine\block\tile\BlastFurnace as TileBlastFurnace;
 use pocketmine\block\tile\BrewingStand as TileBrewingStand;
 use pocketmine\block\tile\Campfire as TileCampfire;
@@ -58,7 +57,6 @@ use pocketmine\block\tile\Note as TileNote;
 use pocketmine\block\tile\ShulkerBox as TileShulkerBox;
 use pocketmine\block\tile\Sign as TileSign;
 use pocketmine\block\tile\Smoker as TileSmoker;
-use pocketmine\block\tile\Shelf as TileShelf;
 use pocketmine\block\tile\Tile;
 use pocketmine\block\utils\AmethystTrait;
 use pocketmine\block\utils\LeavesType;
@@ -71,6 +69,7 @@ use pocketmine\item\ToolTier;
 use pocketmine\item\VanillaItems;
 use pocketmine\math\Facing;
 use pocketmine\utils\CloningRegistryTrait;
+use pocketmine\world\generator\object\TreeType;
 use function is_int;
 use function mb_strtolower;
 use function mb_strtoupper;
@@ -93,7 +92,6 @@ use function strtolower;
  * @method static Planks ACACIA_PLANKS()
  * @method static WoodenPressurePlate ACACIA_PRESSURE_PLATE()
  * @method static Sapling ACACIA_SAPLING()
- * @method static Shelf ACACIA_SHELF()
  * @method static FloorSign ACACIA_SIGN()
  * @method static WoodenSlab ACACIA_SLAB()
  * @method static WoodenStairs ACACIA_STAIRS()
@@ -139,7 +137,6 @@ use function strtolower;
  * @method static Planks BIRCH_PLANKS()
  * @method static WoodenPressurePlate BIRCH_PRESSURE_PLATE()
  * @method static Sapling BIRCH_SAPLING()
- * @method static Shelf BIRCH_SHELF()
  * @method static FloorSign BIRCH_SIGN()
  * @method static WoodenSlab BIRCH_SLAB()
  * @method static WoodenStairs BIRCH_STAIRS()
@@ -166,6 +163,7 @@ use function strtolower;
  * @method static BrownMushroomBlock BROWN_MUSHROOM_BLOCK()
  * @method static BuddingAmethyst BUDDING_AMETHYST()
  * @method static Cactus CACTUS()
+ * @method static CactusFlower CACTUS_FLOWER()
  * @method static Cake CAKE()
  * @method static CakeWithCandle CAKE_WITH_CANDLE()
  * @method static CakeWithDyedCandle CAKE_WITH_DYED_CANDLE()
@@ -190,7 +188,6 @@ use function strtolower;
  * @method static Wood CHERRY_LOG()
  * @method static Planks CHERRY_PLANKS()
  * @method static WoodenPressurePlate CHERRY_PRESSURE_PLATE()
- * @method static Shelf CHERRY_SHELF()
  * @method static FloorSign CHERRY_SIGN()
  * @method static WoodenSlab CHERRY_SLAB()
  * @method static WoodenStairs CHERRY_STAIRS()
@@ -230,12 +227,14 @@ use function strtolower;
  * @method static Concrete CONCRETE()
  * @method static ConcretePowder CONCRETE_POWDER()
  * @method static Copper COPPER()
+ * @method static CopperBars COPPER_BARS()
  * @method static CopperBulb COPPER_BULB()
- * @method static CopperChest COPPER_CHEST()
+ * @method static CopperChain COPPER_CHAIN()
  * @method static CopperDoor COPPER_DOOR()
- * @method static CopperGolemStatue COPPER_GOLEM_STATUE()
  * @method static CopperGrate COPPER_GRATE()
+ * @method static CopperLantern COPPER_LANTERN()
  * @method static CopperOre COPPER_ORE()
+ * @method static Torch COPPER_TORCH()
  * @method static CopperTrapdoor COPPER_TRAPDOOR()
  * @method static Coral CORAL()
  * @method static CoralBlock CORAL_BLOCK()
@@ -253,11 +252,12 @@ use function strtolower;
  * @method static WoodenDoor CRIMSON_DOOR()
  * @method static WoodenFence CRIMSON_FENCE()
  * @method static FenceGate CRIMSON_FENCE_GATE()
+ * @method static NetherFungus CRIMSON_FUNGUS()
  * @method static Wood CRIMSON_HYPHAE()
+ * @method static Nylium CRIMSON_NYLIUM()
  * @method static Planks CRIMSON_PLANKS()
  * @method static WoodenPressurePlate CRIMSON_PRESSURE_PLATE()
  * @method static NetherRoots CRIMSON_ROOTS()
- * @method static Shelf CRIMSON_SHELF()
  * @method static FloorSign CRIMSON_SIGN()
  * @method static WoodenSlab CRIMSON_SLAB()
  * @method static WoodenStairs CRIMSON_STAIRS()
@@ -285,7 +285,6 @@ use function strtolower;
  * @method static Planks DARK_OAK_PLANKS()
  * @method static WoodenPressurePlate DARK_OAK_PRESSURE_PLATE()
  * @method static Sapling DARK_OAK_SAPLING()
- * @method static Shelf DARK_OAK_SHELF()
  * @method static FloorSign DARK_OAK_SIGN()
  * @method static WoodenSlab DARK_OAK_SLAB()
  * @method static WoodenStairs DARK_OAK_STAIRS()
@@ -460,7 +459,6 @@ use function strtolower;
  * @method static Slab END_STONE_BRICK_SLAB()
  * @method static Stair END_STONE_BRICK_STAIRS()
  * @method static Wall END_STONE_BRICK_WALL()
- * @method static CopperGolemStatue EXPOSED_COPPER_GOLEM_STATUE()
  * @method static Slab FAKE_WOODEN_SLAB()
  * @method static Farmland FARMLAND()
  * @method static TallGrass FERN()
@@ -500,6 +498,7 @@ use function strtolower;
  * @method static InfestedStone INFESTED_CHISELED_STONE_BRICK()
  * @method static InfestedStone INFESTED_COBBLESTONE()
  * @method static InfestedStone INFESTED_CRACKED_STONE_BRICK()
+ * @method static InfestedPillar INFESTED_DEEPSLATE()
  * @method static InfestedStone INFESTED_MOSSY_STONE_BRICK()
  * @method static InfestedStone INFESTED_STONE()
  * @method static InfestedStone INFESTED_STONE_BRICK()
@@ -524,7 +523,6 @@ use function strtolower;
  * @method static Planks JUNGLE_PLANKS()
  * @method static WoodenPressurePlate JUNGLE_PRESSURE_PLATE()
  * @method static Sapling JUNGLE_SAPLING()
- * @method static Shelf JUNGLE_SHELF()
  * @method static FloorSign JUNGLE_SIGN()
  * @method static WoodenSlab JUNGLE_SLAB()
  * @method static WoodenStairs JUNGLE_STAIRS()
@@ -562,7 +560,6 @@ use function strtolower;
  * @method static Planks MANGROVE_PLANKS()
  * @method static WoodenPressurePlate MANGROVE_PRESSURE_PLATE()
  * @method static MangroveRoots MANGROVE_ROOTS()
- * @method static Shelf MANGROVE_SHELF()
  * @method static FloorSign MANGROVE_SIGN()
  * @method static WoodenSlab MANGROVE_SLAB()
  * @method static WoodenStairs MANGROVE_STAIRS()
@@ -602,6 +599,7 @@ use function strtolower;
  * @method static NetherPortal NETHER_PORTAL()
  * @method static NetherQuartzOre NETHER_QUARTZ_ORE()
  * @method static NetherReactor NETHER_REACTOR_CORE()
+ * @method static NetherSprouts NETHER_SPROUTS()
  * @method static NetherWartPlant NETHER_WART()
  * @method static Opaque NETHER_WART_BLOCK()
  * @method static Note NOTE_BLOCK()
@@ -616,7 +614,6 @@ use function strtolower;
  * @method static Planks OAK_PLANKS()
  * @method static WoodenPressurePlate OAK_PRESSURE_PLATE()
  * @method static Sapling OAK_SAPLING()
- * @method static Shelf OAK_SHELF()
  * @method static FloorSign OAK_SIGN()
  * @method static WoodenSlab OAK_SLAB()
  * @method static WoodenStairs OAK_STAIRS()
@@ -629,7 +626,6 @@ use function strtolower;
  * @method static OminousWallBanner OMINOUS_WALL_BANNER()
  * @method static Flower ORANGE_TULIP()
  * @method static Flower OXEYE_DAISY()
- * @method static CopperGolemStatue OXIDIZED_COPPER_GOLEM_STATUE()
  * @method static PackedIce PACKED_ICE()
  * @method static Opaque PACKED_MUD()
  * @method static WoodenButton PALE_OAK_BUTTON()
@@ -642,7 +638,6 @@ use function strtolower;
  * @method static Wood PALE_OAK_LOG()
  * @method static Planks PALE_OAK_PLANKS()
  * @method static WoodenPressurePlate PALE_OAK_PRESSURE_PLATE()
- * @method static Shelf PALE_OAK_SHELF()
  * @method static FloorSign PALE_OAK_SIGN()
  * @method static WoodenSlab PALE_OAK_SLAB()
  * @method static WoodenStairs PALE_OAK_STAIRS()
@@ -687,7 +682,6 @@ use function strtolower;
  * @method static Flower POPPY()
  * @method static Potato POTATOES()
  * @method static PotionCauldron POTION_CAULDRON()
- * @method static PowderSnow POWDER_SNOW()
  * @method static PoweredRail POWERED_RAIL()
  * @method static Opaque PRISMARINE()
  * @method static Opaque PRISMARINE_BRICKS()
@@ -748,7 +742,6 @@ use function strtolower;
  * @method static Stair SANDSTONE_STAIRS()
  * @method static Wall SANDSTONE_WALL()
  * @method static Sculk SCULK()
- * @method static Seagrass SEAGRASS()
  * @method static SeaLantern SEA_LANTERN()
  * @method static SeaPickle SEA_PICKLE()
  * @method static Opaque SHROOMLIGHT()
@@ -790,7 +783,6 @@ use function strtolower;
  * @method static Planks SPRUCE_PLANKS()
  * @method static WoodenPressurePlate SPRUCE_PRESSURE_PLATE()
  * @method static Sapling SPRUCE_SAPLING()
- * @method static Shelf SPRUCE_SHELF()
  * @method static FloorSign SPRUCE_SIGN()
  * @method static WoodenSlab SPRUCE_SLAB()
  * @method static WoodenStairs SPRUCE_STAIRS()
@@ -813,6 +805,7 @@ use function strtolower;
  * @method static StonePressurePlate STONE_PRESSURE_PLATE()
  * @method static Slab STONE_SLAB()
  * @method static Stair STONE_STAIRS()
+ * @method static StructureVoid STRUCTURE_VOID()
  * @method static Sugarcane SUGARCANE()
  * @method static DoublePlant SUNFLOWER()
  * @method static SweetBerryBush SWEET_BERRY_BUSH()
@@ -844,11 +837,12 @@ use function strtolower;
  * @method static WoodenDoor WARPED_DOOR()
  * @method static WoodenFence WARPED_FENCE()
  * @method static FenceGate WARPED_FENCE_GATE()
+ * @method static NetherFungus WARPED_FUNGUS()
  * @method static Wood WARPED_HYPHAE()
+ * @method static Nylium WARPED_NYLIUM()
  * @method static Planks WARPED_PLANKS()
  * @method static WoodenPressurePlate WARPED_PRESSURE_PLATE()
  * @method static NetherRoots WARPED_ROOTS()
- * @method static Shelf WARPED_SHELF()
  * @method static FloorSign WARPED_SIGN()
  * @method static WoodenSlab WARPED_SLAB()
  * @method static WoodenStairs WARPED_STAIRS()
@@ -859,11 +853,6 @@ use function strtolower;
  * @method static Opaque WARPED_WART_BLOCK()
  * @method static Water WATER()
  * @method static WaterCauldron WATER_CAULDRON()
- * @method static CopperGolemStatue WAXED_COPPER_GOLEM_STATUE()
- * @method static CopperGolemStatue WAXED_EXPOSED_COPPER_GOLEM_STATUE()
- * @method static CopperGolemStatue WAXED_OXIDIZED_COPPER_GOLEM_STATUE()
- * @method static CopperGolemStatue WAXED_WEATHERED_COPPER_GOLEM_STATUE()
- * @method static CopperGolemStatue WEATHERED_COPPER_GOLEM_STATUE()
  * @method static NetherVines WEEPING_VINES()
  * @method static WeightedPressurePlateHeavy WEIGHTED_PRESSURE_PLATE_HEAVY()
  * @method static WeightedPressurePlateLight WEIGHTED_PRESSURE_PLATE_LIGHT()
@@ -871,21 +860,11 @@ use function strtolower;
  * @method static Flower WHITE_TULIP()
  * @method static WitherRose WITHER_ROSE()
  * @method static Wool WOOL()
- * @method static Torch COPPER_TORCH()
- * @method static PowderSnowCauldron POWDER_SNOW_CAULDRON()
- * @method static Nylium WARPED_NYLIUM()
- * @method static Nylium CRIMSON_NYLIUM()
- * @method static Scaffolding SCAFFOLDING()
  */
-
-
-
-final class VanillaBlocks
-{
+final class VanillaBlocks{
 	use CloningRegistryTrait;
 
-	private function __construct()
-	{
+	private function __construct(){
 		//NOOP
 	}
 
@@ -895,14 +874,13 @@ final class VanillaBlocks
 	 * @phpstan-param class-string<covariant Tile> $tileClass
 	 * @phpstan-return TBlock
 	 */
-	protected static function register(string $name, \Closure $createBlock, ?string $tileClass = null): Block
-	{
+	protected static function register(string $name, \Closure $createBlock, ?string $tileClass = null) : Block{
 		//this sketchy hack allows us to avoid manually writing the constants inline
 		//since type IDs are generated from this class anyway, I'm OK with this hack
 		//nonetheless, we should try to get rid of it in a future major version (e.g by using string type IDs)
 		$reflect = new \ReflectionClass(BlockTypeIds::class);
 		$typeId = $reflect->getConstant(mb_strtoupper($name));
-		if (!is_int($typeId)) {
+		if(!is_int($typeId)){
 			//this allows registering new stuff without adding new type ID constants
 			//this reduces the number of mandatory steps to test new features in local development
 			\GlobalLogger::get()->error(self::class . ": No constant type ID found for $name, generating a new one");
@@ -918,25 +896,22 @@ final class VanillaBlocks
 	 * @return Block[]
 	 * @phpstan-return array<string, Block>
 	 */
-	public static function getAll(): array
-	{
+	public static function getAll() : array{
 		//phpstan doesn't support generic traits yet :(
 		/** @var Block[] $result */
 		$result = self::_registryGetAll();
 		return $result;
 	}
 
-	protected static function setup(): void
-	{
+	protected static function setup() : void{
 		self::register("air", fn(BID $id) => new Air($id, "Air", new Info(BreakInfo::indestructible(-1.0))));
 
 		$railBreakInfo = new Info(new BreakInfo(0.7));
 		self::register("activator_rail", fn(BID $id) => new ActivatorRail($id, "Activator Rail", $railBreakInfo));
 		self::register("anvil", fn(BID $id) => new Anvil($id, "Anvil", new Info(BreakInfo::pickaxe(5.0, ToolTier::WOOD, 6000.0))));
-		self::register("bamboo", fn(BID $id) => new Bamboo($id, "Bamboo", new Info(new class(1.0, ToolType::AXE) extends BreakInfo {
-			public function getBreakTime(Item $item): float
-			{
-				if ($item->getBlockToolType() === ToolType::SWORD) {
+		self::register("bamboo", fn(BID $id) => new Bamboo($id, "Bamboo", new Info(new class(1.0, ToolType::AXE) extends BreakInfo{
+			public function getBreakTime(Item $item) : float{
+				if($item->getBlockToolType() === ToolType::SWORD){
 					return 0.0;
 				}
 				return parent::getBreakTime($item);
@@ -944,18 +919,12 @@ final class VanillaBlocks
 		}, [Tags::POTTABLE_PLANTS])));
 		self::register("bamboo_sapling", fn(BID $id) => new BambooSapling($id, "Bamboo Sapling", new Info(new BreakInfo(1.0))));
 
-		// Bamboo mosaic is exposed explicitly so Item/Bedrock mappings can reference it
-		self::register("bamboo_mosaic", fn(BID $id) => new Opaque($id, "Bamboo Mosaic", new Info(BreakInfo::pickaxe(1.8, ToolTier::WOOD))));
 		$bannerBreakInfo = new Info(BreakInfo::axe(1.0));
 		self::register("banner", fn(BID $id) => new FloorBanner($id, "Banner", $bannerBreakInfo), TileBanner::class);
 		self::register("wall_banner", fn(BID $id) => new WallBanner($id, "Wall Banner", $bannerBreakInfo), TileBanner::class);
 		self::register("ominous_banner", fn(BID $id) => new OminousFloorBanner($id, "Ominous Banner", $bannerBreakInfo), TileBanner::class);
 		self::register("ominous_wall_banner", fn(BID $id) => new OminousWallBanner($id, "Ominous Wall Banner", $bannerBreakInfo), TileBanner::class);
 		self::register("barrel", fn(BID $id) => new Barrel($id, "Barrel", new Info(BreakInfo::axe(2.5))), TileBarrel::class);
-
-		// Composter block registration - required for Bedrock mapping compatibility
-		// Registers the composter so that calls to VanillaBlocks::COMPOSTER() resolve.
-		self::register("composter", fn(BID $id) => new Composter($id, "Composter", new Info(BreakInfo::axe(1.0))));
 		self::register("barrier", fn(BID $id) => new Transparent($id, "Barrier", new Info(BreakInfo::indestructible())));
 		self::register("beacon", fn(BID $id) => new Beacon($id, "Beacon", new Info(new BreakInfo(3.0))), TileBeacon::class);
 		self::register("bed", fn(BID $id) => new Bed($id, "Bed Block", new Info(new BreakInfo(0.2))), TileBed::class);
@@ -985,7 +954,6 @@ final class VanillaBlocks
 
 		$chestBreakInfo = new Info(BreakInfo::axe(2.5));
 		self::register("chest", fn(BID $id) => new Chest($id, "Chest", $chestBreakInfo), TileChest::class);
-		self::register("copper_chest", fn(BID $id) => new CopperChest($id, "Copper Chest", $chestBreakInfo), TileChest::class);
 		self::register("clay", fn(BID $id) => new Clay($id, "Clay Block", new Info(BreakInfo::shovel(0.6))));
 		self::register("coal", fn(BID $id) => new Coal($id, "Coal Block", new Info(BreakInfo::pickaxe(5.0, ToolTier::WOOD, 30.0))));
 
@@ -1016,7 +984,6 @@ final class VanillaBlocks
 		self::register("double_pitcher_crop", fn(BID $id) => new DoublePitcherCrop($id, "Double Pitcher Crop", new Info(BreakInfo::instant())));
 		self::register("dragon_egg", fn(BID $id) => new DragonEgg($id, "Dragon Egg", new Info(BreakInfo::pickaxe(3.0, ToolTier::WOOD, blastResistance: 45.0))));
 		self::register("dried_kelp", fn(BID $id) => new DriedKelp($id, "Dried Kelp Block", new Info(new BreakInfo(0.5, ToolType::NONE, 0, 12.5))));
-		self::register("seagrass", fn(BID $id) => new Seagrass($id, "Seagrass", new Info(BreakInfo::instant())));
 		self::register("emerald", fn(BID $id) => new Opaque($id, "Emerald Block", new Info(BreakInfo::pickaxe(5.0, ToolTier::IRON, 30.0))));
 		self::register("enchanting_table", fn(BID $id) => new EnchantingTable($id, "Enchanting Table", new Info(BreakInfo::pickaxe(5.0, ToolTier::WOOD, 6000.0))), TileEnchantingTable::class);
 		self::register("end_portal_frame", fn(BID $id) => new EndPortalFrame($id, "End Portal Frame", new Info(BreakInfo::indestructible(18000000.0))));
@@ -1063,8 +1030,6 @@ final class VanillaBlocks
 		self::register("grass", fn(BID $id) => new Grass($id, "Grass", new Info(BreakInfo::shovel(0.6), [Tags::DIRT])));
 		self::register("grass_path", fn(BID $id) => new GrassPath($id, "Grass Path", new Info(BreakInfo::shovel(0.65))));
 		self::register("gravel", fn(BID $id) => new Gravel($id, "Gravel", new Info(BreakInfo::shovel(0.6))));
-		self::register("suspicious_sand", fn(BID $id) => new SuspiciousSand($id, "Suspicious Sand", new Info(BreakInfo::shovel(0.6))));
-		self::register("suspicious_gravel", fn(BID $id) => new SuspiciousGravel($id, "Suspicious Gravel", new Info(BreakInfo::shovel(0.6))));
 
 		self::register("hardened_clay", fn(BID $id) => new HardenedClay($id, "Hardened Clay", new Info(BreakInfo::pickaxe(1.25, ToolTier::WOOD, 21.0))));
 
@@ -1072,7 +1037,6 @@ final class VanillaBlocks
 		self::register("hardened_glass", fn(BID $id) => new HardenedGlass($id, "Hardened Glass", $hardenedGlassBreakInfo));
 		self::register("hardened_glass_pane", fn(BID $id) => new HardenedGlassPane($id, "Hardened Glass Pane", $hardenedGlassBreakInfo));
 		self::register("hay_bale", fn(BID $id) => new HayBale($id, "Hay Bale", new Info(new BreakInfo(0.5))));
-		self::register("honey_block", fn(BID $id) => new HoneyBlock($id, "Honey Block", new Info(BreakInfo::axe(0.45, ToolTier::WOOD))));
 		self::register("hopper", fn(BID $id) => new Hopper($id, "Hopper", new Info(BreakInfo::pickaxe(3.0, ToolTier::WOOD, 24.0))), TileHopper::class);
 		self::register("ice", fn(BID $id) => new Ice($id, "Ice", new Info(BreakInfo::pickaxe(0.5))));
 
@@ -1084,6 +1048,7 @@ final class VanillaBlocks
 		$ironBreakInfo = new Info(BreakInfo::pickaxe(5.0, ToolTier::STONE, 30.0));
 		self::register("iron", fn(BID $id) => new Opaque($id, "Iron Block", $ironBreakInfo));
 		self::register("iron_bars", fn(BID $id) => new Thin($id, "Iron Bars", $ironBreakInfo));
+		self::register("copper_bars", fn(BID $id) => new CopperBars($id, "Copper Bars", $ironBreakInfo));
 
 		self::register("iron_door", fn(BID $id) => new Door($id, "Iron Door", new Info(BreakInfo::pickaxe(5.0))));
 		self::register("iron_trapdoor", fn(BID $id) => new Trapdoor($id, "Iron Trapdoor", new Info(BreakInfo::pickaxe(5.0, ToolTier::WOOD))));
@@ -1094,11 +1059,11 @@ final class VanillaBlocks
 
 		self::register("jukebox", fn(BID $id) => new Jukebox($id, "Jukebox", new Info(BreakInfo::axe(2.0, blastResistance: 30.0))), TileJukebox::class);
 		self::register("ladder", fn(BID $id) => new Ladder($id, "Ladder", new Info(BreakInfo::axe(0.4))));
-		self::register("scaffolding", fn(BID $id) => new Scaffolding($id, "Scaffolding", new Info(BreakInfo::axe(0.4))));
 
 		$lanternBreakInfo = new Info(BreakInfo::pickaxe(3.5));
 		self::register("lantern", fn(BID $id) => new Lantern($id, "Lantern", $lanternBreakInfo, 15));
 		self::register("soul_lantern", fn(BID $id) => new Lantern($id, "Soul Lantern", $lanternBreakInfo, 10));
+		self::register("copper_lantern", fn(BID $id) => new CopperLantern($id, "Copper Lantern", $lanternBreakInfo, 15));
 
 		self::register("lapis_lazuli", fn(BID $id) => new Opaque($id, "Lapis Lazuli Block", new Info(BreakInfo::pickaxe(3.0, ToolTier::STONE))));
 		self::register("lava", fn(BID $id) => new Lava($id, "Lava", new Info(BreakInfo::indestructible(500.0))));
@@ -1124,8 +1089,6 @@ final class VanillaBlocks
 		self::register("nether_wart_block", fn(BID $id) => new Opaque($id, "Nether Wart Block", new Info(new BreakInfo(1.0, ToolType::HOE))));
 		self::register("nether_wart", fn(BID $id) => new NetherWartPlant($id, "Nether Wart", new Info(BreakInfo::instant())));
 		self::register("netherrack", fn(BID $id) => new Netherrack($id, "Netherrack", new Info(BreakInfo::pickaxe(0.4, ToolTier::WOOD))));
-		self::register("crimson_nylium", fn(BID $id) => new Nylium($id, "Crimson Nylium", new Info(BreakInfo::pickaxe(0.5, ToolTier::WOOD)), ['CRIMSON_ROOTS', 'WEEPING_VINES']));
-		self::register("warped_nylium", fn(BID $id) => new Nylium($id, "Warped Nylium", new Info(BreakInfo::pickaxe(0.5, ToolTier::WOOD)), ['WARPED_ROOTS', 'TWISTING_VINES']));
 		self::register("note_block", fn(BID $id) => new Note($id, "Note Block", new Info(BreakInfo::axe(0.8))), TileNote::class);
 		self::register("obsidian", fn(BID $id) => new Opaque($id, "Obsidian", new Info(BreakInfo::pickaxe(35.0 /* 50 in PC */,  ToolTier::DIAMOND, 6000.0))));
 		self::register("packed_ice", fn(BID $id) => new PackedIce($id, "Packed Ice", new Info(BreakInfo::pickaxe(0.5))));
@@ -1171,7 +1134,6 @@ final class VanillaBlocks
 		self::register("redstone_lamp", fn(BID $id) => new RedstoneLamp($id, "Redstone Lamp", new Info(new BreakInfo(0.3))));
 		self::register("redstone_repeater", fn(BID $id) => new RedstoneRepeater($id, "Redstone Repeater", new Info(BreakInfo::instant())));
 		self::register("redstone_torch", fn(BID $id) => new RedstoneTorch($id, "Redstone Torch", new Info(BreakInfo::instant())));
-		self::register("copper_torch", fn(BID $id) => new CopperTorch($id, "Copper Torch", new Info(BreakInfo::instant())));
 		self::register("redstone_wire", fn(BID $id) => new RedstoneWire($id, "Redstone", new Info(BreakInfo::instant())));
 		self::register("reserved6", fn(BID $id) => new Reserved6($id, "reserved6", new Info(BreakInfo::instant())));
 
@@ -1185,7 +1147,6 @@ final class VanillaBlocks
 		self::register("slime", fn(BID $id) => new Slime($id, "Slime Block", new Info(BreakInfo::instant())));
 		self::register("snow", fn(BID $id) => new Snow($id, "Snow Block", new Info(BreakInfo::shovel(0.2, ToolTier::WOOD))));
 		self::register("snow_layer", fn(BID $id) => new SnowLayer($id, "Snow Layer", new Info(BreakInfo::shovel(0.1, ToolTier::WOOD))));
-		// POWDER_SNOW_CAULDRON
 		self::register("soul_sand", fn(BID $id) => new SoulSand($id, "Soul Sand", new Info(BreakInfo::shovel(0.5))));
 		self::register("sponge", fn(BID $id) => new Sponge($id, "Sponge", new Info(new BreakInfo(0.6, ToolType::HOE))));
 		$shulkerBoxBreakInfo = new Info(BreakInfo::pickaxe(2));
@@ -1194,14 +1155,12 @@ final class VanillaBlocks
 		$stoneBreakInfo = new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD, 30.0));
 		$stone = self::register(
 			"stone",
-			fn(BID $id) => new class($id, "Stone", $stoneBreakInfo) extends Opaque {
-				public function getDropsForCompatibleTool(Item $item): array
-				{
+			fn(BID $id) => new class($id, "Stone", $stoneBreakInfo) extends Opaque{
+				public function getDropsForCompatibleTool(Item $item) : array{
 					return [VanillaBlocks::COBBLESTONE()->asItem()];
 				}
 
-				public function isAffectedBySilkTouch(): bool
-				{
+				public function isAffectedBySilkTouch() : bool{
 					return true;
 				}
 			}
@@ -1279,10 +1238,11 @@ final class VanillaBlocks
 		self::register("sugarcane", fn(BID $id) => new Sugarcane($id, "Sugarcane", new Info(BreakInfo::instant())));
 		self::register("sweet_berry_bush", fn(BID $id) => new SweetBerryBush($id, "Sweet Berry Bush", new Info(BreakInfo::instant())));
 		self::register("tnt", fn(BID $id) => new TNT($id, "TNT", new Info(BreakInfo::instant())));
-		self::register("fern", fn(BID $id) => new TallGrass($id, "Fern", new Info(BreakInfo::instant(ToolType::SHEARS, 1), [Tags::POTTABLE_PLANTS])));
-		self::register("tall_grass", fn(BID $id) => new TallGrass($id, "Tall Grass", new Info(BreakInfo::instant(ToolType::SHEARS, 1))));
+		self::register("fern", fn(BID $id) => new TallGrass($id, "Fern", new Info(BreakInfo::instant(ToolType::SHEARS, 1), [Tags::POTTABLE_PLANTS]), fn() => VanillaBlocks::LARGE_FERN()));
+		self::register("tall_grass", fn(BID $id) => new TallGrass($id, "Tall Grass", new Info(BreakInfo::instant(ToolType::SHEARS, 1)), fn() => VanillaBlocks::DOUBLE_TALLGRASS()));
 
 		self::register("blue_torch", fn(BID $id) => new Torch($id, "Blue Torch", new Info(BreakInfo::instant())));
+		self::register("copper_torch", fn(BID $id) => new Torch($id, "Copper Torch", new Info(BreakInfo::instant())));
 		self::register("purple_torch", fn(BID $id) => new Torch($id, "Purple Torch", new Info(BreakInfo::instant())));
 		self::register("red_torch", fn(BID $id) => new Torch($id, "Red Torch", new Info(BreakInfo::instant())));
 		self::register("green_torch", fn(BID $id) => new Torch($id, "Green Torch", new Info(BreakInfo::instant())));
@@ -1295,23 +1255,27 @@ final class VanillaBlocks
 		self::register("vines", fn(BID $id) => new Vine($id, "Vines", new Info(BreakInfo::axe(0.2))));
 		self::register("water", fn(BID $id) => new Water($id, "Water", new Info(BreakInfo::indestructible(500.0))));
 		self::register("lily_pad", fn(BID $id) => new WaterLily($id, "Lily Pad", new Info(BreakInfo::instant())));
-		self::register("powder_snow", fn(BID $id) => new PowderSnow($id, "Powder Snow", new Info(new BreakInfo(0.25))));
 
 		$weightedPressurePlateBreakInfo = new Info(BreakInfo::pickaxe(0.5));
 		self::register("weighted_pressure_plate_heavy", fn(BID $id) => new WeightedPressurePlateHeavy(
 			$id,
 			"Weighted Pressure Plate Heavy",
 			$weightedPressurePlateBreakInfo,
-			10,
-			0.1
+			deactivationDelayTicks: 10,
+			signalStrengthFactor: 0.1
 		));
-		self::register("weighted_pressure_plate_light", fn(BID $id) => new WeightedPressurePlateLight($id, "Weighted Pressure Plate Light", $weightedPressurePlateBreakInfo, 10));
+		self::register("weighted_pressure_plate_light", fn(BID $id) => new WeightedPressurePlateLight(
+			$id,
+			"Weighted Pressure Plate Light",
+			$weightedPressurePlateBreakInfo,
+			deactivationDelayTicks: 10,
+			signalStrengthFactor: 1.0
+		));
 		self::register("wheat", fn(BID $id) => new Wheat($id, "Wheat Block", new Info(BreakInfo::instant())));
 
-		$leavesBreakInfo = new Info(new class(0.2, ToolType::HOE) extends BreakInfo {
-			public function getBreakTime(Item $item): float
-			{
-				if ($item->getBlockToolType() === ToolType::SHEARS) {
+		$leavesBreakInfo = new Info(new class(0.2, ToolType::HOE) extends BreakInfo{
+			public function getBreakTime(Item $item) : float{
+				if($item->getBlockToolType() === ToolType::SHEARS){
 					return 0.0;
 				}
 				return parent::getBreakTime($item);
@@ -1319,11 +1283,11 @@ final class VanillaBlocks
 		});
 		$saplingTypeInfo = new Info(BreakInfo::instant(), [Tags::POTTABLE_PLANTS]);
 
-		foreach (SaplingType::cases() as $saplingType) {
+		foreach(SaplingType::cases() as $saplingType){
 			$name = $saplingType->getDisplayName();
 			self::register(strtolower($saplingType->name) . "_sapling", fn(BID $id) => new Sapling($id, $name . " Sapling", $saplingTypeInfo, $saplingType));
 		}
-		foreach (LeavesType::cases() as $leavesType) {
+		foreach(LeavesType::cases() as $leavesType){
 			$name = $leavesType->getDisplayName();
 			self::register(strtolower($leavesType->name) . "_leaves", fn(BID $id) => new Leaves($id, $name . " Leaves", $leavesBreakInfo, $leavesType));
 		}
@@ -1354,11 +1318,10 @@ final class VanillaBlocks
 		self::register("carpet", fn(BID $id) => new Carpet($id, "Carpet", new Info(new BreakInfo(0.1))));
 		self::register("concrete", fn(BID $id) => new Concrete($id, "Concrete", new Info(BreakInfo::pickaxe(1.8, ToolTier::WOOD))));
 		self::register("concrete_powder", fn(BID $id) => new ConcretePowder($id, "Concrete Powder", new Info(BreakInfo::shovel(0.5))));
-		self::register("wool", fn(BID $id) => new Wool($id, "Wool", new Info(new class(0.8, ToolType::SHEARS) extends BreakInfo {
-			public function getBreakTime(Item $item): float
-			{
+		self::register("wool", fn(BID $id) => new Wool($id, "Wool", new Info(new class(0.8, ToolType::SHEARS) extends BreakInfo{
+			public function getBreakTime(Item $item) : float{
 				$time = parent::getBreakTime($item);
-				if ($item->getBlockToolType() === ToolType::SHEARS) {
+				if($item->getBlockToolType() === ToolType::SHEARS){
 					$time *= 3; //shears break compatible blocks 15x faster, but wool 5x
 				}
 
@@ -1419,12 +1382,12 @@ final class VanillaBlocks
 		self::register("muddy_mangrove_roots", fn(BID $id) => new SimplePillar($id, "Muddy Mangrove Roots", new Info(BreakInfo::shovel(0.7), [Tags::MUD])));
 		self::register("froglight", fn(BID $id) => new Froglight($id, "Froglight", new Info(new BreakInfo(0.3))));
 		self::register("sculk", fn(BID $id) => new Sculk($id, "Sculk", new Info(new BreakInfo(0.2, ToolType::HOE))));
-		self::register("reinforced_deepslate", fn(BID $id) => new class($id, "Reinforced Deepslate", new Info(new BreakInfo(55.0, ToolType::NONE, 0, 6000.0))) extends Opaque {
-			public function getDropsForCompatibleTool(Item $item): array
-			{
+		self::register("reinforced_deepslate", fn(BID $id) => new class($id, "Reinforced Deepslate", new Info(new BreakInfo(55.0, ToolType::NONE, 0, 6000.0))) extends Opaque{
+			public function getDropsForCompatibleTool(Item $item) : array{
 				return [];
 			}
 		});
+		self::register("cactus_flower", fn(BID $id) => new CactusFlower($id, "Cactus Flower", new Info(BreakInfo::instant())));
 
 		self::registerBlocksR13();
 		self::registerBlocksR14();
@@ -1442,8 +1405,7 @@ final class VanillaBlocks
 		self::registerCauldronBlocks();
 	}
 
-	private static function registerWoodenBlocks(): void
-	{
+	private static function registerWoodenBlocks() : void{
 		$planksBreakInfo = new Info(BreakInfo::axe(2.0, null, 15.0));
 		$signBreakInfo = new Info(BreakInfo::axe(1.0));
 		$hangingSignBreakInfo = new Info(BreakInfo::axe(1.0), [Tags::HANGING_SIGN]);
@@ -1452,7 +1414,7 @@ final class VanillaBlocks
 		$woodenButtonBreakInfo = new Info(BreakInfo::axe(0.5));
 		$woodenPressurePlateBreakInfo = new Info(BreakInfo::axe(0.5));
 
-		foreach (WoodType::cases() as $woodType) {
+		foreach(WoodType::cases() as $woodType){
 			$name = $woodType->getDisplayName();
 			$idName = fn(string $suffix) => strtolower($woodType->name) . "_" . $suffix;
 
@@ -1471,7 +1433,7 @@ final class VanillaBlocks
 			self::register($idName("pressure_plate"), fn(BID $id) => new WoodenPressurePlate($id, $name . " Pressure Plate", $woodenPressurePlateBreakInfo, $woodType, 20));
 			self::register($idName("trapdoor"), fn(BID $id) => new WoodenTrapdoor($id, $name . " Trapdoor", $woodenDoorBreakInfo, $woodType));
 
-			$signAsItem = match ($woodType) {
+			$signAsItem = match($woodType){
 				WoodType::OAK => VanillaItems::OAK_SIGN(...),
 				WoodType::SPRUCE => VanillaItems::SPRUCE_SIGN(...),
 				WoodType::BIRCH => VanillaItems::BIRCH_SIGN(...),
@@ -1482,13 +1444,12 @@ final class VanillaBlocks
 				WoodType::CRIMSON => VanillaItems::CRIMSON_SIGN(...),
 				WoodType::WARPED => VanillaItems::WARPED_SIGN(...),
 				WoodType::CHERRY => VanillaItems::CHERRY_SIGN(...),
-				WoodType::BAMBOO => VanillaItems::BAMBOO_SIGN(...),
 				WoodType::PALE_OAK => VanillaItems::PALE_OAK_SIGN(...),
 			};
 			self::register($idName("sign"), fn(BID $id) => new FloorSign($id, $name . " Sign", $signBreakInfo, $woodType, $signAsItem), TileSign::class);
 			self::register($idName("wall_sign"), fn(BID $id) => new WallSign($id, $name . " Wall Sign", $signBreakInfo, $woodType, $signAsItem), TileSign::class);
 
-			$hangingSignAsItem = match ($woodType) {
+			$hangingSignAsItem = match($woodType){
 				WoodType::OAK => VanillaItems::OAK_HANGING_SIGN(...),
 				WoodType::SPRUCE => VanillaItems::SPRUCE_HANGING_SIGN(...),
 				WoodType::BIRCH => VanillaItems::BIRCH_HANGING_SIGN(...),
@@ -1499,35 +1460,15 @@ final class VanillaBlocks
 				WoodType::CRIMSON => VanillaItems::CRIMSON_HANGING_SIGN(...),
 				WoodType::WARPED => VanillaItems::WARPED_HANGING_SIGN(...),
 				WoodType::CHERRY => VanillaItems::CHERRY_HANGING_SIGN(...),
-				WoodType::BAMBOO => VanillaItems::BAMBOO_HANGING_SIGN(...),
 				WoodType::PALE_OAK => VanillaItems::PALE_OAK_HANGING_SIGN(...),
 			};
 			self::register($idName("ceiling_center_hanging_sign"), fn(BID $id) => new CeilingCenterHangingSign($id, $name . " Center Hanging Sign", $hangingSignBreakInfo, $woodType, $hangingSignAsItem), TileHangingSign::class);
 			self::register($idName("ceiling_edges_hanging_sign"), fn(BID $id) => new CeilingEdgesHangingSign($id, $name . " Edges Hanging Sign", $hangingSignBreakInfo, $woodType, $hangingSignAsItem), TileHangingSign::class);
 			self::register($idName("wall_hanging_sign"), fn(BID $id) => new WallHangingSign($id, $name . " Wall Hanging Sign", $hangingSignBreakInfo, $woodType, $hangingSignAsItem), TileHangingSign::class);
-
-			// SHELF - with asItem to avoid ItemTranslator issues
-			$shelfAsItem = match ($woodType) {
-				WoodType::OAK => VanillaItems::OAK_SHELF(...),
-				WoodType::SPRUCE => VanillaItems::SPRUCE_SHELF(...),
-				WoodType::BIRCH => VanillaItems::BIRCH_SHELF(...),
-
-				WoodType::JUNGLE => VanillaItems::JUNGLE_SHELF(...),
-				WoodType::ACACIA => VanillaItems::ACACIA_SHELF(...),
-				WoodType::DARK_OAK => VanillaItems::DARK_OAK_SHELF(...),
-				WoodType::MANGROVE => VanillaItems::MANGROVE_SHELF(...),
-				WoodType::CRIMSON => VanillaItems::CRIMSON_SHELF(...),
-				WoodType::WARPED => VanillaItems::WARPED_SHELF(...),
-				WoodType::CHERRY => VanillaItems::CHERRY_SHELF(...),
-				WoodType::BAMBOO => VanillaItems::BAMBOO_SHELF(...),
-				WoodType::PALE_OAK => VanillaItems::PALE_OAK_SHELF(...),
-			};
-			self::register($idName("shelf"), fn(BID $id) => new Shelf($id, $name . " Shelf", new Info(BreakInfo::axe(1.0)), $woodType, $shelfAsItem), TileShelf::class);
 		}
 	}
 
-	private static function registerMushroomBlocks(): void
-	{
+	private static function registerMushroomBlocks() : void{
 		$mushroomBlockBreakInfo = new Info(BreakInfo::axe(0.2));
 
 		self::register("brown_mushroom_block", fn(BID $id) => new BrownMushroomBlock($id, "Brown Mushroom Block", $mushroomBlockBreakInfo));
@@ -1538,13 +1479,12 @@ final class VanillaBlocks
 		self::register("all_sided_mushroom_stem", fn(BID $id) => new MushroomStem($id, "All Sided Mushroom Stem", $mushroomBlockBreakInfo));
 	}
 
-	private static function registerElements(): void
-	{
+	private static function registerElements() : void{
 		$instaBreak = new Info(BreakInfo::instant());
 		self::register("element_zero", fn(BID $id) => new Opaque($id, "???", $instaBreak));
 
 		$register = fn(string $name, string $displayName, string $symbol, int $atomicWeight, int $group) =>
-		self::register("element_$name", fn(BID $id) => new Element($id, $displayName, $instaBreak, $symbol, $atomicWeight, $group));
+			self::register("element_$name", fn(BID $id) => new Element($id, $displayName, $instaBreak, $symbol, $atomicWeight, $group));
 
 		$register("hydrogen", "Hydrogen", "h", 1, 5);
 		$register("helium", "Helium", "he", 2, 7);
@@ -1666,8 +1606,7 @@ final class VanillaBlocks
 		$register("oganesson", "Oganesson", "og", 118, 7);
 	}
 
-	private static function registerOres(): void
-	{
+	private static function registerOres() : void{
 		$stoneOreBreakInfo = fn(ToolTier $toolTier) => new Info(BreakInfo::pickaxe(3.0, $toolTier));
 		self::register("coal_ore", fn(BID $id) => new CoalOre($id, "Coal Ore", $stoneOreBreakInfo(ToolTier::WOOD)));
 		self::register("copper_ore", fn(BID $id) => new CopperOre($id, "Copper Ore", $stoneOreBreakInfo(ToolTier::STONE)));
@@ -1693,8 +1632,7 @@ final class VanillaBlocks
 		self::register("nether_gold_ore", fn(BID $id) => new NetherGoldOre($id, "Nether Gold Ore", $netherrackOreBreakInfo));
 	}
 
-	private static function registerCraftingTables(): void
-	{
+	private static function registerCraftingTables() : void{
 		//TODO: this is the same for all wooden crafting blocks
 		$craftingBlockBreakInfo = new Info(BreakInfo::axe(2.5));
 		self::register("cartography_table", fn(BID $id) => new CartographyTable($id, "Cartography Table", $craftingBlockBreakInfo));
@@ -1704,43 +1642,32 @@ final class VanillaBlocks
 		self::register("smithing_table", fn(BID $id) => new SmithingTable($id, "Smithing Table", $craftingBlockBreakInfo));
 	}
 
-	private static function registerChorusBlocks(): void
-	{
+	private static function registerChorusBlocks() : void{
 		$chorusBlockBreakInfo = new Info(BreakInfo::axe(0.4));
 		self::register("chorus_plant", fn(BID $id) => new ChorusPlant($id, "Chorus Plant", $chorusBlockBreakInfo));
 		self::register("chorus_flower", fn(BID $id) => new ChorusFlower($id, "Chorus Flower", $chorusBlockBreakInfo));
 	}
 
-	private static function registerBlocksR13(): void
-	{
+	private static function registerBlocksR13() : void{
 		self::register("light", fn(BID $id) => new Light($id, "Light Block", new Info(BreakInfo::indestructible())));
+		self::register("structure_void", fn(BID $id) => new StructureVoid($id, "Structure Void", new Info(BreakInfo::instant())));
 		self::register("wither_rose", fn(BID $id) => new WitherRose($id, "Wither Rose", new Info(BreakInfo::instant(), [Tags::POTTABLE_PLANTS])));
 	}
 
-	private static function registerBlocksR14(): void
-	{
+	private static function registerBlocksR14() : void{
 		self::register("honeycomb", fn(BID $id) => new Opaque($id, "Honeycomb Block", new Info(new BreakInfo(0.6))));
-		// Beehive block with tile to track occupants
-		self::register("beehive", fn(BID $id) => new BeeHive($id, "Beehive", new Info(new BreakInfo(0.6))), TileBeeHive::class);
 	}
 
-	private static function registerBlocksR16(): void
-	{
+	private static function registerBlocksR16() : void{
 		//for some reason, slabs have weird hardness like the legacy ones
 		$slabBreakInfo = new Info(BreakInfo::pickaxe(2.0, ToolTier::WOOD, 30.0));
 
-		self::register("ancient_debris", fn(BID $id) => new class($id, "Ancient Debris", new Info(BreakInfo::pickaxe(30, ToolTier::DIAMOND, 6000.0))) extends Opaque {
-			public function isFireProofAsItem(): bool
-			{
-				return true;
-			}
+		self::register("ancient_debris", fn(BID $id) => new class($id, "Ancient Debris", new Info(BreakInfo::pickaxe(30, ToolTier::DIAMOND, 6000.0))) extends Opaque{
+			public function isFireProofAsItem() : bool{ return true; }
 		});
 		$netheriteBreakInfo = new Info(BreakInfo::pickaxe(50, ToolTier::DIAMOND, 6000.0));
-		self::register("netherite", fn(BID $id) => new class($id, "Netherite Block", $netheriteBreakInfo) extends Opaque {
-			public function isFireProofAsItem(): bool
-			{
-				return true;
-			}
+		self::register("netherite", fn(BID $id) => new class($id, "Netherite Block", $netheriteBreakInfo) extends Opaque{
+			public function isFireProofAsItem() : bool{ return true; }
 		});
 
 		$basaltBreakInfo = new Info(BreakInfo::pickaxe(1.25, ToolTier::WOOD, 21.0));
@@ -1778,19 +1705,13 @@ final class VanillaBlocks
 
 		self::register("soul_soil", fn(BID $id) => new Opaque($id, "Soul Soil", new Info(BreakInfo::shovel(0.5))));
 
-		self::register("shroomlight", fn(BID $id) => new class($id, "Shroomlight", new Info(new BreakInfo(1.0, ToolType::HOE))) extends Opaque {
-			public function getLightLevel(): int
-			{
-				return 15;
-			}
+		self::register("shroomlight", fn(BID $id) => new class($id, "Shroomlight", new Info(new BreakInfo(1.0, ToolType::HOE))) extends Opaque{
+			public function getLightLevel() : int{ return 15; }
 		});
 
 		self::register("warped_wart_block", fn(BID $id) => new Opaque($id, "Warped Wart Block", new Info(new BreakInfo(1.0, ToolType::HOE))));
-		self::register("crying_obsidian", fn(BID $id) => new class($id, "Crying Obsidian", new Info(BreakInfo::pickaxe(35.0 /* 50 in Java */, ToolTier::DIAMOND, 6000.0))) extends Opaque {
-			public function getLightLevel(): int
-			{
-				return 10;
-			}
+		self::register("crying_obsidian", fn(BID $id) => new class($id, "Crying Obsidian", new Info(BreakInfo::pickaxe(35.0 /* 50 in Java */, ToolTier::DIAMOND, 6000.0))) extends Opaque{
+			public function getLightLevel() : int{ return 10;}
 		});
 
 		self::register("twisting_vines", fn(BID $id) => new NetherVines($id, "Twisting Vines", new Info(BreakInfo::instant()), Facing::UP));
@@ -1801,15 +1722,25 @@ final class VanillaBlocks
 		self::register("warped_roots", fn(BID $id) => new NetherRoots($id, "Warped Roots", $netherRootsInfo));
 
 		self::register("chain", fn(BID $id) => new Chain($id, "Chain", new Info(BreakInfo::pickaxe(5.0, ToolTier::WOOD, 30.0))));
+		self::register("copper_chain", fn(BID $id) => new CopperChain($id, "Copper Chain", new Info(BreakInfo::pickaxe(5.0, ToolTier::WOOD, 30.0))));
 
 		self::register("respawn_anchor", fn(BID $id) => new RespawnAnchor($id, "Respawn Anchor", new Info(BreakInfo::pickaxe(50.0, ToolTier::DIAMOND, 6000.0))));
+
+		$netherFungusInfo = new Info(BreakInfo::instant(), [Tags::POTTABLE_PLANTS, Tags::HUGE_FUNGUS_REPLACEABLE]);
+		self::register("crimson_fungus", fn(BID $id) => new NetherFungus($id, "Crimson Fungus", $netherFungusInfo, BlockTypeIds::CRIMSON_NYLIUM, TreeType::CRIMSON));
+		self::register("warped_fungus", fn(BID $id) => new NetherFungus($id, "Warped Fungus", $netherFungusInfo, BlockTypeIds::WARPED_NYLIUM, TreeType::WARPED));
+
+		self::register("nether_sprouts", fn(BID $id) => new NetherSprouts($id, "Nether Sprouts", new Info(BreakInfo::instant(ToolType::SHEARS, 1))));
+
+		$nyliumBreakInfo = new Info(BreakInfo::pickaxe(0.4, ToolTier::WOOD), [Tags::NYLIUM]);
+		self::register("crimson_nylium", fn(BID $id) => new Nylium($id, "Crimson Nylium", $nyliumBreakInfo, [VanillaBlocks::CRIMSON_FUNGUS(), VanillaBlocks::CRIMSON_ROOTS()]));
+		self::register("warped_nylium", fn(BID $id) => new Nylium($id, "Warped Nylium", $nyliumBreakInfo, [VanillaBlocks::WARPED_FUNGUS(), VanillaBlocks::WARPED_ROOTS(), VanillaBlocks::NETHER_SPROUTS()]));
 	}
 
-	private static function registerBlocksR17(): void
-	{
+	private static function registerBlocksR17() : void{
 		//in java this can be acquired using any tool - seems to be a parity issue in bedrock
 		$amethystInfo = new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD));
-		self::register("amethyst", fn(BID $id) => new class($id, "Amethyst", $amethystInfo) extends Opaque {
+		self::register("amethyst", fn(BID $id) => new class($id, "Amethyst", $amethystInfo) extends Opaque{
 			use AmethystTrait;
 		});
 		self::register("budding_amethyst", fn(BID $id) => new BuddingAmethyst($id, "Budding Amethyst", $amethystInfo));
@@ -1822,14 +1753,12 @@ final class VanillaBlocks
 		self::register("raw_iron", fn(BID $id) => new Opaque($id, "Raw Iron Block", new Info(BreakInfo::pickaxe(5, ToolTier::STONE, 30.0))));
 
 		$deepslateBreakInfo = new Info(BreakInfo::pickaxe(3, ToolTier::WOOD, 30.0));
-		self::register("deepslate", fn(BID $id) => new class($id, "Deepslate", $deepslateBreakInfo) extends SimplePillar {
-			public function getDropsForCompatibleTool(Item $item): array
-			{
+		$deepslate = self::register("deepslate", fn(BID $id) => new class($id, "Deepslate", $deepslateBreakInfo) extends SimplePillar{
+			public function getDropsForCompatibleTool(Item $item) : array{
 				return [VanillaBlocks::COBBLED_DEEPSLATE()->asItem()];
 			}
 
-			public function isAffectedBySilkTouch(): bool
-			{
+			public function isAffectedBySilkTouch() : bool{
 				return true;
 			}
 		});
@@ -1865,7 +1794,6 @@ final class VanillaBlocks
 
 		self::register("tinted_glass", fn(BID $id) => new TintedGlass($id, "Tinted Glass", new Info(new BreakInfo(0.3))));
 
-		//blast resistance should be 30 if we were matched with java :(
 		$copperBreakInfo = new Info(BreakInfo::pickaxe(3.0, ToolTier::STONE, 30.0));
 		self::register("lightning_rod", fn(BID $id) => new LightningRod($id, "Lightning Rod", $copperBreakInfo));
 
@@ -1876,16 +1804,6 @@ final class VanillaBlocks
 		self::register("cut_copper_slab", fn(BID $id) => new CopperSlab($id, "Cut Copper Slab", $copperBreakInfo));
 		self::register("cut_copper_stairs", fn(BID $id) => new CopperStairs($id, "Cut Copper Stairs", $copperBreakInfo));
 		self::register("copper_bulb", fn(BID $id) => new CopperBulb($id, "Copper Bulb", $copperBreakInfo));
-		// copper golem statues (oxidation + waxed variants)
-		self::register("copper_golem_statue", fn(BID $id) => new CopperGolemStatue($id, "Copper Golem Statue", $copperBreakInfo), \pocketmine\block\tile\CopperGolemStatue::class);
-		self::register("exposed_copper_golem_statue", fn(BID $id) => new CopperGolemStatue($id, "Exposed Copper Golem Statue", $copperBreakInfo), \pocketmine\block\tile\CopperGolemStatue::class);
-		self::register("weathered_copper_golem_statue", fn(BID $id) => new CopperGolemStatue($id, "Weathered Copper Golem Statue", $copperBreakInfo), \pocketmine\block\tile\CopperGolemStatue::class);
-		self::register("oxidized_copper_golem_statue", fn(BID $id) => new CopperGolemStatue($id, "Oxidized Copper Golem Statue", $copperBreakInfo), \pocketmine\block\tile\CopperGolemStatue::class);
-		self::register("waxed_copper_golem_statue", fn(BID $id) => new CopperGolemStatue($id, "Waxed Copper Golem Statue", $copperBreakInfo), \pocketmine\block\tile\CopperGolemStatue::class);
-		self::register("waxed_exposed_copper_golem_statue", fn(BID $id) => new CopperGolemStatue($id, "Waxed Exposed Copper Golem Statue", $copperBreakInfo), \pocketmine\block\tile\CopperGolemStatue::class);
-		self::register("waxed_weathered_copper_golem_statue", fn(BID $id) => new CopperGolemStatue($id, "Waxed Weathered Copper Golem Statue", $copperBreakInfo), \pocketmine\block\tile\CopperGolemStatue::class);
-		self::register("waxed_oxidized_copper_golem_statue", fn(BID $id) => new CopperGolemStatue($id, "Waxed Oxidized Copper Golem Statue", $copperBreakInfo), \pocketmine\block\tile\CopperGolemStatue::class);
-
 
 		self::register("copper_door", fn(BID $id) => new CopperDoor($id, "Copper Door", new Info(BreakInfo::pickaxe(3.0, blastResistance: 30.0))));
 		self::register("copper_trapdoor", fn(BID $id) => new CopperTrapdoor($id, "Copper Trapdoor", new Info(BreakInfo::pickaxe(3.0, ToolTier::STONE, 30.0))));
@@ -1906,15 +1824,15 @@ final class VanillaBlocks
 		self::register("small_dripleaf", fn(BID $id) => new SmallDripleaf($id, "Small Dripleaf", new Info(BreakInfo::instant(ToolType::SHEARS, toolHarvestLevel: 1))));
 		self::register("big_dripleaf_head", fn(BID $id) => new BigDripleafHead($id, "Big Dripleaf", new Info(new BreakInfo(0.1))));
 		self::register("big_dripleaf_stem", fn(BID $id) => new BigDripleafStem($id, "Big Dripleaf Stem", new Info(new BreakInfo(0.1))));
+
+		self::register("infested_deepslate", fn(BID $id) => new InfestedPillar($id, "Infested Deepslate", new Info(BreakInfo::pickaxe(1.5, blastResistance: 3.75)), $deepslate));
 	}
 
-	private static function registerBlocksR18(): void
-	{
+	private static function registerBlocksR18() : void{
 		self::register("spore_blossom", fn(BID $id) => new SporeBlossom($id, "Spore Blossom", new Info(BreakInfo::instant())));
 	}
 
-	private static function registerMudBlocks(): void
-	{
+	private static function registerMudBlocks() : void{
 		self::register("mud", fn(BID $id) => new Opaque($id, "Mud", new Info(BreakInfo::shovel(0.5), [Tags::MUD])));
 		self::register("packed_mud", fn(BID $id) => new Opaque($id, "Packed Mud", new Info(BreakInfo::pickaxe(1.0, null, 15.0))));
 
@@ -1926,8 +1844,7 @@ final class VanillaBlocks
 		self::register("mud_brick_wall", fn(BID $id) => new Wall($id, "Mud Brick Wall", $mudBricksBreakInfo));
 	}
 
-	private static function registerResinBlocks(): void
-	{
+	private static function registerResinBlocks() : void{
 		self::register("resin", fn(BID $id) => new Opaque($id, "Block of Resin", new Info(BreakInfo::instant())));
 		self::register("resin_clump", fn(BID $id) => new ResinClump($id, "Resin Clump", new Info(BreakInfo::instant())));
 
@@ -1939,8 +1856,7 @@ final class VanillaBlocks
 		self::register("chiseled_resin_bricks", fn(BID $id) => new Opaque($id, "Chiseled Resin Bricks", $resinBricksInfo));
 	}
 
-	private static function registerTuffBlocks(): void
-	{
+	private static function registerTuffBlocks() : void{
 		$tuffBreakInfo = new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD, 30.0));
 
 		self::register("tuff", fn(BID $id) => new Opaque($id, "Tuff", $tuffBreakInfo));
@@ -1961,14 +1877,11 @@ final class VanillaBlocks
 		self::register("polished_tuff_wall", fn(BID $id) => new Wall($id, "Polished Tuff Wall", $tuffBreakInfo));
 	}
 
-	private static function registerCauldronBlocks(): void
-	{
+	private static function registerCauldronBlocks() : void{
 		$cauldronBreakInfo = new Info(BreakInfo::pickaxe(2, ToolTier::WOOD));
 
 		self::register("cauldron", fn(BID $id) => new Cauldron($id, "Cauldron", $cauldronBreakInfo), TileCauldron::class);
 		self::register("water_cauldron", fn(BID $id) => new WaterCauldron($id, "Water Cauldron", $cauldronBreakInfo), TileCauldron::class);
-		self::register("powder_snow_cauldron", fn(BID $id) => new PowderSnowCauldron($id, "Powder Snow Cauldron", $cauldronBreakInfo), TileCauldron::class);
-
 		self::register("lava_cauldron", fn(BID $id) => new LavaCauldron($id, "Lava Cauldron", $cauldronBreakInfo), TileCauldron::class);
 		self::register("potion_cauldron", fn(BID $id) => new PotionCauldron($id, "Potion Cauldron", $cauldronBreakInfo), TileCauldron::class);
 	}

@@ -31,6 +31,5 @@ class AmethystBlockChimeSound implements Sound{
 
 	public function encode(Vector3 $pos) : array{
 		return [LevelSoundEventPacket::nonActorSound(LevelSoundEvent::CHIME_AMETHYST_BLOCK, $pos, false)];
-
 	}
 }

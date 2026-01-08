@@ -57,7 +57,7 @@ final class PitcherCrop extends Flowable implements Ageable{
 				->trim(Facing::UP, $heightTrim / 16)
 				->squash(Axis::X, $widthTrim / 16)
 				->squash(Axis::Z, $widthTrim / 16)
-				->extend(Facing::DOWN, 1 / 16) 
+				->extend(Facing::DOWN, 1 / 16) //presumably this is to correct for farmland being 15/16 of a block tall
 		];
 	}
 

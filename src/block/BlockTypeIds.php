@@ -23,11 +23,19 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-final class BlockTypeIds
-{
+/**
+ * Every block in {@link VanillaBlocks} has a corresponding constant in this class. These constants can be used to
+ * identify and compare block types efficiently using {@link Block::getTypeId()}.
+ *
+ * Type ID is also used internally as part of block state ID, which is used to store blocks and their simple properties
+ * in a memory-efficient way in chunks at runtime.
+ *
+ * WARNING: These are NOT a replacement for Minecraft legacy IDs. Do **NOT** hardcode their values, or store them in
+ * configs or databases. They will change without warning.
+ */
+final class BlockTypeIds{
 
-	private function __construct()
-	{
+	private function __construct(){
 		//NOOP
 	}
 
@@ -664,7 +672,6 @@ final class BlockTypeIds
 	public const DEEPSLATE_GOLD_ORE = 10642;
 	public const DEEPSLATE_COPPER_ORE = 10643;
 	public const COPPER_ORE = 10644;
-
 	public const NETHER_GOLD_ORE = 10645;
 	public const MUD = 10646;
 	public const MUD_BRICKS = 10647;
@@ -815,74 +822,27 @@ final class BlockTypeIds
 	public const WARPED_CEILING_CENTER_HANGING_SIGN = 10792;
 	public const WARPED_CEILING_EDGES_HANGING_SIGN = 10793;
 	public const WARPED_WALL_HANGING_SIGN = 10794;
+	public const COPPER_BARS = 10795;
+	public const COPPER_CHAIN = 10796;
+	public const COPPER_LANTERN = 10797;
+	public const COPPER_TORCH = 10798;
+	public const CACTUS_FLOWER = 10799;
+	public const CRIMSON_FUNGUS = 10800;
+	public const CRIMSON_NYLIUM = 10801;
+	public const NETHER_SPROUTS = 10802;
+	public const WARPED_FUNGUS = 10803;
+	public const WARPED_NYLIUM = 10804;
+	public const INFESTED_DEEPSLATE = 10805;
+	public const STRUCTURE_VOID = 10806;
 
-	// Reserve two IDs for seagrass and kelp
-	// Add constants for copper golem statue variants (8 IDs)
-	public const COPPER_GOLEM_STATUE = 10806;
-	public const EXPOSED_COPPER_GOLEM_STATUE = 10807;
-	public const WEATHERED_COPPER_GOLEM_STATUE = 10808;
-	public const OXIDIZED_COPPER_GOLEM_STATUE = 10809;
-	public const WAXED_COPPER_GOLEM_STATUE = 10810;
-	public const WAXED_EXPOSED_COPPER_GOLEM_STATUE = 10811;
-	public const WAXED_WEATHERED_COPPER_GOLEM_STATUE = 10812;
-	public const WAXED_OXIDIZED_COPPER_GOLEM_STATUE = 10813;
+	public const FIRST_UNUSED_BLOCK_ID = 10807;
 
-	// Bedrock 1.21.100: shelf block variants
-	public const OAK_SHELF = 10814;
-	public const SPRUCE_SHELF = 10815;
-	public const BIRCH_SHELF = 10816;
-	public const JUNGLE_SHELF = 10817;
-	public const ACACIA_SHELF = 10818;
-	public const DARK_OAK_SHELF = 10819;
-	public const MANGROVE_SHELF = 10820;
-	public const CRIMSON_SHELF = 10821;
-	public const WARPED_SHELF = 10822;
-	public const CHERRY_SHELF = 10823;
-	public const PALE_OAK_SHELF = 10824;
-
-	public const BAMBOO_SHELF = 10825;
-
-	public const BEEHIVE = 10826;
-	public const BAMBOO_PLANKS = 10834;
-	public const BAMBOO_MOSAIC = 10835;
-	public const HONEY_BLOCK = 10827;
-	public const SUSPICIOUS_SAND = 10828;
-	public const SUSPICIOUS_GRAVEL = 10829;
-	public const COMPOSTER = 10830;
-	public const SCAFFOLDING = 10831;
-	public const CRIMSON_NYLIUM = 10832;
-	public const WARPED_NYLIUM = 10833;
-	public const BAMBOO_LOG = 10836;
-	public const BAMBOO_WOOD = 10837;
-	public const BAMBOO_FENCE = 10838;
-	public const BAMBOO_SLAB = 10839;
-	public const BAMBOO_FENCE_GATE = 10840;
-	public const BAMBOO_STAIRS = 10841;
-	public const BAMBOO_DOOR = 10842;
-	public const BAMBOO_BUTTON = 10843;
-	public const BAMBOO_PRESSURE_PLATE = 10844;
-	public const BAMBOO_TRAPDOOR = 10845;
-	public const BAMBOO_SIGN = 10846;
-	public const BAMBOO_WALL_SIGN = 10847;
-	public const BAMBOO_CEILING_CENTER_HANGING_SIGN = 10848;
-	public const BAMBOO_CEILING_EDGES_HANGING_SIGN = 10849;
-	public const BAMBOO_WALL_HANGING_SIGN = 10850;
-
-	public const FIRST_UNUSED_BLOCK_ID = 10851;
-
-	public const SEAGRASS = 10795;
-	public const KELP = 10796;
-	public const COPPER_CHEST = 10797;
-	public const POWDER_SNOW = 10798;
-
-	public const COPPER_TORCH = 10799;
 	private static int $nextDynamicId = self::FIRST_UNUSED_BLOCK_ID;
 
 	/**
 	 * Returns a new runtime block type ID, e.g. for use by a custom block.
 	 */
-	public static function newId(): int
-	{
+	public static function newId() : int{
 		return self::$nextDynamicId++;
 	}
 }

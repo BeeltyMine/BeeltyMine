@@ -33,54 +33,37 @@ use pocketmine\player\Player;
 use pocketmine\world\BlockTransaction;
 use pocketmine\world\sound\RedstonePowerOffSound;
 use pocketmine\world\sound\RedstonePowerOnSound;
-use pocketmine\block\utils\SupportType;
-use pocketmine\block\utils\Waterloggable;
-use pocketmine\block\utils\WaterloggableTrait;
 
-abstract class Button extends Transparent implements AnyFacing, Waterloggable
-{
-
+abstract class Button extends Flowable implements AnyFacing{
 	use AnyFacingTrait;
-	use WaterloggableTrait {
-		place as waterPlace;
-		onNearbyBlockChange as onWaterBlockChange;
-	}
+
 	protected bool $pressed = false;
 
-	protected function describeBlockOnlyState(RuntimeDataDescriber $w): void
-	{
+	protected function describeBlockOnlyState(RuntimeDataDescriber $w) : void{
 		$w->facing($this->facing);
 		$w->bool($this->pressed);
 	}
 
-	public function isPressed(): bool
-	{
-		return $this->pressed;
-	}
+	public function isPressed() : bool{ return $this->pressed; }
 
 	/** @return $this */
-	public function setPressed(bool $pressed): self
-	{
+	public function setPressed(bool $pressed) : self{
 		$this->pressed = $pressed;
 		return $this;
 	}
 
-	public function place(BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null): bool
-	{
-		if ($this->canBeSupportedAt($blockReplace, $face)) {
+	public function place(BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
+		if($this->canBeSupportedAt($blockReplace, $face)){
 			$this->facing = $face;
-			// old
-			// return parent::place($tx, $item, $blockReplace, $blockClicked, $face, $clickVector, $player);
-			return $this->waterPlace($tx, $item, $blockReplace, $blockClicked, $face, $clickVector, $player);
+			return parent::place($tx, $item, $blockReplace, $blockClicked, $face, $clickVector, $player);
 		}
 		return false;
 	}
 
-	abstract protected function getActivationTime(): int;
+	abstract protected function getActivationTime() : int;
 
-	public function onInteract(Item $item, int $face, Vector3 $clickVector, ?Player $player = null, array &$returnedItems = []): bool
-	{
-		if (!$this->pressed) {
+	public function onInteract(Item $item, int $face, Vector3 $clickVector, ?Player $player = null, array &$returnedItems = []) : bool{
+		if(!$this->pressed){
 			$this->pressed = true;
 			$world = $this->position->getWorld();
 			$world->setBlock($this->position, $this);
@@ -91,9 +74,8 @@ abstract class Button extends Transparent implements AnyFacing, Waterloggable
 		return true;
 	}
 
-	public function onScheduledUpdate(): void
-	{
-		if ($this->pressed) {
+	public function onScheduledUpdate() : void{
+		if($this->pressed){
 			$this->pressed = false;
 			$world = $this->position->getWorld();
 			$world->setBlock($this->position, $this);
@@ -101,27 +83,13 @@ abstract class Button extends Transparent implements AnyFacing, Waterloggable
 		}
 	}
 
-	public function onNearbyBlockChange(): void
-	{
-		$this->onWaterBlockChange();
-
-
-		if (!$this->canBeSupportedAt($this, $this->facing)) {
+	public function onNearbyBlockChange() : void{
+		if(!$this->canBeSupportedAt($this, $this->facing)){
 			$this->position->getWorld()->useBreakOn($this->position);
 		}
 	}
-	public function getSupportType(int $facing): SupportType
-	{
-		return SupportType::NONE;
-	}
 
-	protected function recalculateCollisionBoxes(): array
-	{
-		return [];
-	}
-
-	private function canBeSupportedAt(Block $block, int $face): bool
-	{
+	private function canBeSupportedAt(Block $block, int $face) : bool{
 		return $block->getAdjacentSupportType(Facing::opposite($face))->hasCenterSupport();
 	}
 }

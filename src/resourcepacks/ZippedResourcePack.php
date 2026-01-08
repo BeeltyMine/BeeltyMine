@@ -117,7 +117,6 @@ class ZippedResourcePack implements ResourcePack{
 		}catch(\JsonMapper_Exception $e){
 			throw new ResourcePackException("Invalid manifest.json contents: " . $e->getMessage(), 0, $e);
 		}
-
 		if(!Uuid::isValid($manifest->header->uuid)){
 			throw new ResourcePackException("Resource pack has an invalid UUID");
 		}

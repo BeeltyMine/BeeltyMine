@@ -24,116 +24,33 @@ declare(strict_types=1);
 namespace pocketmine\command\defaults;
 
 use pocketmine\command\Command;
-use pocketmine\command\CommandoCommand;
 use pocketmine\command\CommandSender;
-use pocketmine\command\args\TargetArgument;
-use pocketmine\entity\projectile\FishHook;
+use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\permission\DefaultPermissionNames;
-use pocketmine\player\Player;
+use function count;
 
-class KillCommand extends CommandoCommand{
+class KillCommand extends VanillaCommand{
 
 	public function __construct(){
 		parent::__construct(
 			"kill",
-			"Commits suicide or kills another player",
-			"/kill [player]",
+			KnownTranslationFactory::pocketmine_command_kill_description(),
+			KnownTranslationFactory::pocketmine_command_kill_usage(),
 			["suicide"]
 		);
-	}
-
-	protected function prepare(): void {
 		$this->setPermissions([DefaultPermissionNames::COMMAND_KILL_SELF, DefaultPermissionNames::COMMAND_KILL_OTHER]);
-		$this->registerArgument(0, new TargetArgument("target", true));
 	}
 
-	public function onRun(CommandSender $sender, string $aliasUsed, array $args): void {
-		$targetName = $args["target"] ?? null;
+	public function execute(CommandSender $sender, string $commandLabel, array $args){
+		if(count($args) >= 2){
+			throw new InvalidCommandSyntaxException();
+		}
 
-		// Special shortcuts: allow administrators to clear entities or fish hooks quickly
-		// Support target selector @e to kill all non-player entities
-		if(is_string($targetName) && trim($targetName) === "@e"){
-			if(!$sender->hasPermission(DefaultPermissionNames::COMMAND_KILL_OTHER)){
-				$sender->sendMessage(KnownTranslationFactory::commands_generic_permission());
-				return;
-			}
-			$count = 0;
-			if($sender instanceof Player){
-				$worlds = [$sender->getWorld()];
-			}else{
-				$worlds = $sender->getServer()->getWorldManager()->getWorlds();
-			}
-			foreach($worlds as $w){
-				foreach($w->getEntities() as $entity){
-					if(!($entity instanceof Player)){
-						$entity->flagForDespawn();
-						$count++;
-					}
-				}
-			}
-			$sender->sendMessage("Removed $count entities.");
-			return;
-		}
-		if($targetName === "entities"){
-			if(!($sender instanceof Player)){
-				$sender->sendMessage(KnownTranslationFactory::commands_generic_player_notFound());
-				return;
-			}
-			if(!$sender->hasPermission(DefaultPermissionNames::COMMAND_KILL_OTHER)){
-				$sender->sendMessage(KnownTranslationFactory::commands_generic_permission());
-				return;
-			}
-			$world = $sender->getWorld();
-			$count = 0;
-			foreach($world->getEntities() as $entity){
-				if(!($entity instanceof Player)){
-					$entity->flagForDespawn();
-					$count++;
-				}
-			}
-			$sender->sendMessage("Removed $count entities from world.");
-			return;
-		}
-		if($targetName === "hooks"){
-			if(!$sender->hasPermission(DefaultPermissionNames::COMMAND_KILL_OTHER)){
-				$sender->sendMessage(KnownTranslationFactory::commands_generic_permission());
-				return;
-			}
-			$count = 0;
-			foreach($sender->getServer()->getWorldManager()->getWorlds() as $w){
-				foreach($w->getEntities() as $entity){
-					if($entity instanceof FishHook){
-						$entity->flagForDespawn();
-						$count++;
-					}
-				}
-			}
-			$sender->sendMessage("Removed $count fishing hooks from all worlds.");
-			return;
-		}
-		
-		if($targetName === null){
-			if(!($sender instanceof Player)){
-				$sender->sendMessage(KnownTranslationFactory::commands_generic_player_notFound());
-				return;
-			}
-			if(!$sender->hasPermission(DefaultPermissionNames::COMMAND_KILL_SELF)){
-				$sender->sendMessage(KnownTranslationFactory::commands_generic_permission());
-				return;
-			}
-			$player = $sender;
-		}else{
-			if(!$sender->hasPermission(DefaultPermissionNames::COMMAND_KILL_OTHER)){
-				$sender->sendMessage(KnownTranslationFactory::commands_generic_permission());
-				return;
-			}
-			$player = $sender->getServer()->getPlayerByPrefix($targetName);
-			if($player === null){
-				$sender->sendMessage(KnownTranslationFactory::commands_generic_player_notFound());
-				return;
-			}
+		$player = $this->fetchPermittedPlayerTarget($sender, $args[0] ?? null, DefaultPermissionNames::COMMAND_KILL_SELF, DefaultPermissionNames::COMMAND_KILL_OTHER);
+		if($player === null){
+			return true;
 		}
 
 		$player->attack(new EntityDamageEvent($player, EntityDamageEvent::CAUSE_SUICIDE, $player->getHealth()));
@@ -142,5 +59,7 @@ class KillCommand extends CommandoCommand{
 		}else{
 			Command::broadcastCommandMessage($sender, KnownTranslationFactory::commands_kill_successful($player->getName()));
 		}
+
+		return true;
 	}
 }

@@ -23,15 +23,15 @@ declare(strict_types=1);
 
 namespace pocketmine\world\generator;
 
+use pocketmine\block\Block;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\world\ChunkManager;
 use pocketmine\world\format\Chunk;
+use pocketmine\world\format\PalettedBlockArray;
 use pocketmine\world\format\SubChunk;
 use pocketmine\world\generator\object\OreType;
 use pocketmine\world\generator\populator\Ore;
 use pocketmine\world\generator\populator\Populator;
-use pocketmine\world\format\PalettedBlockArray;
-use pocketmine\block\Block;
 use function count;
 
 class Flat extends Generator{

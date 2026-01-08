@@ -93,14 +93,13 @@ final class CreativeInventoryCache{
 		}
 
 		//creative inventory may have holes if items were unregistered - ensure network IDs used are always consistent
-		// Store core items in the cache and perform per-session conversion to allow localization of item display (lore/name)
 		$items = [];
 		foreach($inventory->getAllEntries() as $k => $entry){
-			$items[] = [
-				'id' => $k,
-				'item' => $entry->getItem(),
-				'group' => $itemGroupIndexes[$k]
-			];
+			$items[] = new CreativeItemEntry(
+				$k,
+				$typeConverter->coreItemStackToNet($entry->getItem()),
+				$itemGroupIndexes[$k]
+			);
 		}
 
 		return new CreativeInventoryCacheEntry($categories, $groups, $items);
@@ -123,7 +122,7 @@ final class CreativeInventoryCache{
 			return $message;
 		};
 
-	$groupEntries = [];
+		$groupEntries = [];
 		foreach($cachedEntry->categories as $index => $category){
 			$group = $cachedEntry->groups[$index];
 			$categoryId = match ($category) {
@@ -139,7 +138,6 @@ final class CreativeInventoryCache{
 				//TODO: HACK! In 1.21.60, Workaround glitchy behaviour when an item is used as an icon for a group it
 				//doesn't belong to. Without this hack, both instances of the item will show a +, but neither of them
 				//will actually expand the group work correctly.
-
 				$groupIcon->getNamedTag()->setInt("___GroupBugWorkaround___", $index);
 				$groupName = $group->getName();
 				$groupEntries[] = new CreativeGroupEntry(
@@ -150,12 +148,6 @@ final class CreativeInventoryCache{
 			}
 		}
 
-		// Convert cached core items to network ItemStacks now that we have a session (so we can localize lore)
-		$convertedItems = [];
-		foreach($cachedEntry->items as $it){
-			$convertedItems[] = new CreativeItemEntry($it['id'], $typeConverter->coreItemStackToNet($it['item'], $session), $it['group']);
-		}
-
-		return CreativeContentPacket::create($groupEntries, $convertedItems);
+		return CreativeContentPacket::create($groupEntries, $cachedEntry->items);
 	}
 }

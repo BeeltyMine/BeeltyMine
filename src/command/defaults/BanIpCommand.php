@@ -24,33 +24,34 @@ declare(strict_types=1);
 namespace pocketmine\command\defaults;
 
 use pocketmine\command\Command;
-use pocketmine\command\CommandoCommand;
 use pocketmine\command\CommandSender;
-use pocketmine\command\args\RawStringArgument;
+use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\player\Player;
+use function array_shift;
+use function count;
+use function implode;
 use function inet_pton;
 
-class BanIpCommand extends CommandoCommand{
+class BanIpCommand extends VanillaCommand{
 
 	public function __construct(){
 		parent::__construct(
 			"ban-ip",
-			"Bans an IP address",
-			"/ban-ip <player|ip> [reason ...]"
+			KnownTranslationFactory::pocketmine_command_ban_ip_description(),
+			KnownTranslationFactory::commands_banip_usage()
 		);
-	}
-
-	protected function prepare(): void {
 		$this->setPermission(DefaultPermissionNames::COMMAND_BAN_IP);
-		$this->registerArgument(0, new RawStringArgument("player_or_ip", false));
-		$this->registerArgument(1, new RawStringArgument("reason", true));
 	}
 
-	public function onRun(CommandSender $sender, string $aliasUsed, array $args): void {
-		$value = $args["player_or_ip"];
-		$reason = $args["reason"] ?? "";
+	public function execute(CommandSender $sender, string $commandLabel, array $args){
+		if(count($args) === 0){
+			throw new InvalidCommandSyntaxException();
+		}
+
+		$value = array_shift($args);
+		$reason = implode(" ", $args);
 
 		if(inet_pton($value) !== false){
 			$this->processIPBan($value, $sender, $reason);
@@ -64,8 +65,12 @@ class BanIpCommand extends CommandoCommand{
 				Command::broadcastCommandMessage($sender, KnownTranslationFactory::commands_banip_success_players($ip, $player->getName()));
 			}else{
 				$sender->sendMessage(KnownTranslationFactory::commands_banip_invalid());
+
+				return false;
 			}
 		}
+
+		return true;
 	}
 
 	private function processIPBan(string $ip, CommandSender $sender, string $reason) : void{

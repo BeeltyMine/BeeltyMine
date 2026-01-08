@@ -32,57 +32,49 @@ use pocketmine\player\Player;
 use pocketmine\utils\Random;
 use function count;
 
-class Nylium extends Opaque
-{
+class Nylium extends Opaque{
 
 	/**
-	 * @param array<int,\Closure|string|Block> $vegetationFactories An array of callables, accessor names or Block instances that can be grown on this Nylium block using Bone Meal.
-	 *                                                                              Callables will be invoked at runtime to obtain a fresh Block instance.
+	 * @param Block[] $vegetation An array of Block instances that can be grown on this Nylium block using Bone Meal.
 	 */
-	public function __construct(BlockIdentifier $idInfo, string $name, BlockTypeInfo $typeInfo, private readonly array $vegetationFactories)
-	{
+	public function __construct(BlockIdentifier $idInfo, string $name, BlockTypeInfo $typeInfo, private readonly array $vegetation){
 		parent::__construct($idInfo, $name, $typeInfo);
 	}
 
-	public function getDropsForCompatibleTool(Item $item): array
-	{
+	public function getDropsForCompatibleTool(Item $item) : array{
 		return [
 			VanillaBlocks::NETHERRACK()->asItem()
 		];
 	}
 
-	public function isAffectedBySilkTouch(): bool
-	{
+	public function isAffectedBySilkTouch() : bool{
 		return true;
 	}
 
-	public function ticksRandomly(): bool
-	{
+	public function ticksRandomly() : bool{
 		return true;
 	}
 
-	public function onRandomTick(): void
-	{
+	public function onRandomTick() : void{
 		$world = $this->position->getWorld();
 		$above = $this->getSide(Facing::UP);
-		if (!$above->isTransparent()) {
+		if(!$above->isTransparent()){
 			BlockEventHelper::spread($this, VanillaBlocks::NETHERRACK(), $this);
 			return;
 		}
 
 		$random = new Random();
-		for ($i = 0; $i < 4; ++$i) {
+		for($i = 0; $i < 4; ++$i){
 			$pos = $this->position->add($random->nextRange(-1, 1), $random->nextRange(-2, 0), $random->nextRange(-1, 1));
 			$block = $world->getBlock($pos);
-			if ($block->getTypeId() === BlockTypeIds::NETHERRACK && $world->getBlock($pos->up())->isTransparent()) {
+			if($block->getTypeId() === BlockTypeIds::NETHERRACK && $world->getBlock($pos->up())->isTransparent()){
 				BlockEventHelper::spread($block, $this, $this);
 			}
 		}
 	}
 
-	public function onInteract(Item $item, int $face, Vector3 $clickVector, ?Player $player = null, array &$returnedItems = []): bool
-	{
-		if ($item instanceof Fertilizer && $this->getSide(Facing::UP)->getTypeId() === BlockTypeIds::AIR) {
+	public function onInteract(Item $item, int $face, Vector3 $clickVector, ?Player $player = null, array &$returnedItems = []) : bool{
+		if($item instanceof Fertilizer && $this->getSide(Facing::UP)->getTypeId() === BlockTypeIds::AIR){
 			$item->pop();
 			$this->growVegetation(new Random());
 			return true;
@@ -90,29 +82,16 @@ class Nylium extends Opaque
 		return false;
 	}
 
-	private function growVegetation(Random $random): void
-	{
+	private function growVegetation(Random $random) : void{
 		$world = $this->position->getWorld();
 
-		for ($x = -2; $x <= 2; ++$x) {
-			for ($z = -2; $z <= 2; ++$z) {
-				if ($random->nextBoundedInt(3) === 0) {
+		for($x = -2; $x <= 2; ++$x){
+			for($z = -2; $z <= 2; ++$z){
+				if($random->nextBoundedInt(3) === 0){
 					$pos = $this->position->add($x, 1, $z);
 					$replace = $world->getBlock($pos);
-					$factory = $this->vegetationFactories[$random->nextBoundedInt(count($this->vegetationFactories))];
-
-					if (is_callable($factory)) {
-						$place = $factory();
-					} elseif (is_string($factory)) {
-						$place = VanillaBlocks::{$factory}();
-					} elseif ($factory instanceof Block) {
-						$place = $factory;
-					} else {
-						continue;
-					}
-					$place = clone $place;
-
-					if ($world->isInWorld($pos->x, $pos->y, $pos->z) && $replace->getTypeId() === BlockTypeIds::AIR && $place->canBePlacedAt($replace, Vector3::zero(), Facing::DOWN, true)) {
+					$place = $this->vegetation[$random->nextBoundedInt(count($this->vegetation))];
+					if($world->isInWorld($pos->x, $pos->y, $pos->z) && $replace->getTypeId() === BlockTypeIds::AIR && $place->canBePlacedAt($replace, Vector3::zero(), Facing::DOWN, true)){
 						$world->setBlock($pos, $place);
 					}
 				}

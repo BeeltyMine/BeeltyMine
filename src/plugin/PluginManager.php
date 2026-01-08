@@ -40,7 +40,6 @@ use pocketmine\Server;
 use pocketmine\timings\Timings;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Utils;
-use pocketmine\utils\TextFormat;
 use Symfony\Component\Filesystem\Path;
 use function array_diff_key;
 use function array_key_exists;
@@ -136,6 +135,7 @@ class PluginManager{
 
 	private function internalLoadPlugin(string $path, PluginLoader $loader, PluginDescription $description) : ?Plugin{
 		$language = $this->server->getLanguage();
+		$this->server->getLogger()->info($this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_plugin_load($description->getFullName())));
 
 		$dataFolder = $this->getDataDirectory($path, $description->getName());
 		if(file_exists($dataFolder) && !is_dir($dataFolder)){
@@ -454,7 +454,7 @@ class PluginManager{
 
 	public function enablePlugin(Plugin $plugin) : bool{
 		if(!$plugin->isEnabled()){
-			$this->server->getLogger()->info(TextFormat::DARK_GREEN . $this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_plugin_enable($plugin->getDescription()->getFullName())));
+			$this->server->getLogger()->info($this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_plugin_enable($plugin->getDescription()->getFullName())));
 
 			$plugin->getScheduler()->setEnabled(true);
 			try{
@@ -512,7 +512,7 @@ class PluginManager{
 
 	public function disablePlugin(Plugin $plugin) : void{
 		if($plugin->isEnabled()){
-			$this->server->getLogger()->info(TextFormat::YELLOW . $this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_plugin_disable($plugin->getDescription()->getFullName())));
+			$this->server->getLogger()->info($this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_plugin_disable($plugin->getDescription()->getFullName())));
 			(new PluginDisableEvent($plugin))->call();
 
 			unset($this->enabledPlugins[$plugin->getDescription()->getName()]);
@@ -533,18 +533,11 @@ class PluginManager{
 	}
 
 	public function tickSchedulers(int $currentTick) : void{
-		$warningThresholdSeconds = 0.05; // 50 ms threshold for plugin scheduler execution
 		foreach(Utils::promoteKeys($this->enabledPlugins) as $pluginName => $p){
-			if(!isset($this->enabledPlugins[$pluginName])){
-				continue;
-			}
-			//the plugin may have been disabled as a result of updating other plugins' schedulers, and therefore
-			//removed from enabledPlugins; however, foreach will still see it due to copy-on-write
-			$start = microtime(true);
-			$p->getScheduler()->mainThreadHeartbeat($currentTick);
-			$elapsed = microtime(true) - $start;
-			if($elapsed >= $warningThresholdSeconds){
-				$this->server->getLogger()->warning("Plugin scheduler for $pluginName took " . round($elapsed * 1000, 2) . "ms (threshold " . ($warningThresholdSeconds * 1000) . "ms)");
+			if(isset($this->enabledPlugins[$pluginName])){
+				//the plugin may have been disabled as a result of updating other plugins' schedulers, and therefore
+				//removed from enabledPlugins; however, foreach will still see it due to copy-on-write
+				$p->getScheduler()->mainThreadHeartbeat($currentTick);
 			}
 		}
 	}
@@ -654,6 +647,7 @@ class PluginManager{
 	 * @phpstan-template TEvent of Event
 	 * @phpstan-param class-string<TEvent> $event
 	 * @phpstan-param \Closure(TEvent) : void $handler
+	 * @phpstan-return RegisteredListener<TEvent>
 	 *
 	 * @throws \ReflectionException
 	 */

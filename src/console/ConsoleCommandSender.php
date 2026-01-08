@@ -63,7 +63,7 @@ class ConsoleCommandSender implements CommandSender{
 		}
 
 		foreach(explode("\n", trim($message), limit: PHP_INT_MAX) as $line){
-			Terminal::writeLine(TextFormat::addBase(TextFormat::WHITE, $line));
+			Terminal::writeLine(TextFormat::GREEN . "Command output | " . TextFormat::addBase(TextFormat::WHITE, $line));
 		}
 	}
 

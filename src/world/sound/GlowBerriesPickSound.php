@@ -31,6 +31,5 @@ class GlowBerriesPickSound implements Sound{
 
 	public function encode(Vector3 $pos) : array{
 		return [LevelSoundEventPacket::nonActorSound(LevelSoundEvent::PICK_BERRIES_CAVE_VINES, $pos, false)];
-
 	}
 }

@@ -33,8 +33,7 @@ namespace pocketmine {
 	use pocketmine\utils\Process;
 	use pocketmine\utils\ServerKiller;
 	use pocketmine\utils\Terminal;
-    use pocketmine\utils\TextFormat;
-    use pocketmine\utils\Timezone;
+	use pocketmine\utils\Timezone;
 	use pocketmine\utils\Utils;
 	use pocketmine\wizard\SetupWizard;
 	use Symfony\Component\Filesystem\Path;
@@ -56,7 +55,7 @@ namespace pocketmine {
 
 	require_once __DIR__ . '/VersionInfo.php';
 
-	const MIN_PHP_VERSION = "8.4.0";
+	const MIN_PHP_VERSION = "8.1.0";
 
 	/**
 	 * @param string $message
@@ -368,7 +367,6 @@ JIT_WARNING
 			new Server($autoloader, $logger, $dataPath, $pluginPath);
 
 			$logger->info("Stopping other threads");
-			$logger->info(TextFormat::RED . "================== SERVER SHUTDOWN ==================" . Terminal::$FORMAT_RESET);
 
 			$killer = new ServerKiller(8);
 			$killer->start();

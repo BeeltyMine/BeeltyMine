@@ -25,9 +25,6 @@ namespace pocketmine\block;
 
 use pocketmine\block\utils\SlabType;
 use pocketmine\block\utils\SupportType;
-use pocketmine\block\utils\Waterloggable;
-use pocketmine\block\utils\WaterloggedTrait;
-use pocketmine\block\Liquid;
 use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\item\Item;
 use pocketmine\math\AxisAlignedBB;
@@ -36,8 +33,7 @@ use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\world\BlockTransaction;
 
-class Slab extends Transparent implements Waterloggable{
-    use WaterloggedTrait;
+class Slab extends Transparent{
 	protected SlabType $slabType = SlabType::BOTTOM;
 
 	public function __construct(BlockIdentifier $idInfo, string $name, BlockTypeInfo $typeInfo){
@@ -46,7 +42,6 @@ class Slab extends Transparent implements Waterloggable{
 
 	protected function describeBlockOnlyState(RuntimeDataDescriber $w) : void{
 		$w->enum($this->slabType);
-		$this->describeWaterloggedState($w);
 	}
 
 	public function isTransparent() : bool{
@@ -93,15 +88,6 @@ class Slab extends Transparent implements Waterloggable{
 			$this->slabType = SlabType::DOUBLE;
 		}else{
 			$this->slabType = (($face !== Facing::UP && $clickVector->y > 0.5) || $face === Facing::DOWN) ? SlabType::TOP : SlabType::BOTTOM;
-		}
-
-		// If placing into liquid, mark as waterlogged. Double slabs are never waterlogged.
-		if($this->slabType === SlabType::DOUBLE){
-			$this->setWaterlogged(false);
-		}elseif($blockReplace instanceof Liquid){
-			$this->setWaterlogged(true);
-		}else{
-			$this->setWaterlogged(false);
 		}
 
 		return parent::place($tx, $item, $blockReplace, $blockClicked, $face, $clickVector, $player);

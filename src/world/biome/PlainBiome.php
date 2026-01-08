@@ -35,8 +35,7 @@ class PlainBiome extends GrassyBiome{
 
 		$this->addPopulator($tallGrass);
 
-		// Flatten plains a bit to reduce unnatural bumps
-		$this->setElevation(63, 66);
+		$this->setElevation(63, 68);
 
 		$this->temperature = 0.8;
 		$this->rainfall = 0.4;

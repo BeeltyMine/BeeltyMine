@@ -24,35 +24,33 @@ declare(strict_types=1);
 namespace pocketmine\command\defaults;
 
 use pocketmine\command\Command;
-use pocketmine\command\CommandoCommand;
 use pocketmine\command\CommandSender;
-use pocketmine\command\args\RawStringArgument;
-use pocketmine\command\args\TargetArgument;
+use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\player\Player;
+use function array_shift;
+use function count;
+use function implode;
 
-class BanCommand extends CommandoCommand{
+class BanCommand extends VanillaCommand{
 
 	public function __construct(){
 		parent::__construct(
 			"ban",
-			"Bans a player",
-			"/ban <player> [reason ...]"
+			KnownTranslationFactory::pocketmine_command_ban_player_description(),
+			KnownTranslationFactory::commands_ban_usage()
 		);
 		$this->setPermission(DefaultPermissionNames::COMMAND_BAN_PLAYER);
 	}
 
-	protected function prepare(): void
-	{
-		$this->registerArgument(0, new TargetArgument("player", false));
-		$this->registerArgument(1, new RawStringArgument("reason", true));
-	}
+	public function execute(CommandSender $sender, string $commandLabel, array $args){
+		if(count($args) === 0){
+			throw new InvalidCommandSyntaxException();
+		}
 
-	public function onRun(CommandSender $sender, string $aliasUsed, array $args): void
-	{
-		$name = $args["player"];
-		$reason = $args["reason"] ?? "";
+		$name = array_shift($args);
+		$reason = implode(" ", $args);
 
 		$sender->getServer()->getNameBans()->addBan($name, $reason, null, $sender->getName());
 
@@ -61,5 +59,7 @@ class BanCommand extends CommandoCommand{
 		}
 
 		Command::broadcastCommandMessage($sender, KnownTranslationFactory::commands_ban_success($player !== null ? $player->getName() : $name));
+
+		return true;
 	}
 }

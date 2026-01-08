@@ -1,5 +1,23 @@
 <?php
 
+/*
+ *
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
+ * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author PocketMine Team
+ * @link http://www.pocketmine.net/
+ *
+ *
+ */
 
 declare(strict_types=1);
 
@@ -51,6 +69,7 @@ final class KnownTranslationParameterInfo{
 		Keys::COMMANDS_EFFECT_FAILURE_NOTACTIVE_ALL => ["0"],
 		Keys::COMMANDS_EFFECT_NOTFOUND => ["0"],
 		Keys::COMMANDS_EFFECT_SUCCESS => ["0", "1", "2", "3"],
+		Keys::COMMANDS_EFFECT_SUCCESS_INFINITE => ["0", "1", "2"],
 		Keys::COMMANDS_EFFECT_SUCCESS_REMOVED => ["0", "1"],
 		Keys::COMMANDS_EFFECT_SUCCESS_REMOVED_ALL => ["0"],
 		Keys::COMMANDS_EFFECT_USAGE => [],
@@ -91,7 +110,6 @@ final class KnownTranslationParameterInfo{
 		Keys::COMMANDS_SEED_SUCCESS => ["0"],
 		Keys::COMMANDS_SETWORLDSPAWN_SUCCESS => ["0", "1", "2"],
 		Keys::COMMANDS_SETWORLDSPAWN_USAGE => [],
-		Keys::COMMANDS_SPAWNPOINT_SUCCESS => ["0", "1", "2", "3"],
 		Keys::COMMANDS_SPAWNPOINT_USAGE => [],
 		Keys::COMMANDS_STOP_START => [],
 		Keys::COMMANDS_TIME_ADDED => ["0"],
@@ -101,29 +119,12 @@ final class KnownTranslationParameterInfo{
 		Keys::COMMANDS_TITLE_USAGE => [],
 		Keys::COMMANDS_TP_SUCCESS => ["0", "1"],
 		Keys::COMMANDS_TP_SUCCESS_COORDINATES => ["0", "1", "2", "3"],
-		Keys::COMMANDS_TP_NOPERMISSION => [],
-		Keys::COMMANDS_TP_VICTIMNOTFOUND => [],
-		Keys::COMMANDS_TP_DESTINATIONNOTFOUND => [],
-		Keys::COMMANDS_TP_TELEPORTEDTO => ["0"],
-		Keys::COMMANDS_TP_TELEPORTEDPLAYER => ["0", "1"],
-		Keys::COMMANDS_TP_TELEPORTEDCOORDS => ["0", "1", "2"],
-		Keys::COMMANDS_TP_TELEPORTEDPLAYERCOORDS => ["0", "1", "2", "3"],
-		Keys::COMMANDS_TP_CONSOLECANOTTELEPORT => [],
-		Keys::COMMANDS_TP_INVALIDARGS => [],
 		Keys::COMMANDS_TP_USAGE => [],
 		Keys::COMMANDS_UNBAN_SUCCESS => ["0"],
 		Keys::COMMANDS_UNBAN_USAGE => [],
 		Keys::COMMANDS_UNBANIP_INVALID => [],
 		Keys::COMMANDS_UNBANIP_SUCCESS => ["0"],
 		Keys::COMMANDS_UNBANIP_USAGE => [],
-		Keys::COMMANDS_WEATHER_CLEAR => [],
-		Keys::COMMANDS_WEATHER_DISABLED => [],
-		Keys::COMMANDS_WEATHER_QUERY => ["0"],
-		Keys::COMMANDS_WEATHER_QUERY_CLEAR => [],
-		Keys::COMMANDS_WEATHER_QUERY_RAIN => [],
-		Keys::COMMANDS_WEATHER_QUERY_THUNDER => [],
-		Keys::COMMANDS_WEATHER_RAIN => [],
-		Keys::COMMANDS_WEATHER_THUNDER => [],
 		Keys::COMMANDS_WHITELIST_ADD_SUCCESS => ["0"],
 		Keys::COMMANDS_WHITELIST_ADD_USAGE => [],
 		Keys::COMMANDS_WHITELIST_DISABLED => [],
@@ -316,9 +317,7 @@ final class KnownTranslationParameterInfo{
 		Keys::ITEMGROUP_NAME_STAIRS => [],
 		Keys::ITEMGROUP_NAME_STONE => [],
 		Keys::ITEMGROUP_NAME_STONEBRICK => [],
-		Keys::ITEMGROUP_NAME_SPEAR => [],
 		Keys::ITEMGROUP_NAME_SWORD => [],
-		Keys::ITEMGROUP_NAME_SPEAR => [],
 		Keys::ITEMGROUP_NAME_TRAPDOOR => [],
 		Keys::ITEMGROUP_NAME_WALLS => [],
 		Keys::ITEMGROUP_NAME_WOOD => [],
@@ -334,6 +333,7 @@ final class KnownTranslationParameterInfo{
 		Keys::OP_INFO => [],
 		Keys::OP_WARNING => [],
 		Keys::OP_WHO => [],
+		Keys::POCKETMINE_BLOCK_BED_INCOMPLETE => [],
 		Keys::POCKETMINE_COMMAND_ALIAS_ILLEGAL => ["0"],
 		Keys::POCKETMINE_COMMAND_ALIAS_NOTFOUND => ["0", "1"],
 		Keys::POCKETMINE_COMMAND_ALIAS_RECURSIVE => ["0", "1"],
@@ -350,6 +350,7 @@ final class KnownTranslationParameterInfo{
 		Keys::POCKETMINE_COMMAND_ENCHANT_DESCRIPTION => [],
 		Keys::POCKETMINE_COMMAND_ERROR_PERMISSION => ["commandName"],
 		Keys::POCKETMINE_COMMAND_ERROR_PLAYERNOTFOUND => ["playerName"],
+		Keys::POCKETMINE_COMMAND_ERROR_PLAYERUSERONLY => [],
 		Keys::POCKETMINE_COMMAND_GAMEMODE_DESCRIPTION => [],
 		Keys::POCKETMINE_COMMAND_GAMEMODE_FAILURE => ["playerName"],
 		Keys::POCKETMINE_COMMAND_GAMEMODE_UNKNOWN => ["gameModeName"],
@@ -384,7 +385,28 @@ final class KnownTranslationParameterInfo{
 		Keys::POCKETMINE_COMMAND_SEED_DESCRIPTION => [],
 		Keys::POCKETMINE_COMMAND_SETWORLDSPAWN_DESCRIPTION => [],
 		Keys::POCKETMINE_COMMAND_SPAWNPOINT_DESCRIPTION => [],
+		Keys::POCKETMINE_COMMAND_SPAWNPOINT_SUCCESS => ["0", "1", "2", "3"],
 		Keys::POCKETMINE_COMMAND_STATUS_DESCRIPTION => [],
+		Keys::POCKETMINE_COMMAND_STATUS_HEADER => [],
+		Keys::POCKETMINE_COMMAND_STATUS_MEMORY_MAINTHREAD => ["info"],
+		Keys::POCKETMINE_COMMAND_STATUS_MEMORY_MANAGER => ["info"],
+		Keys::POCKETMINE_COMMAND_STATUS_MEMORY_STAT => ["megabytes"],
+		Keys::POCKETMINE_COMMAND_STATUS_MEMORY_TOTAL => ["info"],
+		Keys::POCKETMINE_COMMAND_STATUS_MEMORY_VIRTUAL => ["info"],
+		Keys::POCKETMINE_COMMAND_STATUS_NETWORK_DOWNLOAD => ["info"],
+		Keys::POCKETMINE_COMMAND_STATUS_NETWORK_STAT => ["kbps"],
+		Keys::POCKETMINE_COMMAND_STATUS_NETWORK_UPLOAD => ["info"],
+		Keys::POCKETMINE_COMMAND_STATUS_THREADS => ["count"],
+		Keys::POCKETMINE_COMMAND_STATUS_TPS_AVERAGE => ["info"],
+		Keys::POCKETMINE_COMMAND_STATUS_TPS_CURRENT => ["info"],
+		Keys::POCKETMINE_COMMAND_STATUS_TPS_STAT => ["ticksPerSecond", "loadPercent"],
+		Keys::POCKETMINE_COMMAND_STATUS_UPTIME => ["uptime"],
+		Keys::POCKETMINE_COMMAND_STATUS_UPTIME_DAYS => ["days", "hours", "minutes", "seconds"],
+		Keys::POCKETMINE_COMMAND_STATUS_UPTIME_HOURS => ["hours", "minutes", "seconds"],
+		Keys::POCKETMINE_COMMAND_STATUS_UPTIME_MINUTES => ["minutes", "seconds"],
+		Keys::POCKETMINE_COMMAND_STATUS_UPTIME_SECONDS => ["seconds"],
+		Keys::POCKETMINE_COMMAND_STATUS_WORLD => ["worldName", "loadedChunks", "tickingChunks", "entities", "timeStat"],
+		Keys::POCKETMINE_COMMAND_STATUS_WORLD_TIMESTAT => ["milliseconds"],
 		Keys::POCKETMINE_COMMAND_STOP_DESCRIPTION => [],
 		Keys::POCKETMINE_COMMAND_TELL_DESCRIPTION => [],
 		Keys::POCKETMINE_COMMAND_TIME_DESCRIPTION => [],
@@ -416,11 +438,13 @@ final class KnownTranslationParameterInfo{
 		Keys::POCKETMINE_COMMAND_VERSION_PHPJITNOTSUPPORTED => [],
 		Keys::POCKETMINE_COMMAND_VERSION_PHPJITSTATUS => ["jitStatus"],
 		Keys::POCKETMINE_COMMAND_VERSION_PHPVERSION => ["phpVersion"],
+		Keys::POCKETMINE_COMMAND_VERSION_PLUGIN_AUTHOR => ["author"],
+		Keys::POCKETMINE_COMMAND_VERSION_PLUGIN_AUTHORS => ["authors"],
+		Keys::POCKETMINE_COMMAND_VERSION_PLUGIN_HEADER => ["pluginName", "version"],
+		Keys::POCKETMINE_COMMAND_VERSION_PLUGIN_WEBSITE => ["website"],
 		Keys::POCKETMINE_COMMAND_VERSION_SERVERSOFTWARENAME => ["serverSoftwareName"],
 		Keys::POCKETMINE_COMMAND_VERSION_SERVERSOFTWAREVERSION => ["serverSoftwareVersion", "serverGitHash"],
 		Keys::POCKETMINE_COMMAND_VERSION_USAGE => [],
-		Keys::POCKETMINE_COMMAND_WEATHER_DESCRIPTION => [],
-		Keys::POCKETMINE_COMMAND_WEATHER_USAGE => [],
 		Keys::POCKETMINE_COMMAND_WHITELIST_DESCRIPTION => [],
 		Keys::POCKETMINE_COMMAND_XP_DESCRIPTION => [],
 		Keys::POCKETMINE_COMMAND_XP_USAGE => [],
@@ -527,7 +551,6 @@ final class KnownTranslationParameterInfo{
 		Keys::POCKETMINE_PERMISSION_COMMAND_UNBAN_IP => [],
 		Keys::POCKETMINE_PERMISSION_COMMAND_UNBAN_PLAYER => [],
 		Keys::POCKETMINE_PERMISSION_COMMAND_VERSION => [],
-		Keys::POCKETMINE_PERMISSION_COMMAND_WEATHER => [],
 		Keys::POCKETMINE_PERMISSION_COMMAND_WHITELIST_ADD => [],
 		Keys::POCKETMINE_PERMISSION_COMMAND_WHITELIST_DISABLE => [],
 		Keys::POCKETMINE_PERMISSION_COMMAND_WHITELIST_ENABLE => [],

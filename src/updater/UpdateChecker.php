@@ -42,12 +42,7 @@ class UpdateChecker{
 	public function __construct(Server $server, string $endpoint){
 		$this->server = $server;
 		$this->logger = new \PrefixedLogger($server->getLogger(), "Update Checker");
-		// Allow special endpoints like "github:owner/repo" to use GitHub releases
-		if (str_starts_with($endpoint, "github:")) {
-			$this->endpoint = $endpoint; // keep special indicator for UpdateCheckTask
-		} else {
-			$this->endpoint = "http://$endpoint/api/";
-		}
+		$this->endpoint = "http://$endpoint/api/";
 
 		if($server->getConfigGroup()->getPropertyBool(YmlServerProperties::AUTO_UPDATER_ENABLED, true)){
 			$this->doCheck();
@@ -55,8 +50,7 @@ class UpdateChecker{
 	}
 
 	public function checkUpdateError(string $error) : void{
-		// Log failures at WARNING so server operators see the message in console by default
-		$this->printConsoleMessage(["Async update check failed: " . $error], \LogLevel::WARNING);
+		$this->logger->debug("Async update check failed due to \"$error\"");
 	}
 
 	/**
@@ -70,9 +64,6 @@ class UpdateChecker{
 				$this->showConsoleUpdate();
 			}
 		}else{
-			// No update found; inform operators in console at INFO level
-			$this->printConsoleMessage(["Update check completed: no updates found for channel '" . $this->getChannel() . "'."], \LogLevel::INFO);
-
 			if(!VersionInfo::IS_DEVELOPMENT_BUILD && $this->getChannel() !== "stable"){
 				$this->showChannelSuggestionStable();
 			}elseif(VersionInfo::IS_DEVELOPMENT_BUILD && $this->getChannel() === "stable"){
@@ -109,14 +100,14 @@ class UpdateChecker{
 	protected function showChannelSuggestionStable() : void{
 		$this->printConsoleMessage([
 			"You're running a Stable build, but you're receiving update notifications for " . ucfirst($this->getChannel()) . " builds.",
-			"To get notified about new Stable builds only, change 'preferred-channel' in your beeltymine.yml to 'stable'."
+			"To get notified about new Stable builds only, change 'preferred-channel' in your pocketmine.yml to 'stable'."
 		]);
 	}
 
 	protected function showChannelSuggestionBeta() : void{
 		$this->printConsoleMessage([
 			"You're running a Beta build, but you're receiving update notifications for Stable builds.",
-			"To get notified about new Beta or Development builds, change 'preferred-channel' in your beeltymine.yml to 'beta' or 'development'."
+			"To get notified about new Beta or Development builds, change 'preferred-channel' in your pocketmine.yml to 'beta' or 'development'."
 		]);
 	}
 

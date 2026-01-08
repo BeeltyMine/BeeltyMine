@@ -29,10 +29,7 @@ namespace pocketmine\lang;
  *
  * @internal
  */
-final class KnownTranslationKeys
-{
-	public const ABILITY_FLIGHT = "ability.flight";
-	public const ABILITY_NOCLIP = "ability.noclip";
+final class KnownTranslationKeys{
 	public const ACCEPT_LICENSE = "accept_license";
 	public const ACTION_INTERACT_ARMORSTAND_EQUIP = "action.interact.armorstand.equip";
 	public const ACTION_INTERACT_ARMORSTAND_POSE = "action.interact.armorstand.pose";
@@ -43,7 +40,6 @@ final class KnownTranslationKeys
 	public const ACTION_INTERACT_RIDE_MINECART = "action.interact.ride.minecart";
 	public const CHAT_TYPE_ACHIEVEMENT = "chat.type.achievement";
 	public const CHAT_TYPE_ADMIN = "chat.type.admin";
-	
 	public const CHAT_TYPE_ANNOUNCEMENT = "chat.type.announcement";
 	public const CHAT_TYPE_EMOTE = "chat.type.emote";
 	public const CHAT_TYPE_TEXT = "chat.type.text";
@@ -70,6 +66,7 @@ final class KnownTranslationKeys
 	public const COMMANDS_EFFECT_FAILURE_NOTACTIVE_ALL = "commands.effect.failure.notActive.all";
 	public const COMMANDS_EFFECT_NOTFOUND = "commands.effect.notFound";
 	public const COMMANDS_EFFECT_SUCCESS = "commands.effect.success";
+	public const COMMANDS_EFFECT_SUCCESS_INFINITE = "commands.effect.success.infinite";
 	public const COMMANDS_EFFECT_SUCCESS_REMOVED = "commands.effect.success.removed";
 	public const COMMANDS_EFFECT_SUCCESS_REMOVED_ALL = "commands.effect.success.removed.all";
 	public const COMMANDS_EFFECT_USAGE = "commands.effect.usage";
@@ -80,10 +77,8 @@ final class KnownTranslationKeys
 	public const COMMANDS_GAMEMODE_SUCCESS_OTHER = "commands.gamemode.success.other";
 	public const COMMANDS_GAMEMODE_SUCCESS_SELF = "commands.gamemode.success.self";
 	public const COMMANDS_GAMEMODE_USAGE = "commands.gamemode.usage";
-	public const COMMANDS_GENERIC_NOTFOUND = "commands.generic.notFound";
 	public const COMMANDS_GENERIC_NUM_TOOBIG = "commands.generic.num.tooBig";
 	public const COMMANDS_GENERIC_NUM_TOOSMALL = "commands.generic.num.tooSmall";
-	public const COMMANDS_GENERIC_PERMISSION = "commands.generic.permission";
 	public const COMMANDS_GENERIC_PLAYER_NOTFOUND = "commands.generic.player.notFound";
 	public const COMMANDS_GENERIC_USAGE = "commands.generic.usage";
 	public const COMMANDS_GIVE_ITEM_NOTFOUND = "commands.give.item.notFound";
@@ -108,13 +103,10 @@ final class KnownTranslationKeys
 	public const COMMANDS_PLAYERS_LIST = "commands.players.list";
 	public const COMMANDS_SAVE_DISABLED = "commands.save.disabled";
 	public const COMMANDS_SAVE_ENABLED = "commands.save.enabled";
-	public const COMMANDS_SAVE_START = "commands.save.start";
-	public const COMMANDS_SAVE_SUCCESS = "commands.save.success";
 	public const COMMANDS_SAY_USAGE = "commands.say.usage";
 	public const COMMANDS_SEED_SUCCESS = "commands.seed.success";
 	public const COMMANDS_SETWORLDSPAWN_SUCCESS = "commands.setworldspawn.success";
 	public const COMMANDS_SETWORLDSPAWN_USAGE = "commands.setworldspawn.usage";
-	public const COMMANDS_SPAWNPOINT_SUCCESS = "commands.spawnpoint.success";
 	public const COMMANDS_SPAWNPOINT_USAGE = "commands.spawnpoint.usage";
 	public const COMMANDS_STOP_START = "commands.stop.start";
 	public const COMMANDS_TIME_ADDED = "commands.time.added";
@@ -124,15 +116,6 @@ final class KnownTranslationKeys
 	public const COMMANDS_TITLE_USAGE = "commands.title.usage";
 	public const COMMANDS_TP_SUCCESS = "commands.tp.success";
 	public const COMMANDS_TP_SUCCESS_COORDINATES = "commands.tp.success.coordinates";
-	public const COMMANDS_TP_NOPERMISSION = "commands.tp.noPermission";
-	public const COMMANDS_TP_VICTIMNOTFOUND = "commands.tp.victimNotFound";
-	public const COMMANDS_TP_DESTINATIONNOTFOUND = "commands.tp.destinationNotFound";
-	public const COMMANDS_TP_TELEPORTEDTO = "commands.tp.teleportedTo";
-	public const COMMANDS_TP_TELEPORTEDPLAYER = "commands.tp.teleportedPlayer";
-	public const COMMANDS_TP_TELEPORTEDCOORDS = "commands.tp.teleportedCoords";
-	public const COMMANDS_TP_TELEPORTEDPLAYERCOORDS = "commands.tp.teleportedPlayerCoords";
-	public const COMMANDS_TP_CONSOLECANOTTELEPORT = "commands.tp.consoleCannotTeleport";
-	public const COMMANDS_TP_INVALIDARGS = "commands.tp.invalidArgs";
 	public const COMMANDS_TP_USAGE = "commands.tp.usage";
 	public const COMMANDS_UNBAN_SUCCESS = "commands.unban.success";
 	public const COMMANDS_UNBAN_USAGE = "commands.unban.usage";
@@ -152,19 +135,7 @@ final class KnownTranslationKeys
 	public const COMMANDS_XP_SUCCESS = "commands.xp.success";
 	public const COMMANDS_XP_SUCCESS_LEVELS = "commands.xp.success.levels";
 	public const COMMANDS_XP_SUCCESS_NEGATIVE_LEVELS = "commands.xp.success.negative.levels";
-	public const COMMANDS_WEATHER_CLEAR = "commands.weather.clear";
-	public const COMMANDS_WEATHER_DISABLED = "commands.weather.disabled";
-	public const COMMANDS_WEATHER_QUERY = "commands.weather.query";
-	public const COMMANDS_WEATHER_QUERY_CLEAR = "commands.weather.query.clear";
-	public const COMMANDS_WEATHER_QUERY_RAIN = "commands.weather.query.rain";
-	public const COMMANDS_WEATHER_QUERY_THUNDER = "commands.weather.query.thunder";
-	public const COMMANDS_WEATHER_RAIN = "commands.weather.rain";
-	public const COMMANDS_WEATHER_THUNDER = "commands.weather.thunder";
 	public const DEATH_ATTACK_ANVIL = "death.attack.anvil";
-	public const POCKETMINE_COMMAND_WEATHER_DESCRIPTION = "pocketmine.command.weather.description";
-	public const POCKETMINE_COMMAND_WEATHER_USAGE = "pocketmine.command.weather.usage";
-	public const POCKETMINE_PERMISSION_COMMAND_WEATHER = "pocketmine.permission.command.weather";
-
 	public const DEATH_ATTACK_ARROW = "death.attack.arrow";
 	public const DEATH_ATTACK_ARROW_ITEM = "death.attack.arrow.item";
 	public const DEATH_ATTACK_CACTUS = "death.attack.cactus";
@@ -206,7 +177,6 @@ final class KnownTranslationKeys
 	public const ENCHANTMENT_ARROWKNOCKBACK = "enchantment.arrowKnockback";
 	public const ENCHANTMENT_CROSSBOWMULTISHOT = "enchantment.crossbowMultishot";
 	public const ENCHANTMENT_CROSSBOWPIERCING = "enchantment.crossbowPiercing";
-	public const ENCHANTMENT_QUICK_CHARGE = "enchantment.quickCharge";
 	public const ENCHANTMENT_CROSSBOWQUICKCHARGE = "enchantment.crossbowQuickCharge";
 	public const ENCHANTMENT_CURSE_BINDING = "enchantment.curse.binding";
 	public const ENCHANTMENT_CURSE_VANISHING = "enchantment.curse.vanishing";
@@ -253,7 +223,6 @@ final class KnownTranslationKeys
 	public const IP_CONFIRM = "ip_confirm";
 	public const IP_GET = "ip_get";
 	public const IP_WARNING = "ip_warning";
-	public const ITEM_MUSIC_DISC_LAVA_CHICKEN_DESC = "item.music_disc_lava_chicken.desc";
 	public const ITEM_RECORD_11_DESC = "item.record_11.desc";
 	public const ITEM_RECORD_13_DESC = "item.record_13.desc";
 	public const ITEM_RECORD_5_DESC = "item.record_5.desc";
@@ -273,50 +242,11 @@ final class KnownTranslationKeys
 	public const ITEM_RECORD_STRAD_DESC = "item.record_strad.desc";
 	public const ITEM_RECORD_WAIT_DESC = "item.record_wait.desc";
 	public const ITEM_RECORD_WARD_DESC = "item.record_ward.desc";
-	public const ITEM_MINECRAFT_SHIELD = "item.minecraft.shield";
-	public const ITEM_MINECRAFT_SPYGLASS = "item.minecraft.spyglass";
-	public const ITEM_MINECRAFT_BRUSH = "item.minecraft.brush";
-	public const ITEM_MINECRAFT_ECHO_SHARD = "item.minecraft.echo_shard";
-	public const ITEM_MINECRAFT_WARPED_FUNGUS = "item.minecraft.warped_fungus";
-	public const ITEM_MINECRAFT_CRIMSON_FUNGUS = "item.minecraft.crimson_fungus";
-	public const ITEM_MINECRAFT_NETHER_FUNGUS = "item.minecraft.nether_fungus";
-	public const ITEM_MINECRAFT_NETHER_SPROUTS = "item.minecraft.nether_sprouts";
-	public const ITEM_MINECRAFT_NYLIUM = "item.minecraft.nylium";
-	public const ITEM_MINECRAFT_POINTED_DRIPSTONE = "item.minecraft.pointed_dripstone";
-	public const ITEM_MINECRAFT_DRIPSTONE_BLOCK = "item.minecraft.dripstone_block";
-	public const ITEM_MINECRAFT_MOSS_CARPET = "item.minecraft.moss_carpet";
-	public const ITEM_MINECRAFT_MOSS_BLOCK = "item.minecraft.moss_block";
-	public const ITEM_MINECRAFT_FLOWERING_AZALEA = "item.minecraft.flowering_azalea";
-	public const ITEM_MINECRAFT_CHEST = "item.minecraft.chest";
-	public const ITEM_MINECRAFT_TRIAL_SPAWNER = "item.minecraft.trial_spawner";
-	public const ITEM_MINECRAFT_BREEZE_ROD = "item.minecraft.breeze_rod";
-	public const ITEM_MINECRAFT_SCAFFOLDING = "item.minecraft.scaffolding";
-	public const ITEM_MINECRAFT_HONEY_BLOCK = "item.minecraft.honey_block";
-	public const ITEM_MINECRAFT_HEAVY_CORE = "item.minecraft.heavy_core";
-	public const ITEM_MINECRAFT_SUSPICIOUS_SAND = "item.minecraft.suspicious_sand";
-	public const ITEM_MINECRAFT_SUSPICIOUS_GRAVEL = "item.minecraft.suspicious_gravel";
-	public const ITEM_MINECRAFT_BONE_MEAL = "item.minecraft.bone_meal";
-	public const ITEM_MINECRAFT_AXOLOTL_BUCKET = "item.minecraft.axolotl_bucket";
-	public const ITEM_MINECRAFT_COD_BUCKET = "item.minecraft.cod_bucket";
-	public const ITEM_MINECRAFT_SALMON_BUCKET = "item.minecraft.salmon_bucket";
-	public const ITEM_MINECRAFT_TROPICAL_FISH_BUCKET = "item.minecraft.tropical_fish_bucket";
-	public const ITEM_MINECRAFT_PUFFERFISH_BUCKET = "item.minecraft.pufferfish_bucket";
-	public const ITEM_MINECRAFT_TADPOLE_BUCKET = "item.minecraft.tadpole_bucket";
-	public const ITEM_MINECRAFT_LIGHTNING_ROD = "item.minecraft.lightning_rod";
 	public const ITEMGROUP_NAME_ANVIL = "itemGroup.name.anvil";
 	public const ITEMGROUP_NAME_ARROW = "itemGroup.name.arrow";
 	public const ITEMGROUP_NAME_AXE = "itemGroup.name.axe";
-
 	public const ITEMGROUP_NAME_BANNER = "itemGroup.name.banner";
 	public const ITEMGROUP_NAME_BANNER_PATTERN = "itemGroup.name.banner_pattern";
-	public const ITEM_BANNER_PATTERN_CREEPER = "item.banner.creeper.black";
-	public const ITEM_BANNER_PATTERN_SKULL = "item.banner.skull.black";
-	public const ITEM_BANNER_PATTERN_FLOWER = "item.banner.flower.black";
-	public const ITEM_BANNER_PATTERN_MOJANG = "item.banner.mojang.black";
-	public const ITEM_BANNER_PATTERN_GLOBE = "item.banner.globe";
-	public const ITEM_BANNER_PATTERN_PIGLIN = "item.banner.piglin.black";
-	public const ITEM_BANNER_PATTERN_FLOW = "item.banner.flow.black";
-	public const ITEM_BANNER_PATTERN_GUSTER = "item.banner.guster.black";
 	public const ITEMGROUP_NAME_BED = "itemGroup.name.bed";
 	public const ITEMGROUP_NAME_BOAT = "itemGroup.name.boat";
 	public const ITEMGROUP_NAME_BOOTS = "itemGroup.name.boots";
@@ -385,15 +315,11 @@ final class KnownTranslationKeys
 	public const ITEMGROUP_NAME_STONE = "itemGroup.name.stone";
 	public const ITEMGROUP_NAME_STONEBRICK = "itemGroup.name.stoneBrick";
 	public const ITEMGROUP_NAME_SWORD = "itemGroup.name.sword";
-	public const ITEMGROUP_NAME_SPEAR = "itemGroup.name.spear";
 	public const ITEMGROUP_NAME_TRAPDOOR = "itemGroup.name.trapdoor";
 	public const ITEMGROUP_NAME_WALLS = "itemGroup.name.walls";
 	public const ITEMGROUP_NAME_WOOD = "itemGroup.name.wood";
 	public const ITEMGROUP_NAME_WOOL = "itemGroup.name.wool";
 	public const ITEMGROUP_NAME_WOOLCARPET = "itemGroup.name.woolCarpet";
-	public const KICK_ADMIN = "kick.admin";
-	public const KICK_ADMIN_REASON = "kick.admin.reason";
-	public const KICK_REASON_CHEAT = "kick.reason.cheat";
 	public const LANGUAGE_NAME = "language.name";
 	public const LANGUAGE_SELECTED = "language.selected";
 	public const LANGUAGE_HAS_BEEN_SELECTED = "language_has_been_selected";
@@ -404,6 +330,7 @@ final class KnownTranslationKeys
 	public const OP_INFO = "op_info";
 	public const OP_WARNING = "op_warning";
 	public const OP_WHO = "op_who";
+	public const POCKETMINE_BLOCK_BED_INCOMPLETE = "pocketmine.block.bed.incomplete";
 	public const POCKETMINE_COMMAND_ALIAS_ILLEGAL = "pocketmine.command.alias.illegal";
 	public const POCKETMINE_COMMAND_ALIAS_NOTFOUND = "pocketmine.command.alias.notFound";
 	public const POCKETMINE_COMMAND_ALIAS_RECURSIVE = "pocketmine.command.alias.recursive";
@@ -420,7 +347,7 @@ final class KnownTranslationKeys
 	public const POCKETMINE_COMMAND_ENCHANT_DESCRIPTION = "pocketmine.command.enchant.description";
 	public const POCKETMINE_COMMAND_ERROR_PERMISSION = "pocketmine.command.error.permission";
 	public const POCKETMINE_COMMAND_ERROR_PLAYERNOTFOUND = "pocketmine.command.error.playerNotFound";
-	public const POCKETMINE_COMMAND_EXCEPTION = "pocketmine.command.exception";
+	public const POCKETMINE_COMMAND_ERROR_PLAYERUSERONLY = "pocketmine.command.error.playerUserOnly";
 	public const POCKETMINE_COMMAND_GAMEMODE_DESCRIPTION = "pocketmine.command.gamemode.description";
 	public const POCKETMINE_COMMAND_GAMEMODE_FAILURE = "pocketmine.command.gamemode.failure";
 	public const POCKETMINE_COMMAND_GAMEMODE_UNKNOWN = "pocketmine.command.gamemode.unknown";
@@ -455,7 +382,28 @@ final class KnownTranslationKeys
 	public const POCKETMINE_COMMAND_SEED_DESCRIPTION = "pocketmine.command.seed.description";
 	public const POCKETMINE_COMMAND_SETWORLDSPAWN_DESCRIPTION = "pocketmine.command.setworldspawn.description";
 	public const POCKETMINE_COMMAND_SPAWNPOINT_DESCRIPTION = "pocketmine.command.spawnpoint.description";
+	public const POCKETMINE_COMMAND_SPAWNPOINT_SUCCESS = "pocketmine.command.spawnpoint.success";
 	public const POCKETMINE_COMMAND_STATUS_DESCRIPTION = "pocketmine.command.status.description";
+	public const POCKETMINE_COMMAND_STATUS_HEADER = "pocketmine.command.status.header";
+	public const POCKETMINE_COMMAND_STATUS_MEMORY_MAINTHREAD = "pocketmine.command.status.memory.mainThread";
+	public const POCKETMINE_COMMAND_STATUS_MEMORY_MANAGER = "pocketmine.command.status.memory.manager";
+	public const POCKETMINE_COMMAND_STATUS_MEMORY_STAT = "pocketmine.command.status.memory.stat";
+	public const POCKETMINE_COMMAND_STATUS_MEMORY_TOTAL = "pocketmine.command.status.memory.total";
+	public const POCKETMINE_COMMAND_STATUS_MEMORY_VIRTUAL = "pocketmine.command.status.memory.virtual";
+	public const POCKETMINE_COMMAND_STATUS_NETWORK_DOWNLOAD = "pocketmine.command.status.network.download";
+	public const POCKETMINE_COMMAND_STATUS_NETWORK_STAT = "pocketmine.command.status.network.stat";
+	public const POCKETMINE_COMMAND_STATUS_NETWORK_UPLOAD = "pocketmine.command.status.network.upload";
+	public const POCKETMINE_COMMAND_STATUS_THREADS = "pocketmine.command.status.threads";
+	public const POCKETMINE_COMMAND_STATUS_TPS_AVERAGE = "pocketmine.command.status.tps.average";
+	public const POCKETMINE_COMMAND_STATUS_TPS_CURRENT = "pocketmine.command.status.tps.current";
+	public const POCKETMINE_COMMAND_STATUS_TPS_STAT = "pocketmine.command.status.tps.stat";
+	public const POCKETMINE_COMMAND_STATUS_UPTIME = "pocketmine.command.status.uptime";
+	public const POCKETMINE_COMMAND_STATUS_UPTIME_DAYS = "pocketmine.command.status.uptime.days";
+	public const POCKETMINE_COMMAND_STATUS_UPTIME_HOURS = "pocketmine.command.status.uptime.hours";
+	public const POCKETMINE_COMMAND_STATUS_UPTIME_MINUTES = "pocketmine.command.status.uptime.minutes";
+	public const POCKETMINE_COMMAND_STATUS_UPTIME_SECONDS = "pocketmine.command.status.uptime.seconds";
+	public const POCKETMINE_COMMAND_STATUS_WORLD = "pocketmine.command.status.world";
+	public const POCKETMINE_COMMAND_STATUS_WORLD_TIMESTAT = "pocketmine.command.status.world.timeStat";
 	public const POCKETMINE_COMMAND_STOP_DESCRIPTION = "pocketmine.command.stop.description";
 	public const POCKETMINE_COMMAND_TELL_DESCRIPTION = "pocketmine.command.tell.description";
 	public const POCKETMINE_COMMAND_TIME_DESCRIPTION = "pocketmine.command.time.description";
@@ -469,7 +417,6 @@ final class KnownTranslationKeys
 	public const POCKETMINE_COMMAND_TIMINGS_RESET = "pocketmine.command.timings.reset";
 	public const POCKETMINE_COMMAND_TIMINGS_TIMINGSDISABLED = "pocketmine.command.timings.timingsDisabled";
 	public const POCKETMINE_COMMAND_TIMINGS_TIMINGSREAD = "pocketmine.command.timings.timingsRead";
-	public const POCKETMINE_COMMAND_TIMINGS_TIMINGSUPLOAD = "pocketmine.command.timings.timingsUpload";
 	public const POCKETMINE_COMMAND_TIMINGS_TIMINGSWRITE = "pocketmine.command.timings.timingsWrite";
 	public const POCKETMINE_COMMAND_TIMINGS_USAGE = "pocketmine.command.timings.usage";
 	public const POCKETMINE_COMMAND_TITLE_DESCRIPTION = "pocketmine.command.title.description";
@@ -488,6 +435,10 @@ final class KnownTranslationKeys
 	public const POCKETMINE_COMMAND_VERSION_PHPJITNOTSUPPORTED = "pocketmine.command.version.phpJitNotSupported";
 	public const POCKETMINE_COMMAND_VERSION_PHPJITSTATUS = "pocketmine.command.version.phpJitStatus";
 	public const POCKETMINE_COMMAND_VERSION_PHPVERSION = "pocketmine.command.version.phpVersion";
+	public const POCKETMINE_COMMAND_VERSION_PLUGIN_AUTHOR = "pocketmine.command.version.plugin.author";
+	public const POCKETMINE_COMMAND_VERSION_PLUGIN_AUTHORS = "pocketmine.command.version.plugin.authors";
+	public const POCKETMINE_COMMAND_VERSION_PLUGIN_HEADER = "pocketmine.command.version.plugin.header";
+	public const POCKETMINE_COMMAND_VERSION_PLUGIN_WEBSITE = "pocketmine.command.version.plugin.website";
 	public const POCKETMINE_COMMAND_VERSION_SERVERSOFTWARENAME = "pocketmine.command.version.serverSoftwareName";
 	public const POCKETMINE_COMMAND_VERSION_SERVERSOFTWAREVERSION = "pocketmine.command.version.serverSoftwareVersion";
 	public const POCKETMINE_COMMAND_VERSION_USAGE = "pocketmine.command.version.usage";
@@ -499,10 +450,7 @@ final class KnownTranslationKeys
 	public const POCKETMINE_CRASH_ERROR = "pocketmine.crash.error";
 	public const POCKETMINE_CRASH_SUBMIT = "pocketmine.crash.submit";
 	public const POCKETMINE_DATA_PLAYERCORRUPTED = "pocketmine.data.playerCorrupted";
-	public const POCKETMINE_DATA_PLAYERNOTFOUND = "pocketmine.data.playerNotFound";
-	public const POCKETMINE_DATA_PLAYEROLD = "pocketmine.data.playerOld";
 	public const POCKETMINE_DATA_SAVEERROR = "pocketmine.data.saveError";
-	public const POCKETMINE_DEBUG_ENABLE = "pocketmine.debug.enable";
 	public const POCKETMINE_DISCONNECT_BAN = "pocketmine.disconnect.ban";
 	public const POCKETMINE_DISCONNECT_BAN_HARDCORE = "pocketmine.disconnect.ban.hardcore";
 	public const POCKETMINE_DISCONNECT_BAN_IP = "pocketmine.disconnect.ban.ip";
@@ -537,7 +485,6 @@ final class KnownTranslationKeys
 	public const POCKETMINE_LEVEL_GENERATIONERROR = "pocketmine.level.generationError";
 	public const POCKETMINE_LEVEL_INVALIDGENERATOROPTIONS = "pocketmine.level.invalidGeneratorOptions";
 	public const POCKETMINE_LEVEL_LOADERROR = "pocketmine.level.loadError";
-	public const POCKETMINE_LEVEL_NOTFOUND = "pocketmine.level.notFound";
 	public const POCKETMINE_LEVEL_PREPARING = "pocketmine.level.preparing";
 	public const POCKETMINE_LEVEL_SPAWNTERRAINGENERATIONPROGRESS = "pocketmine.level.spawnTerrainGenerationProgress";
 	public const POCKETMINE_LEVEL_UNKNOWNFORMAT = "pocketmine.level.unknownFormat";
@@ -612,16 +559,12 @@ final class KnownTranslationKeys
 	public const POCKETMINE_PERMISSION_GROUP_CONSOLE = "pocketmine.permission.group.console";
 	public const POCKETMINE_PERMISSION_GROUP_OPERATOR = "pocketmine.permission.group.operator";
 	public const POCKETMINE_PERMISSION_GROUP_USER = "pocketmine.permission.group.user";
-	public const POCKETMINE_PLAYER_INVALIDENTITY = "pocketmine.player.invalidEntity";
-	public const POCKETMINE_PLAYER_INVALIDMOVE = "pocketmine.player.invalidMove";
 	public const POCKETMINE_PLAYER_LOGIN = "pocketmine.player.logIn";
-	public const POCKETMINE_PLAYER_LOGOUT = "pocketmine.player.logOut";
 	public const POCKETMINE_PLUGIN_ALIASERROR = "pocketmine.plugin.aliasError";
 	public const POCKETMINE_PLUGIN_AMBIGUOUSMINAPI = "pocketmine.plugin.ambiguousMinAPI";
 	public const POCKETMINE_PLUGIN_BADDATAFOLDER = "pocketmine.plugin.badDataFolder";
 	public const POCKETMINE_PLUGIN_CIRCULARDEPENDENCY = "pocketmine.plugin.circularDependency";
 	public const POCKETMINE_PLUGIN_COMMANDERROR = "pocketmine.plugin.commandError";
-	public const POCKETMINE_PLUGIN_DEPRECATEDEVENT = "pocketmine.plugin.deprecatedEvent";
 	public const POCKETMINE_PLUGIN_DISABLE = "pocketmine.plugin.disable";
 	public const POCKETMINE_PLUGIN_DISALLOWEDBYBLACKLIST = "pocketmine.plugin.disallowedByBlacklist";
 	public const POCKETMINE_PLUGIN_DISALLOWEDBYWHITELIST = "pocketmine.plugin.disallowedByWhitelist";
@@ -631,7 +574,6 @@ final class KnownTranslationKeys
 	public const POCKETMINE_PLUGIN_ENABLE = "pocketmine.plugin.enable";
 	public const POCKETMINE_PLUGIN_ENABLEERROR = "pocketmine.plugin.enableError";
 	public const POCKETMINE_PLUGIN_EXTENSIONNOTLOADED = "pocketmine.plugin.extensionNotLoaded";
-	public const POCKETMINE_PLUGIN_GENERICLOADERROR = "pocketmine.plugin.genericLoadError";
 	public const POCKETMINE_PLUGIN_INCOMPATIBLEAPI = "pocketmine.plugin.incompatibleAPI";
 	public const POCKETMINE_PLUGIN_INCOMPATIBLEEXTENSIONVERSION = "pocketmine.plugin.incompatibleExtensionVersion";
 	public const POCKETMINE_PLUGIN_INCOMPATIBLEOS = "pocketmine.plugin.incompatibleOS";
@@ -656,7 +598,6 @@ final class KnownTranslationKeys
 	public const POCKETMINE_SERVER_AUTH_DISABLED = "pocketmine.server.auth.disabled";
 	public const POCKETMINE_SERVER_AUTH_ENABLED = "pocketmine.server.auth.enabled";
 	public const POCKETMINE_SERVER_AUTHPROPERTY_DISABLED = "pocketmine.server.authProperty.disabled";
-	public const POCKETMINE_SERVER_AUTHPROPERTY_ENABLED = "pocketmine.server.authProperty.enabled";
 	public const POCKETMINE_SERVER_AUTHWARNING = "pocketmine.server.authWarning";
 	public const POCKETMINE_SERVER_DEFAULTGAMEMODE = "pocketmine.server.defaultGameMode";
 	public const POCKETMINE_SERVER_DEVBUILD_ERROR1 = "pocketmine.server.devBuild.error1";
@@ -667,10 +608,8 @@ final class KnownTranslationKeys
 	public const POCKETMINE_SERVER_DEVBUILD_WARNING1 = "pocketmine.server.devBuild.warning1";
 	public const POCKETMINE_SERVER_DEVBUILD_WARNING2 = "pocketmine.server.devBuild.warning2";
 	public const POCKETMINE_SERVER_DEVBUILD_WARNING3 = "pocketmine.server.devBuild.warning3";
-	public const POCKETMINE_SERVER_DONATE = "pocketmine.server.donate";
 	public const POCKETMINE_SERVER_FORCINGSHUTDOWN = "pocketmine.server.forcingShutdown";
 	public const POCKETMINE_SERVER_INFO = "pocketmine.server.info";
-	public const POCKETMINE_SERVER_INFO_EXTENDED = "pocketmine.server.info.extended";
 	public const POCKETMINE_SERVER_LICENSE = "pocketmine.server.license";
 	public const POCKETMINE_SERVER_NETWORKSTART = "pocketmine.server.networkStart";
 	public const POCKETMINE_SERVER_NETWORKSTARTFAILED = "pocketmine.server.networkStartFailed";
@@ -681,6 +620,13 @@ final class KnownTranslationKeys
 	public const POCKETMINE_SERVER_START = "pocketmine.server.start";
 	public const POCKETMINE_SERVER_STARTFINISHED = "pocketmine.server.startFinished";
 	public const POCKETMINE_SERVER_TICKOVERLOAD = "pocketmine.server.tickOverload";
+	public const POCKETMINE_SERVER_URL_BUGREPORTING = "pocketmine.server.url.bugReporting";
+	public const POCKETMINE_SERVER_URL_DISCORD = "pocketmine.server.url.discord";
+	public const POCKETMINE_SERVER_URL_DOCS = "pocketmine.server.url.docs";
+	public const POCKETMINE_SERVER_URL_DONATIONS = "pocketmine.server.url.donations";
+	public const POCKETMINE_SERVER_URL_FREEPLUGINS = "pocketmine.server.url.freePlugins";
+	public const POCKETMINE_SERVER_URL_SOURCECODE = "pocketmine.server.url.sourceCode";
+	public const POCKETMINE_SERVER_URL_TRANSLATIONS = "pocketmine.server.url.translations";
 	public const POCKETMINE_PLUGINS = "pocketmine_plugins";
 	public const POCKETMINE_WILL_START = "pocketmine_will_start";
 	public const PORT_WARNING = "port_warning";
@@ -732,5 +678,4 @@ final class KnownTranslationKeys
 	public const WHITELIST_WARNING = "whitelist_warning";
 	public const YOU_HAVE_FINISHED = "you_have_finished";
 	public const YOU_HAVE_TO_ACCEPT_THE_LICENSE = "you_have_to_accept_the_license";
-
 }

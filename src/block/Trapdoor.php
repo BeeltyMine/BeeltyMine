@@ -26,9 +26,6 @@ namespace pocketmine\block;
 use pocketmine\block\utils\HorizontalFacing;
 use pocketmine\block\utils\HorizontalFacingTrait;
 use pocketmine\block\utils\SupportType;
-use pocketmine\block\utils\Waterloggable;
-use pocketmine\block\utils\WaterloggedTrait;
-use pocketmine\block\Liquid;
 use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\item\Item;
 use pocketmine\math\AxisAlignedBB;
@@ -38,9 +35,8 @@ use pocketmine\player\Player;
 use pocketmine\world\BlockTransaction;
 use pocketmine\world\sound\DoorSound;
 
-class Trapdoor extends Transparent implements HorizontalFacing, Waterloggable{
+class Trapdoor extends Transparent implements HorizontalFacing{
 	use HorizontalFacingTrait;
-	use WaterloggedTrait;
 
 	protected bool $open = false;
 	protected bool $top = false;
@@ -49,7 +45,6 @@ class Trapdoor extends Transparent implements HorizontalFacing, Waterloggable{
 		$w->horizontalFacing($this->facing);
 		$w->bool($this->top);
 		$w->bool($this->open);
-		$this->describeWaterloggedState($w);
 	}
 
 	public function isOpen() : bool{ return $this->open; }
@@ -69,7 +64,8 @@ class Trapdoor extends Transparent implements HorizontalFacing, Waterloggable{
 	}
 
 	protected function recalculateCollisionBoxes() : array{
-		return [AxisAlignedBB::one()->trim($this->open ? $this->facing : ($this->top ? Facing::DOWN : Facing::UP), 13 / 16)];
+		//TODO: like doors, these are slightly too thin in Bugrock (0.1825 instead of 0.1875)
+		return [AxisAlignedBB::one()->trim($this->open ? $this->facing : ($this->top ? Facing::DOWN : Facing::UP), 1 - 0.1825)];
 	}
 
 	public function getSupportType(int $facing) : SupportType{
@@ -82,12 +78,6 @@ class Trapdoor extends Transparent implements HorizontalFacing, Waterloggable{
 		}
 		if(($clickVector->y > 0.5 && $face !== Facing::UP) || $face === Facing::DOWN){
 			$this->top = true;
-		}
-
-		if($blockReplace instanceof Liquid){
-			$this->setWaterlogged(true);
-		}else{
-			$this->setWaterlogged(false);
 		}
 
 		return parent::place($tx, $item, $blockReplace, $blockClicked, $face, $clickVector, $player);

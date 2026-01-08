@@ -30,11 +30,9 @@ namespace pocketmine\item;
  * WARNING: These are NOT a replacement for Minecraft legacy IDs. Do **NOT** hardcode their values, or store them in
  * configs or databases. They will change without warning.
  */
-final class ItemTypeIds
-{
+final class ItemTypeIds{
 
-	private function __construct()
-	{
+	private function __construct(){
 		//NOOP
 	}
 
@@ -266,88 +264,7 @@ final class ItemTypeIds
 	public const WOODEN_SWORD = 20225;
 	public const WRITABLE_BOOK = 20226;
 	public const WRITTEN_BOOK = 20227;
-	public const BUNDLE = 21053;
 	public const ZOMBIE_SPAWN_EGG = 20228;
-	public const ZOMBIE_PIGMAN_SPAWN_EGG = 20369;
-	public const AXOLOTL_SPAWN_EGG = 20370;
-	public const COW_SPAWN_EGG = 20371;
-	public const CHICKEN_SPAWN_EGG = 20372;
-	public const PIG_SPAWN_EGG = 20373;
-	public const SHEEP_SPAWN_EGG = 20374;
-	public const ALLAY_SPAWN_EGG = 20376;
-	public const ARMADILLO_SPAWN_EGG = 20377;
-	public const BAT_SPAWN_EGG = 20378;
-	public const BEE_SPAWN_EGG = 20379;
-	public const BLAZE_SPAWN_EGG = 20380;
-	public const BOGGED_SPAWN_EGG = 20381;
-	public const BREEZE_SPAWN_EGG = 20382;
-	public const CAMEL_SPAWN_EGG = 20383;
-	public const CAT_SPAWN_EGG = 20384;
-	public const CAVE_SPIDER_SPAWN_EGG = 20385;
-	public const COD_SPAWN_EGG = 20386;
-	public const COPPER_GOLEM_SPAWN_EGG = 20387;
-	public const CREAKING_SPAWN_EGG = 20388;
-	public const CREEPER_SPAWN_EGG = 20389;
-	public const DOLPHIN_SPAWN_EGG = 20390;
-	public const DONKEY_SPAWN_EGG = 20391;
-	public const DROWNED_SPAWN_EGG = 20392;
-	public const ELDER_GUARDIAN_SPAWN_EGG = 20393;
-	public const ENDER_DRAGON_SPAWN_EGG = 20394;
-	public const ENDERMAN_SPAWN_EGG = 20395;
-	public const ENDERMITE_SPAWN_EGG = 20396;
-	public const EVOKER_SPAWN_EGG = 20397;
-	public const FOX_SPAWN_EGG = 20398;
-	public const FROG_SPAWN_EGG = 20399;
-	public const GHAST_SPAWN_EGG = 20400;
-	public const GLOW_SQUID_SPAWN_EGG = 20401;
-	public const GOAT_SPAWN_EGG = 20402;
-	public const GUARDIAN_SPAWN_EGG = 20403;
-	public const HAPPY_GHAST_SPAWN_EGG = 20404;
-	public const HOGLIN_SPAWN_EGG = 20405;
-	public const HORSE_SPAWN_EGG = 20406;
-	public const HUSK_SPAWN_EGG = 20407;
-	public const IRON_GOLEM_SPAWN_EGG = 20408;
-	public const LLAMA_SPAWN_EGG = 20409;
-	public const MAGMA_CUBE_SPAWN_EGG = 20410;
-	public const MOOSHROOM_SPAWN_EGG = 20411;
-	public const MULE_SPAWN_EGG = 20412;
-	public const NPC_SPAWN_EGG = 20413;
-	public const OCELOT_SPAWN_EGG = 20414;
-	public const PANDA_SPAWN_EGG = 20415;
-	public const PARROT_SPAWN_EGG = 20416;
-	public const PHANTOM_SPAWN_EGG = 20417;
-	public const PIGLIN_SPAWN_EGG = 20418;
-	public const PIGLIN_BRUTE_SPAWN_EGG = 20419;
-	public const PILLAGER_SPAWN_EGG = 20420;
-	public const POLAR_BEAR_SPAWN_EGG = 20421;
-	public const PUFFERFISH_SPAWN_EGG = 20422;
-	public const RABBIT_SPAWN_EGG = 20423;
-	public const RAVAGER_SPAWN_EGG = 20424;
-	public const SALMON_SPAWN_EGG = 20425;
-	public const SHULKER_SPAWN_EGG = 20426;
-	public const SILVERFISH_SPAWN_EGG = 20427;
-	public const SKELETON_SPAWN_EGG = 20428;
-	public const SKELETON_HORSE_SPAWN_EGG = 20429;
-	public const SLIME_SPAWN_EGG = 20430;
-	public const SNIFFER_SPAWN_EGG = 20431;
-	public const SNOW_GOLEM_SPAWN_EGG = 20432;
-	public const SPIDER_SPAWN_EGG = 20433;
-	public const STRAY_SPAWN_EGG = 20434;
-	public const STRIDER_SPAWN_EGG = 20435;
-	public const TADPOLE_SPAWN_EGG = 20436;
-	public const TRADER_LLAMA_SPAWN_EGG = 20437;
-	public const TROPICAL_FISH_SPAWN_EGG = 20438;
-	public const TURTLE_SPAWN_EGG = 20439;
-	public const VEX_SPAWN_EGG = 20440;
-	public const VINDICATOR_SPAWN_EGG = 20441;
-	public const WANDERING_TRADER_SPAWN_EGG = 20442;
-	public const WARDEN_SPAWN_EGG = 20443;
-	public const WITCH_SPAWN_EGG = 20444;
-	public const WITHER_SPAWN_EGG = 20445;
-	public const WITHER_SKELETON_SPAWN_EGG = 20446;
-	public const WOLF_SPAWN_EGG = 20447;
-	public const ZOGLIN_SPAWN_EGG = 20448;
-	public const ZOMBIE_VILLAGER_SPAWN_EGG = 20449;
 	public const CRIMSON_SIGN = 20229;
 	public const MANGROVE_SIGN = 20230;
 	public const WARPED_SIGN = 20231;
@@ -378,7 +295,6 @@ final class ItemTypeIds
 	public const SPYGLASS = 20256;
 	public const NETHERITE_SCRAP = 20257;
 	public const POWDER_SNOW_BUCKET = 20258;
-	public const BEE_BUCKET = 20259;
 	public const LINGERING_POTION = 20259;
 	public const FIRE_CHARGE = 20260;
 	public const SUSPICIOUS_STEW = 20261;
@@ -433,168 +349,38 @@ final class ItemTypeIds
 	public const TRIDENT = 20310;
 	public const FIREWORK_ROCKET = 20311;
 	public const FIREWORK_STAR = 20312;
-	public const KELP = 20313;
-	public const SEAGRASS = 20314;
-
-	public const COPPER_SWORD = 20315;
-	public const COPPER_PICKAXE = 20316;
-	public const COPPER_SHOVEL = 20317;
+	public const COPPER_BOOTS = 20313;
+	public const COPPER_CHESTPLATE = 20314;
+	public const COPPER_HELMET = 20315;
+	public const COPPER_LEGGINGS = 20316;
+	public const COPPER_NUGGET = 20317;
 	public const COPPER_AXE = 20318;
-	public const COPPER_LEGGINGS = 20319;
-	public const COPPER_CHESTPLATE = 20320;
-	public const COPPER_BOOTS = 20321;
-	public const COPPER_HELMET = 20322;
+	public const COPPER_HOE = 20319;
+	public const COPPER_PICKAXE = 20320;
+	public const COPPER_SHOVEL = 20321;
+	public const COPPER_SWORD = 20322;
 
-	public const COPPER_HOE = 20323;
-
-	/**
-	 * Static constant for Crossbow to avoid dynamic id generation log messages.
-	 */
-	public const CROSSBOW = 20324;
-	public const ELYTRA = 20325;
-
-	// New record: Lava Chicken (added to match Bedrock/record mappings)
-	public const RECORD_LAVA_CHICKEN = 20326;
-
-	public const MACE = 20327;
-	public const WIND_CHARGE = 20328;
-
-	// Shelves (1.21.100)
-	public const ACACIA_SHELF = 20329;
-	public const BAMBOO_SHELF = 20330;
-	public const BIRCH_SHELF = 20331;
-	public const CHERRY_SHELF = 20332;
-	public const CRIMSON_SHELF = 20333;
-	public const DARK_OAK_SHELF = 20334;
-	public const JUNGLE_SHELF = 20335;
-	public const MANGROVE_SHELF = 20336;
-	public const OAK_SHELF = 20337;
-	public const PALE_OAK_SHELF = 20338;
-	public const SPRUCE_SHELF = 20339;
-	public const WARPED_SHELF = 20340;
-	// Armor stand item type id (added so VanillaItems::register finds a constant and does not generate a dynamic id)
-	public const ARMOR_STAND = 20341;
-	// Scaffolding item type id: present so VanillaItems won't generate a dynamic id at runtime.
-	public const SCAFFOLDING = 20342;
-	public const COPPER_NUGGET = 20343;
-	public const SHIELD = 20344;
-	public const BRUSH = 20345;
-	public const BREEZE_ROD = 20346;
-	public const HEAVY_CORE = 20347;
-	public const AXOLOTL_BUCKET = 20348;
-	public const COD_BUCKET = 20349;
-	public const PUFFERFISH_BUCKET = 20350;
-	public const SALMON_BUCKET = 20351;
-	public const TADPOLE_BUCKET = 20352;
-	public const TROPICAL_FISH_BUCKET = 20353;
-	public const BORDURE_INDENTED_BANNER_PATTERN = 20354;
-	public const CREEPER_BANNER_PATTERN = 20355;
-	public const FIELD_MASONED_BANNER_PATTERN = 20356;
-	public const FLOW_BANNER_PATTERN = 20357;
-	public const FLOWER_BANNER_PATTERN = 20358;
-	public const GLOBE_BANNER_PATTERN = 20359;
-	public const GUSTER_BANNER_PATTERN = 20360;
-	public const MOJANG_BANNER_PATTERN = 20361;
-	public const PIGLIN_BANNER_PATTERN = 20362;
-	public const SKULL_BANNER_PATTERN = 20363;
-	public const LIGHTNING_ROD = 20364;
-	public const HONEY_BLOCK = 20365;
-	public const COMPOSTER = 20366;
-	public const SUSPICIOUS_SAND = 20367;
-	public const SUSPICIOUS_GRAVEL = 20368;
-
-	// Added constants for new arrows and bamboo item-wrappers to avoid dynamic id generation
-	public const SPECTRAL_ARROW = 21000;
-	public const TIPPED_ARROW_NIGHT_VISION = 21001;
-	public const TIPPED_ARROW_LONG_NIGHT_VISION = 21002;
-	public const TIPPED_ARROW_INVISIBILITY = 21003;
-	public const TIPPED_ARROW_LONG_INVISIBILITY = 21004;
-	public const TIPPED_ARROW_LEAPING = 21005;
-	public const TIPPED_ARROW_LONG_LEAPING = 21006;
-	public const TIPPED_ARROW_STRONG_LEAPING = 21007;
-	public const TIPPED_ARROW_FIRE_RESISTANCE = 21008;
-	public const TIPPED_ARROW_LONG_FIRE_RESISTANCE = 21009;
-	public const TIPPED_ARROW_SWIFTNESS = 21010;
-	public const TIPPED_ARROW_LONG_SWIFTNESS = 21011;
-	public const TIPPED_ARROW_STRONG_SWIFTNESS = 21012;
-	public const TIPPED_ARROW_SLOWNESS = 21013;
-	public const TIPPED_ARROW_LONG_SLOWNESS = 21014;
-	public const TIPPED_ARROW_WATER_BREATHING = 21015;
-	public const TIPPED_ARROW_LONG_WATER_BREATHING = 21016;
-	public const TIPPED_ARROW_HEALING = 21017;
-	public const TIPPED_ARROW_STRONG_HEALING = 21018;
-	public const TIPPED_ARROW_HARMING = 21019;
-	public const TIPPED_ARROW_STRONG_HARMING = 21020;
-	public const TIPPED_ARROW_POISON = 21021;
-	public const TIPPED_ARROW_LONG_POISON = 21022;
-	public const TIPPED_ARROW_STRONG_POISON = 21023;
-	public const TIPPED_ARROW_REGENERATION = 21024;
-	public const TIPPED_ARROW_LONG_REGENERATION = 21025;
-	public const TIPPED_ARROW_STRONG_REGENERATION = 21026;
-	public const TIPPED_ARROW_STRENGTH = 21027;
-	public const TIPPED_ARROW_LONG_STRENGTH = 21028;
-	public const TIPPED_ARROW_STRONG_STRENGTH = 21029;
-	public const TIPPED_ARROW_WEAKNESS = 21030;
-	public const TIPPED_ARROW_LONG_WEAKNESS = 21031;
-	public const TIPPED_ARROW_WITHER = 21032;
-	public const TIPPED_ARROW_TURTLE_MASTER = 21033;
-	public const TIPPED_ARROW_LONG_TURTLE_MASTER = 21034;
-	public const TIPPED_ARROW_STRONG_TURTLE_MASTER = 21035;
-	public const TIPPED_ARROW_SLOW_FALLING = 21036;
-	public const TIPPED_ARROW_LONG_SLOW_FALLING = 21037;
-	public const TIPPED_ARROW_STRONG_SLOWNESS = 21038;
-
-	// item wrappers for bamboo block-items
-	public const BAMBOO_PLANKS = 21039;
-	public const BAMBOO_MOSAIC = 21040;
-	public const BAMBOO_SIGN = 21041;
-	public const BAMBOO_HANGING_SIGN = 21042;
-
-	// Additional bamboo item wrappers (avoid dynamic id generation warnings)
-	public const BAMBOO_LOG = 21043;
-	public const BAMBOO_WOOD = 21044;
-	public const BAMBOO_FENCE = 21045;
-	public const BAMBOO_SLAB = 21046;
-	public const BAMBOO_FENCE_GATE = 21047;
-	public const BAMBOO_STAIRS = 21048;
-	public const BAMBOO_DOOR = 21049;
-	public const BAMBOO_BUTTON = 21050;
-	public const BAMBOO_PRESSURE_PLATE = 21051;
-	public const BAMBOO_TRAPDOOR = 21052;
-
-	public const FIRST_UNUSED_ITEM_ID = 99999;
-
-	public const WOODEN_SPEAR = 30000;
-	public const STONE_SPEAR = 30003;
-	public const IRON_SPEAR = 30004;
-	public const GOLDEN_SPEAR = 30005;
-	public const DIAMOND_SPEAR = 30006;
-	public const NETHERITE_SPEAR = 30007;
-	public const COPPER_SPEAR = 30008;
-
+	public const FIRST_UNUSED_ITEM_ID = 20323;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_ITEM_ID;
 
 	/**
 	 * Returns a new runtime item type ID, e.g. for use by a custom item.
 	 */
-	public static function newId(): int
-	{
+	public static function newId() : int{
 		return self::$nextDynamicId++;
 	}
 
-	public static function fromBlockTypeId(int $blockTypeId): int
-	{
-		if ($blockTypeId < 0) {
+	public static function fromBlockTypeId(int $blockTypeId) : int{
+		if($blockTypeId < 0){
 			throw new \InvalidArgumentException("Block type IDs cannot be negative");
 		}
 		//negative item type IDs are treated as block IDs
 		return -$blockTypeId;
 	}
 
-	public static function toBlockTypeId(int $itemTypeId): ?int
-	{
-		if ($itemTypeId > 0) { //not a blockitem
+	public static function toBlockTypeId(int $itemTypeId) : ?int{
+		if($itemTypeId > 0){ //not a blockitem
 			return null;
 		}
 		return -$itemTypeId;

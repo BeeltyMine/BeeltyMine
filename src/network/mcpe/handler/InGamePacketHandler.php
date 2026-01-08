@@ -922,25 +922,27 @@ class InGamePacketHandler extends PacketHandler
 			// ignore - best effort
 		}
 
-		try {
-			$skinData = $skin->getSkinData();
-			if (strlen($skinData) > 0 && strspn($skinData, "\x00") === strlen($skinData)) {
-				$oldSkin = $this->player->getSkin();
-				try {
-					$skin = new Skin(
-						$oldSkin->getSkinId(),
-						$oldSkin->getSkinData(),
-						$oldSkin->getCapeData(),
-						$skin->getGeometryName(),
-						$skin->getGeometryData()
-					);
-				} catch (\Throwable $e) {
-					$this->session->getLogger()->warning("Failed to merge geometry into existing skin for " . $this->player->getName() . ": " . $e->getMessage());
-					return true;
-				}
+		// Handle the case where the client sends all-zero skin data but wants to update geometry
+		$skinData = $skin->getSkinData();
+		if (strlen($skinData) > 0 && strspn($skinData, "\x00") === strlen($skinData)) {
+			// Skin data is all zeros - attempt to merge geometry from new skin with data from old skin
+			$this->session->getLogger()->debug("Received all-zero skin data, attempting to merge with existing skin");
+			$oldSkin = $this->player->getSkin();
+			try {
+				$skin = new Skin(
+					$oldSkin->getSkinId(),
+					$oldSkin->getSkinData(),
+					$oldSkin->getCapeData(),
+					$skin->getGeometryName(),
+					$skin->getGeometryData()
+				);
+			} catch (\Throwable $e) {
+				// Log the error and reject the skin change since we can't merge properly
+				$this->session->getLogger()->warning("Failed to merge geometry into existing skin for " . $this->player->getName() . ": " . $e->getMessage());
+				return true;
 			}
-		} catch (\Throwable $e) {
 		}
+
 		return $this->player->changeSkin($skin, $packet->newSkinName, $packet->oldSkinName);
 	}
 

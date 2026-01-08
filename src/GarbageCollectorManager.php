@@ -99,16 +99,21 @@ final class GarbageCollectorManager{
 		$time = $end - $start;
 		$this->collectionTimeTotalNs += $time;
 		$this->runs++;
-		$this->logger->info(sprintf(
-			"Run #%d took %s ms (%s -> %s roots, %s cycles collected) - cumulative GC time: %s ms",
-			$this->runs,
-			number_format($time / 1_000_000, 2),
-			$rootsBefore,
-			$rootsAfter,
-			$cycles,
-			number_format($this->collectionTimeTotalNs / 1_000_000, 2)
-		));
 
+		if($cycles > 0){
+			$timeMs = number_format($time / 1_000_000, 3);
+			$totalTimeMs = number_format($this->collectionTimeTotalNs / 1_000_000, 3);
+			$this->logger->debug(sprintf(
+				"Collected %d cyclic garbage cycles (roots before=%d, after=%d, threshold=%d) in %s ms (runs=%d, total=%s ms)",
+				$cycles,
+				$rootsBefore,
+				$rootsAfter,
+				$this->threshold,
+				$timeMs,
+				$this->runs,
+				$totalTimeMs
+			));
+		}
 		return $cycles;
 	}
 }

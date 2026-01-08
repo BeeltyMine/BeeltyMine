@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace pocketmine\entity;
 
 use Ahc\Json\Comment as CommentedJsonDecoder;
+use pocketmine\network\mcpe\protocol\types\skin\SkinData as NetSkinData;
 use pocketmine\utils\Limits;
 use function implode;
 use function in_array;
@@ -43,6 +44,9 @@ final class Skin{
 	private string $capeData;
 	private string $geometryName;
 	private string $geometryData;
+	private string $fullSkinId = "";
+	private string $armSize = NetSkinData::ARM_SIZE_WIDE;
+	private string $skinColor = "";
 
 	private static function checkLength(string $string, string $name, int $maxLength) : void{
 		if(strlen($string) > $maxLength){
@@ -50,7 +54,7 @@ final class Skin{
 		}
 	}
 
-	public function __construct(string $skinId, string $skinData, string $capeData = "", string $geometryName = "", string $geometryData = ""){
+	public function __construct(string $skinId, string $skinData, string $capeData = "", string $geometryName = "", string $geometryData = "", string $fullSkinId = "", string $armSize = NetSkinData::ARM_SIZE_WIDE, string $skinColor = ""){
 		self::checkLength($skinId, "Skin ID", Limits::INT16_MAX);
 		self::checkLength($geometryName, "Geometry name", Limits::INT16_MAX);
 		self::checkLength($geometryData, "Geometry data", Limits::INT32_MAX);
@@ -88,6 +92,9 @@ final class Skin{
 		$this->capeData = $capeData;
 		$this->geometryName = $geometryName;
 		$this->geometryData = $geometryData;
+		$this->fullSkinId = $fullSkinId;
+		$this->armSize = $armSize;
+		$this->skinColor = $skinColor;
 	}
 
 	public function getSkinId() : string{
@@ -108,5 +115,17 @@ final class Skin{
 
 	public function getGeometryData() : string{
 		return $this->geometryData;
+	}
+
+	public function getFullSkinId() : string{
+		return $this->fullSkinId;
+	}
+
+	public function getArmSize() : string{
+		return $this->armSize;
+	}
+
+	public function getSkinColor() : string{
+		return $this->skinColor;
 	}
 }

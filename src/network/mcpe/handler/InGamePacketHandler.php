@@ -934,9 +934,9 @@ class InGamePacketHandler extends PacketHandler
 					$oldSkin->getCapeData(),
 					$skin->getGeometryName(),
 					$skin->getGeometryData(),
-					$skin->getFullSkinId(),
-					$skin->getArmSize(),
-					$skin->getSkinColor()
+					$oldSkin->getFullSkinId(),
+					$oldSkin->getArmSize(),
+					$oldSkin->getSkinColor()
 				);
 			} catch (\Throwable $e) {
 				$this->session->getLogger()->warning("Failed to merge geometry into existing skin for " . $this->player->getName() . ": " . $e->getMessage());

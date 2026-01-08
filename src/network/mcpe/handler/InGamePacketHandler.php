@@ -919,8 +919,7 @@ class InGamePacketHandler extends PacketHandler
 		try {
 			$this->player->getPlayerInfo()->setRawSkinData($packet->skin);
 		} catch (\Throwable $e) {
-			// Best effort - ignore failures when updating raw skin data cache
-			// This is non-critical and shouldn't prevent the skin change from proceeding
+			$this->session->getLogger()->debug("Failed to update raw skin data for " . $this->player->getName() . ": " . $e->getMessage());
 		}
 
 		// Handle the case where the client sends all-zero skin data but wants to update geometry
@@ -943,6 +942,8 @@ class InGamePacketHandler extends PacketHandler
 				$this->session->getLogger()->warning("Failed to merge geometry into existing skin for " . $this->player->getName() . ": " . $e->getMessage());
 				return true;
 			}
+		} catch (\Throwable $e) {
+			$this->session->getLogger()->warning("Unexpected error while processing skin data for " . $this->player->getName() . ": " . $e->getMessage());
 		}
 
 		return $this->player->changeSkin($skin, $packet->newSkinName, $packet->oldSkinName);

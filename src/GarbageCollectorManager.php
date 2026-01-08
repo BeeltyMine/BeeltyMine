@@ -100,6 +100,20 @@ final class GarbageCollectorManager{
 		$this->collectionTimeTotalNs += $time;
 		$this->runs++;
 
+		if($cycles > 0){
+			$timeMs = number_format($time / 1_000_000, 3);
+			$totalTimeMs = number_format($this->collectionTimeTotalNs / 1_000_000, 3);
+			$this->logger->debug(sprintf(
+				"Collected %d cyclic garbage cycles (roots before=%d, after=%d, threshold=%d) in %s ms (runs=%d, total=%s ms)",
+				$cycles,
+				$rootsBefore,
+				$rootsAfter,
+				$this->threshold,
+				$timeMs,
+				$this->runs,
+				$totalTimeMs
+			));
+		}
 		return $cycles;
 	}
 }

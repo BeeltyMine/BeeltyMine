@@ -919,7 +919,7 @@ class InGamePacketHandler extends PacketHandler
 		try {
 			$this->player->getPlayerInfo()->setRawSkinData($packet->skin);
 		} catch (\Throwable $e) {
-			// ignore - best effort
+			$this->session->getLogger()->debug("Failed to update raw skin data for " . $this->player->getName() . ": " . $e->getMessage());
 		}
 
 		try {

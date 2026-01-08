@@ -922,10 +922,8 @@ class InGamePacketHandler extends PacketHandler
 			$this->session->getLogger()->debug("Failed to update raw skin data for " . $this->player->getName() . ": " . $e->getMessage());
 		}
 
-		// Handle case where skin data is all zeros (client wants to update geometry only)
 		$skinData = $skin->getSkinData();
 		if (strlen($skinData) > 0 && strspn($skinData, "\x00") === strlen($skinData)) {
-			// Skin data is all zeros - merge geometry from new skin with existing skin data
 			$oldSkin = $this->player->getSkin();
 			try {
 				$skin = new Skin(
@@ -940,7 +938,6 @@ class InGamePacketHandler extends PacketHandler
 				);
 			} catch (\Throwable $e) {
 				$this->session->getLogger()->warning("Failed to merge geometry into existing skin for " . $this->player->getName() . ": " . $e->getMessage());
-				// Return early - cannot proceed with invalid skin merge
 				return true;
 			}
 		}

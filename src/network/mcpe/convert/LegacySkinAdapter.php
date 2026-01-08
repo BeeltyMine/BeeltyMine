@@ -60,7 +60,6 @@ class LegacySkinAdapter implements SkinAdapter
 
 	public function fromSkinData(SkinData $data): Skin
 	{
-		// Debug: dump incoming SkinData details to help trace persona/geometry conversion
 		if ($data->isPersona()) {
 			return new Skin("Standard_Custom", str_repeat(random_bytes(3) . "\xff", 4096));
 		}

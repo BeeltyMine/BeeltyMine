@@ -944,7 +944,7 @@ class InGamePacketHandler extends PacketHandler
 				return true;
 			}
 		}
-		
+
 		return $this->player->changeSkin($skin, $packet->newSkinName, $packet->oldSkinName);
 	}
 

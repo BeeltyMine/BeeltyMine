@@ -65,6 +65,7 @@ use pocketmine\network\mcpe\protocol\types\GameMode;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\network\mcpe\protocol\types\PlayerListEntry;
 use pocketmine\network\mcpe\protocol\types\PlayerPermissions;
+use pocketmine\network\mcpe\protocol\types\skin\SkinData as ProtocolSkinData;
 use pocketmine\network\mcpe\protocol\UpdateAbilitiesPacket;
 use pocketmine\player\Player;
 use pocketmine\world\sound\TotemUseSound;
@@ -181,7 +182,12 @@ class Human extends Living implements ProjectileSource, InventoryHolder
 		$skinData = null;
 		if ($this instanceof Player) {
 			try {
-				$skinData = $this->getPlayerInfo()->getRawSkinData();
+				$playerInfo = $this->getPlayerInfo();
+				$skinData = $playerInfo->getRawSkinData();
+				if ($skinData !== null && !$this->skinDataMatchesCurrentSkin($skinData)) {
+					$skinData = TypeConverter::getInstance()->getSkinAdapter()->toSkinData($this->skin);
+					$playerInfo->setRawSkinData($skinData, false);
+				}
 			} catch (\Throwable $e) {
 				$skinData = null;
 			}
@@ -192,6 +198,29 @@ class Human extends Living implements ProjectileSource, InventoryHolder
 		NetworkBroadcastUtils::broadcastPackets($targets ?? $this->hasSpawned, [
 			PlayerSkinPacket::create($this->getUniqueId(), "", "", $skinData)
 		]);
+	}
+
+	private function skinDataMatchesCurrentSkin(ProtocolSkinData $skinData): bool
+	{
+		if ($skinData->getSkinImage()->getData() !== $this->skin->getSkinData()) {
+			return false;
+		}
+		if ($skinData->getCapeImage()->getData() !== $this->skin->getCapeData()) {
+			return false;
+		}
+		if ($skinData->getGeometryData() !== $this->skin->getGeometryData()) {
+			return false;
+		}
+		if ($skinData->getFullSkinId() !== $this->skin->getFullSkinId()) {
+			return false;
+		}
+		if ($skinData->getArmSize() !== $this->skin->getArmSize()) {
+			return false;
+		}
+		if ($skinData->getSkinColor() !== $this->skin->getSkinColor()) {
+			return false;
+		}
+		return true;
 	}
 
 	public function jump(): void

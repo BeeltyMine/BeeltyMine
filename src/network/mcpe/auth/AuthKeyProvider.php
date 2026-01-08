@@ -156,8 +156,6 @@ class AuthKeyProvider{
 			return $this->resolver->getPromise();
 		}
 
-		$this->logger->notice("Fetching new authentication keys");
-
 		/** @phpstan-var PromiseResolver<AuthKeyring> $resolver */
 		$resolver = new PromiseResolver();
 		$this->resolver = $resolver;

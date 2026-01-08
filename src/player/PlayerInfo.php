@@ -33,6 +33,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class PlayerInfo
 {
+	private ?SkinData $baseRawSkinData = null;
 	/**
 	 * @param mixed[] $extraData
 	 * @phpstan-param array<string, mixed> $extraData
@@ -46,6 +47,7 @@ class PlayerInfo
 		private ?SkinData $rawSkinData = null
 	) {
 		$this->username = TextFormat::clean($username);
+		$this->baseRawSkinData = $this->rawSkinData;
 	}
 
 	public function getUsername(): string
@@ -73,9 +75,22 @@ class PlayerInfo
 		return $this->rawSkinData;
 	}
 
-	public function setRawSkinData(?SkinData $data): void
+	public function getBaseRawSkinData(): ?SkinData
+	{
+		return $this->baseRawSkinData;
+	}
+
+	public function setRawSkinData(?SkinData $data, bool $overwriteBase = true): void
 	{
 		$this->rawSkinData = $data;
+		if($overwriteBase){
+			$this->baseRawSkinData = $data;
+		}
+	}
+
+	public function restoreBaseRawSkinData(): void
+	{
+		$this->rawSkinData = $this->baseRawSkinData;
 	}
 
 	/**

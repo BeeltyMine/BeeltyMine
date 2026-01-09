@@ -1985,6 +1985,15 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		$oldItem = clone $heldItem;
 
 		$ev = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_ENTITY_ATTACK, $heldItem->getAttackPoints());
+		
+		// Add Mace smash bonus damage if applicable
+		if($heldItem instanceof \pocketmine\item\Mace){
+			$smashBonus = $heldItem->getSmashBonusDamage($this);
+			if($smashBonus > 0){
+				$ev->setModifier($smashBonus, EntityDamageEvent::MODIFIER_PREVIOUS_DAMAGE_COOLDOWN);
+			}
+		}
+		
 		if(!$this->canInteract($entity->getLocation(), self::MAX_REACH_DISTANCE_ENTITY_INTERACTION)){
 			$this->logger->debug("Cancelled attack of entity " . $entity->getId() . " due to not currently being interactable");
 			$ev->cancel();
@@ -2036,6 +2045,12 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			//would mean we'd already have dropped the inventory by the time we reached here
 			$returnedItems = [];
 			$heldItem->onAttackEntity($entity, $returnedItems);
+			
+			// Apply Mace smash effects after successful hit
+			if($heldItem instanceof \pocketmine\item\Mace && !$ev->isCancelled()){
+				$heldItem->applySmashEffectsIfNeeded($this, $entity, $ev->getFinalDamage());
+			}
+			
 			$this->returnItemsFromAction($oldItem, $heldItem, $returnedItems);
 
 			$this->hungerManager->exhaust(0.1, PlayerExhaustEvent::CAUSE_ATTACK);

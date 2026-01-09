@@ -61,14 +61,14 @@ final class AvailableEnchantmentRegistry{
 		$this->register(Enchantments::FROST_WALKER(), [/* no primary items */], [Tags::BOOTS]);
 		$this->register(Enchantments::SHARPNESS(), [Tags::SWORD, Tags::AXE], []);
 		$this->register(Enchantments::KNOCKBACK(), [Tags::SWORD], []);
-		$this->register(Enchantments::FIRE_ASPECT(), [Tags::SWORD], []);
+		$this->register(Enchantments::FIRE_ASPECT(), [Tags::SWORD], [Tags::MACE]);
 		$this->register(Enchantments::EFFICIENCY(), [Tags::BLOCK_TOOLS], [Tags::SHEARS]);
 		$this->register(Enchantments::FORTUNE(), [Tags::BLOCK_TOOLS], []);
 		$this->register(Enchantments::SILK_TOUCH(), [Tags::BLOCK_TOOLS], [Tags::SHEARS]);
 		$this->register(
 			Enchantments::UNBREAKING(),
 			[Tags::ARMOR, Tags::WEAPONS, Tags::FISHING_ROD],
-			[Tags::SHEARS, Tags::FLINT_AND_STEEL, Tags::SHIELD, Tags::CARROT_ON_STICK, Tags::ELYTRA, Tags::BRUSH]
+			[Tags::SHEARS, Tags::FLINT_AND_STEEL, Tags::SHIELD, Tags::CARROT_ON_STICK, Tags::ELYTRA, Tags::BRUSH, Tags::MACE]
 		);
 		$this->register(Enchantments::POWER(), [Tags::BOW], []);
 		$this->register(Enchantments::PUNCH(), [Tags::BOW], []);
@@ -78,7 +78,7 @@ final class AvailableEnchantmentRegistry{
 			Enchantments::MENDING(),
 			[],
 			[Tags::ARMOR, Tags::WEAPONS, Tags::FISHING_ROD,
-				Tags::SHEARS, Tags::FLINT_AND_STEEL, Tags::SHIELD, Tags::CARROT_ON_STICK, Tags::ELYTRA, Tags::BRUSH]
+				Tags::SHEARS, Tags::FLINT_AND_STEEL, Tags::SHIELD, Tags::CARROT_ON_STICK, Tags::ELYTRA, Tags::BRUSH, Tags::MACE]
 		);
 		$this->register(Enchantments::VANISHING(), [], [Tags::ALL]);
 		$this->register(Enchantments::SWIFT_SNEAK(), [], [Tags::LEGGINGS]);

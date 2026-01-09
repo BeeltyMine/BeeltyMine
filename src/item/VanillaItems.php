@@ -369,6 +369,7 @@ use function strtolower;
  * @method static WrittenBook WRITTEN_BOOK()
  * @method static SpawnEgg ZOMBIE_SPAWN_EGG()
  * @method static Item WIND_CHARGE()
+ * @method static Item MACE()
  */
 final class VanillaItems{
 	use CloningRegistryTrait;
@@ -637,6 +638,7 @@ final class VanillaItems{
 		self::register("slimeball", fn(IID $id) => new Item($id, "Slimeball"));
 		self::register("snowball", fn(IID $id) => new Snowball($id, "Snowball"));
 		self::register("wind_charge", fn(IID $id) => new WindCharge($id, "Wind Charge"));
+		self::register("mace", fn(IID $id) => new Mace($id, "Mace", [EnchantmentTags::MACE]));
 		self::register("spider_eye", fn(IID $id) => new SpiderEye($id, "Spider Eye"));
 		self::register("splash_potion", fn(IID $id) => new SplashPotion($id, "Splash Potion"));
 		self::register("spruce_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::SPRUCE_SIGN(), Blocks::SPRUCE_WALL_SIGN()));

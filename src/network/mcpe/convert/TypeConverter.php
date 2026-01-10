@@ -35,6 +35,7 @@ use pocketmine\data\bedrock\BedrockDataFiles;
 use pocketmine\data\bedrock\item\BlockItemIdMap;
 use pocketmine\data\bedrock\item\ItemTypeNames;
 use pocketmine\data\SavedDataLoadingException;
+use pocketmine\item\customitem\CustomItemNetworkManager;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 use pocketmine\nbt\LittleEndianNbtSerializer;
@@ -91,6 +92,9 @@ class TypeConverter{
 		);
 
 		$this->itemTypeDictionary = ItemTypeDictionaryFromDataHelper::loadFromString(Filesystem::fileGetContents(BedrockDataFiles::REQUIRED_ITEM_LIST_JSON));
+		
+		CustomItemNetworkManager::getInstance()->applyToItemTypeDictionary($this->itemTypeDictionary);
+		
 		$this->shieldRuntimeId = $this->itemTypeDictionary->fromStringId(ItemTypeNames::SHIELD);
 
 		$this->itemTranslator = new ItemTranslator(

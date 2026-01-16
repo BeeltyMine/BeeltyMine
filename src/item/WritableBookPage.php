@@ -31,6 +31,7 @@ use function strlen;
 class WritableBookPage{
 	public const PAGE_LENGTH_HARD_LIMIT_BYTES = Limits::INT16_MAX;
 	public const PHOTO_NAME_LENGTH_HARD_LIMIT_BYTES = Limits::INT16_MAX;
+	public const PAGE_LENGTH_SOFT_LIMIT_CHARS = 512; // Experimental limit
 
 	private string $text;
 	private string $photoName;

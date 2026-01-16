@@ -1563,6 +1563,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("snout_armor_trim_smithing_template", fn() => Items::SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$result->register("slimeball", fn() => Items::SLIMEBALL());
 		$result->register("snowball", fn() => Items::SNOWBALL());
+		$result->register("wind_charge", fn() => Items::WIND_CHARGE());
 		$result->register("speckled_melon", fn() => Items::GLISTERING_MELON());
 		$result->register("spider_eye", fn() => Items::SPIDER_EYE());
 		$result->register("spire_armor_trim_smithing_template", fn() => Items::SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE());
@@ -1588,6 +1589,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("tide_armor_trim_smithing_template", fn() => Items::TIDE_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$result->register("totem", fn() => Items::TOTEM());
 		$result->register("trident", fn() => Items::TRIDENT());
+		$result->register("mace", fn() => Items::MACE());
 		$result->register("turtle_helmet", fn() => Items::TURTLE_HELMET());
 		$result->register("vex_armor_trim_smithing_template", fn() => Items::VEX_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$result->register("turtle_shell_piece", fn() => Items::SCUTE());

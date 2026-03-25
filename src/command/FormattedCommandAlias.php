@@ -35,6 +35,7 @@ use function implode;
 use function preg_match;
 use function strlen;
 use function strpos;
+use function strtolower;
 use function substr;
 
 /**
@@ -99,13 +100,14 @@ class FormattedCommandAlias extends Command{
 			if($commandLabel === null){
 				throw new AssumptionFailedError("This should have been checked before construction");
 			}
+			$normalizedCommandLabel = strtolower($commandLabel);
 
-			if(($target = $commandMap->getCommand($commandLabel)) !== null){
+			if(($target = $commandMap->getCommand($normalizedCommandLabel)) !== null){
 				$timings = Timings::getCommandDispatchTimings($target->getLabel());
 				$timings->startTiming();
 
 				try{
-					$target->execute($sender, $commandLabel, $commandArgs);
+					$target->execute($sender, $normalizedCommandLabel, $commandArgs);
 				}catch(InvalidCommandSyntaxException $e){
 					$sender->sendMessage($sender->getLanguage()->translate(KnownTranslationFactory::commands_generic_usage($target->getUsage())));
 				}finally{

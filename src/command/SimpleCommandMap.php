@@ -93,6 +93,10 @@ class SimpleCommandMap implements CommandMap{
 		$this->setDefaultCommands();
 	}
 
+	private static function normalizeCommandName(string $name) : string{
+		return strtolower(trim($name));
+	}
+
 	private function setDefaultCommands() : void{
 		$this->registerAll("pocketmine", [
 			new BanCommand(),
@@ -154,7 +158,7 @@ class SimpleCommandMap implements CommandMap{
 			$label = $command->getLabel();
 		}
 		$label = trim($label);
-		$fallbackPrefix = strtolower(trim($fallbackPrefix));
+		$fallbackPrefix = self::normalizeCommandName($fallbackPrefix);
 
 		$registered = $this->registerAlias($command, false, $fallbackPrefix, $label);
 
@@ -188,12 +192,17 @@ class SimpleCommandMap implements CommandMap{
 	}
 
 	private function registerAlias(Command $command, bool $isAlias, string $fallbackPrefix, string $label) : bool{
-		$this->knownCommands[$fallbackPrefix . ":" . $label] = $command;
-		if(($command instanceof VanillaCommand || $isAlias) && isset($this->knownCommands[$label])){
+		$normalizedLabel = self::normalizeCommandName($label);
+		if($normalizedLabel === ""){
 			return false;
 		}
 
-		if(isset($this->knownCommands[$label]) && $this->knownCommands[$label]->getLabel() === $label){
+		$this->knownCommands[$fallbackPrefix . ":" . $normalizedLabel] = $command;
+		if(($command instanceof VanillaCommand || $isAlias) && isset($this->knownCommands[$normalizedLabel])){
+			return false;
+		}
+
+		if(isset($this->knownCommands[$normalizedLabel]) && self::normalizeCommandName($this->knownCommands[$normalizedLabel]->getLabel()) === $normalizedLabel){
 			return false;
 		}
 
@@ -201,7 +210,7 @@ class SimpleCommandMap implements CommandMap{
 			$command->setLabel($label);
 		}
 
-		$this->knownCommands[$label] = $command;
+		$this->knownCommands[$normalizedLabel] = $command;
 
 		return true;
 	}
@@ -210,13 +219,14 @@ class SimpleCommandMap implements CommandMap{
 		$args = CommandStringHelper::parseQuoteAware($commandLine);
 
 		$sentCommandLabel = array_shift($args);
-		if($sentCommandLabel !== null && ($target = $this->getCommand($sentCommandLabel)) !== null){
+		$normalizedCommandLabel = $sentCommandLabel !== null ? self::normalizeCommandName($sentCommandLabel) : null;
+		if($normalizedCommandLabel !== null && ($target = $this->getCommand($normalizedCommandLabel)) !== null){
 			$timings = Timings::getCommandDispatchTimings($target->getLabel());
 			$timings->startTiming();
 
 			try{
 				if($target->testPermission($sender)){
-					$target->execute($sender, $sentCommandLabel, $args);
+					$target->execute($sender, $normalizedCommandLabel, $args);
 				}
 			}catch(InvalidCommandSyntaxException $e){
 				$sender->sendMessage($sender->getLanguage()->translate(KnownTranslationFactory::commands_generic_usage($target->getUsage())));
@@ -239,7 +249,7 @@ class SimpleCommandMap implements CommandMap{
 	}
 
 	public function getCommand(string $name) : ?Command{
-		return $this->knownCommands[$name] ?? null;
+		return $this->knownCommands[self::normalizeCommandName($name)] ?? null;
 	}
 
 	/**
@@ -288,7 +298,7 @@ class SimpleCommandMap implements CommandMap{
 			}
 
 			//These registered commands have absolute priority
-			$lowerAlias = strtolower($alias);
+			$lowerAlias = self::normalizeCommandName($alias);
 			if(count($targets) > 0){
 				$this->knownCommands[$lowerAlias] = new FormattedCommandAlias($lowerAlias, $targets);
 			}else{

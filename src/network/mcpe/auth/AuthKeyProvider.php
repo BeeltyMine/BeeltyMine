@@ -136,7 +136,7 @@ class AuthKeyProvider{
 					$this->logger->critical("No valid authentication keys returned by Mojang's API. Xbox players may not be able to authenticate!");
 					$resolver->reject();
 				}else{
-					$this->logger->info("Successfully fetched " . count($keys) . " new authentication keys");
+					$this->logger->info("Successfully fetched " . count($keys) . " new authentication keys from issuer $issuer, key IDs: " . implode(", ", array_keys($pemKeys)));
 					$this->keyring = new AuthKeyring($issuer, $pemKeys);
 					$this->lastFetch = time();
 					$resolver->resolve($this->keyring);
@@ -155,6 +155,8 @@ class AuthKeyProvider{
 			$this->logger->debug("Key refresh was requested, but it's already in progress");
 			return $this->resolver->getPromise();
 		}
+
+		$this->logger->notice("Fetching new authentication keys");
 
 		/** @phpstan-var PromiseResolver<AuthKeyring> $resolver */
 		$resolver = new PromiseResolver();

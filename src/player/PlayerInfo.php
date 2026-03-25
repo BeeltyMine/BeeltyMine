@@ -25,15 +25,12 @@ namespace pocketmine\player;
 
 use pocketmine\entity\Skin;
 use pocketmine\utils\TextFormat;
-use pocketmine\network\mcpe\protocol\types\skin\SkinData;
 use Ramsey\Uuid\UuidInterface;
 
 /**
  * Encapsulates data needed to create a player.
  */
-class PlayerInfo
-{
-	private ?SkinData $baseRawSkinData = null;
+class PlayerInfo{
 	/**
 	 * @param mixed[] $extraData
 	 * @phpstan-param array<string, mixed> $extraData
@@ -43,62 +40,32 @@ class PlayerInfo
 		private UuidInterface $uuid,
 		private Skin $skin,
 		private string $locale,
-		private array $extraData = [],
-		private ?SkinData $rawSkinData = null
-	) {
+		private array $extraData = []
+	){
 		$this->username = TextFormat::clean($username);
-		$this->baseRawSkinData = $this->rawSkinData;
 	}
 
-	public function getUsername(): string
-	{
+	public function getUsername() : string{
 		return $this->username;
 	}
 
-	public function getUuid(): UuidInterface
-	{
+	public function getUuid() : UuidInterface{
 		return $this->uuid;
 	}
 
-	public function getSkin(): Skin
-	{
+	public function getSkin() : Skin{
 		return $this->skin;
 	}
 
-	public function getLocale(): string
-	{
+	public function getLocale() : string{
 		return $this->locale;
-	}
-
-	public function getRawSkinData(): ?SkinData
-	{
-		return $this->rawSkinData;
-	}
-
-	public function getBaseRawSkinData(): ?SkinData
-	{
-		return $this->baseRawSkinData;
-	}
-
-	public function setRawSkinData(?SkinData $data, bool $overwriteBase = true): void
-	{
-		$this->rawSkinData = $data;
-		if($overwriteBase){
-			$this->baseRawSkinData = $data;
-		}
-	}
-
-	public function restoreBaseRawSkinData(): void
-	{
-		$this->rawSkinData = $this->baseRawSkinData;
 	}
 
 	/**
 	 * @return mixed[]
 	 * @phpstan-return array<string, mixed>
 	 */
-	public function getExtraData(): array
-	{
+	public function getExtraData() : array{
 		return $this->extraData;
 	}
 }

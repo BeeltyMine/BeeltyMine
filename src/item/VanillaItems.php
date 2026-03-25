@@ -56,6 +56,8 @@ use function strtolower;
  * @method static Arrow ARROW()
  * @method static BakedPotato BAKED_POTATO()
  * @method static Bamboo BAMBOO()
+ * @method static HangingSign BAMBOO_HANGING_SIGN()
+ * @method static ItemBlockWallOrFloor BAMBOO_SIGN()
  * @method static Banner BANNER()
  * @method static Beetroot BEETROOT()
  * @method static BeetrootSeeds BEETROOT_SEEDS()
@@ -302,6 +304,7 @@ use function strtolower;
  * @method static Record RECORD_CREATOR()
  * @method static Record RECORD_CREATOR_MUSIC_BOX()
  * @method static Record RECORD_FAR()
+ * @method static Record RECORD_LAVA_CHICKEN()
  * @method static Record RECORD_MALL()
  * @method static Record RECORD_MELLOHI()
  * @method static Record RECORD_OTHERSIDE()
@@ -429,6 +432,8 @@ final class VanillaItems{
 		self::register("arrow", fn(IID $id) => new Arrow($id, "Arrow"));
 		self::register("baked_potato", fn(IID $id) => new BakedPotato($id, "Baked Potato"));
 		self::register("bamboo", fn(IID $id) => new Bamboo($id, "Bamboo"));
+		self::register("bamboo_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::BAMBOO_SIGN(), Blocks::BAMBOO_WALL_SIGN()));
+		self::register("bamboo_hanging_sign", fn(IID $id) => new HangingSign($id, "Bamboo Hanging Sign", Blocks::BAMBOO_CEILING_CENTER_HANGING_SIGN(), Blocks::BAMBOO_CEILING_EDGES_HANGING_SIGN(), Blocks::BAMBOO_WALL_HANGING_SIGN()));
 		self::register("banner", fn(IID $id) => new Banner($id, Blocks::BANNER(), Blocks::WALL_BANNER()));
 		self::register("beetroot", fn(IID $id) => new Beetroot($id, "Beetroot"));
 		self::register("beetroot_seeds", fn(IID $id) => new BeetrootSeeds($id, "Beetroot Seeds"));
@@ -616,6 +621,7 @@ final class VanillaItems{
 		self::register("record_creator", fn(IID $id) => new Record($id, RecordType::DISK_CREATOR, "Record Creator"));
 		self::register("record_creator_music_box", fn(IID $id) => new Record($id, RecordType::DISK_CREATOR_MUSIC_BOX, "Record Creator (Music Box)"));
 		self::register("record_far", fn(IID $id) => new Record($id, RecordType::DISK_FAR, "Record Far"));
+		self::register("record_lava_chicken", fn(IID $id) => new Record($id, RecordType::DISK_LAVA_CHICKEN, "Record Lava Chicken"));
 		self::register("record_mall", fn(IID $id) => new Record($id, RecordType::DISK_MALL, "Record Mall"));
 		self::register("record_mellohi", fn(IID $id) => new Record($id, RecordType::DISK_MELLOHI, "Record Mellohi"));
 		self::register("record_otherside", fn(IID $id) => new Record($id, RecordType::DISK_OTHERSIDE, "Record Otherside"));

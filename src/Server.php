@@ -810,9 +810,9 @@ class Server{
 			$this->pluginPath = realpath($pluginPath) . DIRECTORY_SEPARATOR;
 
 			$this->logger->info("Loading server configuration");
-			$pocketmineYmlPath = Path::join($this->dataPath, "core.yml");
+			$pocketmineYmlPath = Path::join($this->dataPath, "pocketmine.yml");
 			if(!file_exists($pocketmineYmlPath)){
-				$content = Filesystem::fileGetContents(Path::join(\pocketmine\RESOURCE_PATH, "core.yml"));
+				$content = Filesystem::fileGetContents(Path::join(\pocketmine\RESOURCE_PATH, "pocketmine.yml"));
 				if(VersionInfo::IS_DEVELOPMENT_BUILD){
 					$content = str_replace("preferred-channel: stable", "preferred-channel: beta", $content);
 				}
@@ -1000,6 +1000,10 @@ class Server{
 			$this->network = new Network($this->logger);
 			$this->network->setName($this->getMotd());
 
+			$this->logger->info($this->language->translate(KnownTranslationFactory::pocketmine_server_info(
+				$this->getName(),
+				(VersionInfo::IS_DEVELOPMENT_BUILD ? TextFormat::YELLOW : "") . $this->getPocketMineVersion() . TextFormat::RESET
+			)));
 			$this->logger->info($this->language->translate(KnownTranslationFactory::pocketmine_server_license($this->getName())));
 
 			DefaultPermissions::registerCorePermissions();
@@ -1089,6 +1093,23 @@ class Server{
 			$this->configGroup->save();
 
 			$this->logger->info($this->language->translate(KnownTranslationFactory::pocketmine_server_defaultGameMode($this->getGamemode()->getTranslatableName())));
+			$highlight = TextFormat::AQUA;
+			$reset = TextFormat::RESET;
+			$github = VersionInfo::GITHUB_URL;
+			$splash = "\n\n";
+			foreach([
+				KnownTranslationFactory::pocketmine_server_url_discord("{$highlight}https://discord.pmmp.io{$reset}"),
+				KnownTranslationFactory::pocketmine_server_url_docs("{$highlight}https://doc.pmmp.io{$reset}"),
+				KnownTranslationFactory::pocketmine_server_url_sourceCode("{$highlight}{$github}{$reset}"),
+				KnownTranslationFactory::pocketmine_server_url_freePlugins("{$highlight}https://poggit.pmmp.io/plugins{$reset}"),
+				KnownTranslationFactory::pocketmine_server_url_donations("{$highlight}https://patreon.com/pocketminemp{$reset}"),
+				KnownTranslationFactory::pocketmine_server_url_translations("{$highlight}https://translate.pocketmine.net{$reset}"),
+				KnownTranslationFactory::pocketmine_server_url_bugReporting("{$highlight}{$github}/issues{$reset}")
+			] as $link){
+				$splash .= "- " . $this->language->translate($link) . "\n";
+			}
+			$this->logger->info($splash);
+
 			$this->logger->info($this->language->translate(KnownTranslationFactory::pocketmine_server_startFinished(strval(round(microtime(true) - $this->startTime, 3)))));
 
 			$forwarder = new BroadcastLoggerForwarder($this, $this->logger, $this->language);

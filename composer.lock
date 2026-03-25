@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c77e9759e00171e971f3b1d6021e6186",
+    "content-hash": "708b962c319a691de9fd2464d7b2107d",
     "packages": [
         {
             "name": "adhocore/json-comment",
@@ -67,25 +67,25 @@
         },
         {
             "name": "brick/math",
-            "version": "0.14.1",
+            "version": "0.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/brick/math.git",
-                "reference": "f05858549e5f9d7bb45875a75583240a38a281d0"
+                "reference": "fc7ed316430118cc7836bf45faff18d5dfc8de04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/brick/math/zipball/f05858549e5f9d7bb45875a75583240a38a281d0",
-                "reference": "f05858549e5f9d7bb45875a75583240a38a281d0",
+                "url": "https://api.github.com/repos/brick/math/zipball/fc7ed316430118cc7836bf45faff18d5dfc8de04",
+                "reference": "fc7ed316430118cc7836bf45faff18d5dfc8de04",
                 "shasum": ""
             },
             "require": {
-                "php": "^8.2"
+                "php": "^8.1"
             },
             "require-dev": {
                 "php-coveralls/php-coveralls": "^2.2",
-                "phpstan/phpstan": "2.1.22",
-                "phpunit/phpunit": "^11.5"
+                "phpunit/phpunit": "^10.1",
+                "vimeo/psalm": "6.8.8"
             },
             "type": "library",
             "autoload": {
@@ -115,7 +115,7 @@
             ],
             "support": {
                 "issues": "https://github.com/brick/math/issues",
-                "source": "https://github.com/brick/math/tree/0.14.1"
+                "source": "https://github.com/brick/math/tree/0.13.1"
             },
             "funding": [
                 {
@@ -123,7 +123,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-11-24T14:40:29+00:00"
+            "time": "2025-03-29T13:50:30+00:00"
         },
         {
             "name": "netresearch/jsonmapper",
@@ -204,16 +204,16 @@
         },
         {
             "name": "pocketmine/bedrock-data",
-            "version": "6.3.0+bedrock-1.21.130",
+            "version": "dev-bedrock-1.26.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/BedrockData.git",
-                "reference": "e9097a1f87cea40354ad59fad43e28fc097d800f"
+                "reference": "b4c6e3fefa8420dc0d4cedc727dea9e51e8e6f93"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/BedrockData/zipball/e9097a1f87cea40354ad59fad43e28fc097d800f",
-                "reference": "e9097a1f87cea40354ad59fad43e28fc097d800f",
+                "url": "https://api.github.com/repos/pmmp/BedrockData/zipball/b4c6e3fefa8420dc0d4cedc727dea9e51e8e6f93",
+                "reference": "b4c6e3fefa8420dc0d4cedc727dea9e51e8e6f93",
                 "shasum": ""
             },
             "type": "library",
@@ -224,9 +224,9 @@
             "description": "Blobs of data generated from Minecraft: Bedrock Edition, used by PocketMine-MP",
             "support": {
                 "issues": "https://github.com/pmmp/BedrockData/issues",
-                "source": "https://github.com/pmmp/BedrockData/tree/bedrock-1.21.130"
+                "source": "https://github.com/pmmp/BedrockData/tree/bedrock-1.26.10"
             },
-            "time": "2025-12-16T21:38:31+00:00"
+            "time": "2026-03-25T01:13:58+00:00"
         },
         {
             "name": "pocketmine/bedrock-item-upgrade-schema",
@@ -256,16 +256,16 @@
         },
         {
             "name": "pocketmine/bedrock-protocol",
-            "version": "54.0.0+bedrock-1.21.130",
+            "version": "dev-bedrock-1.26.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/BedrockProtocol.git",
-                "reference": "62fcc5997300bbeb5974d8c58328d9e94e9da8b4"
+                "reference": "5e88f0efe9f065a376995c42eb985275c942a425"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/BedrockProtocol/zipball/62fcc5997300bbeb5974d8c58328d9e94e9da8b4",
-                "reference": "62fcc5997300bbeb5974d8c58328d9e94e9da8b4",
+                "url": "https://api.github.com/repos/pmmp/BedrockProtocol/zipball/5e88f0efe9f065a376995c42eb985275c942a425",
+                "reference": "5e88f0efe9f065a376995c42eb985275c942a425",
                 "shasum": ""
             },
             "require": {
@@ -297,9 +297,9 @@
             "description": "An implementation of the Minecraft: Bedrock Edition protocol in PHP",
             "support": {
                 "issues": "https://github.com/pmmp/BedrockProtocol/issues",
-                "source": "https://github.com/pmmp/BedrockProtocol/tree/54.0.0+bedrock-1.21.130"
+                "source": "https://github.com/pmmp/BedrockProtocol/tree/bedrock-1.26.10"
             },
-            "time": "2025-12-16T21:42:07+00:00"
+            "time": "2026-03-25T01:12:46+00:00"
         },
         {
             "name": "pocketmine/binaryutils",
@@ -469,30 +469,6 @@
                 "source": "https://github.com/pmmp/ErrorHandler/tree/0.7.1"
             },
             "time": "2025-12-24T02:26:52+00:00"
-        },
-        {
-            "name": "pocketmine/locale-data",
-            "version": "2.25.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pmmp/Language.git",
-                "reference": "44727765ad43df5e2e24a54ae70a70607ec7d488"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/Language/zipball/44727765ad43df5e2e24a54ae70a70607ec7d488",
-                "reference": "44727765ad43df5e2e24a54ae70a70607ec7d488",
-                "shasum": ""
-            },
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "description": "Language resources used by PocketMine-MP",
-            "support": {
-                "issues": "https://github.com/pmmp/Language/issues",
-                "source": "https://github.com/pmmp/Language/tree/2.25.2"
-            },
-            "abandoned": true,
-            "time": "2025-10-03T22:34:06+00:00"
         },
         {
             "name": "pocketmine/log",
@@ -1207,11 +1183,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.33",
+            "version": "2.1.39",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9e800e6bee7d5bd02784d4c6069b48032d16224f",
-                "reference": "9e800e6bee7d5bd02784d4c6069b48032d16224f",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/c6f73a2af4cbcd99c931d0fb8f08548cc0fa8224",
+                "reference": "c6f73a2af4cbcd99c931d0fb8f08548cc0fa8224",
                 "shasum": ""
             },
             "require": {
@@ -1256,7 +1232,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-12-05T10:24:31+00:00"
+            "time": "2026-02-11T14:48:56+00:00"
         },
         {
             "name": "phpstan/phpstan-phpunit",
@@ -2795,11 +2771,14 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "pocketmine/bedrock-data": 20,
+        "pocketmine/bedrock-protocol": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.4",
+        "php": "^8.1",
         "php-64bit": "*",
         "ext-chunkutils2": "^0.3.1",
         "ext-crypto": "^0.3.1",
@@ -2829,7 +2808,7 @@
     },
     "platform-dev": {},
     "platform-overrides": {
-        "php": "8.4.0"
+        "php": "8.1.0"
     },
     "plugin-api-version": "2.6.0"
 }

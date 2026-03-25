@@ -43,6 +43,9 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\StringTag;
+use pocketmine\ddui\DataDrivenScreen;
+use pocketmine\ddui\DataStoreValueFactory;
+use pocketmine\ddui\Observable;
 use pocketmine\network\FilterNoisyPacketException;
 use pocketmine\network\mcpe\convert\ItemTranslator;
 use pocketmine\network\mcpe\InventoryManager;
@@ -72,6 +75,8 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\PlayerHotbarPacket;
 use pocketmine\network\mcpe\protocol\PlayerSkinPacket;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
+use pocketmine\network\mcpe\protocol\ServerboundDataDrivenScreenClosedPacket;
+use pocketmine\network\mcpe\protocol\ServerboundDataStorePacket;
 use pocketmine\network\mcpe\protocol\serializer\BitSet;
 use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\network\mcpe\protocol\SetPlayerGameTypePacket;
@@ -107,6 +112,7 @@ use function implode;
 use function in_array;
 use function is_infinite;
 use function is_nan;
+use function explode;
 use function json_decode;
 use function max;
 use function mb_strlen;
@@ -954,6 +960,41 @@ class InGamePacketHandler extends PacketHandler{
 
 		$this->player->getInventory()->setItem($packet->inventorySlot, $event->getNewBook());
 
+		return true;
+	}
+
+	public function handleServerboundDataStore(ServerboundDataStorePacket $packet) : bool{
+		$screen = DataDrivenScreen::getActiveScreen($this->player);
+		if($screen === null){
+			return false;
+		}
+
+		$update = $packet->getUpdate();
+		[$dataStore] = explode(":", $screen->getIdentifier(), 2);
+		if($update->getName() !== $dataStore || $update->getProperty() !== $screen->getDataProperty()){
+			return false;
+		}
+
+		$property = $screen->resolvePath($update->getPath());
+		if($property === null){
+			return false;
+		}
+
+		$value = DataStoreValueFactory::castForProperty($property, $update->getData());
+		Observable::withOutboundSuppressed(function() use ($property, $value) : void{
+			$property->triggerListeners($this->player, $value);
+		});
+
+		return true;
+	}
+
+	public function handleServerboundDataDrivenScreenClosed(ServerboundDataDrivenScreenClosedPacket $packet) : bool{
+		$screen = DataDrivenScreen::getActiveScreen($this->player);
+		if($screen === null){
+			return false;
+		}
+
+		$screen->handleClosed($this->player);
 		return true;
 	}
 

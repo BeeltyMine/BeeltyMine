@@ -1,0 +1,16 @@
+name: DDUIExample
+main: beelty\dduiexample\Main
+src-namespace-prefix: beelty\dduiexample
+version: 0.1.0
+api: [5.0.0]
+load: POSTWORLD
+author: BeeltyMine
+description: Example plugin demonstrating the DDUI API
+commands:
+  ddui-example:
+    description: Open the DDUI example form
+    usage: "/ddui-example"
+    permission: ddui.example.use
+permissions:
+  ddui.example.use:
+    default: true

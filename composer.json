@@ -85,11 +85,15 @@
       "sort-packages": true
    },
    "scripts": {
+      "patch-bedrock-protocol": "@php build/patch-bedrock-protocol.php",
       "make-devtools": "@php -dphar.readonly=0 tests/plugins/DevTools/src/ConsoleScript.php --make ./ --relative tests/plugins/DevTools --out plugins/DevTools.phar",
       "make-server": [
          "@composer install --no-dev --classmap-authoritative --ignore-platform-reqs",
+         "@composer patch-bedrock-protocol",
          "@php -dphar.readonly=0 build/server-phar.php"
       ],
+      "post-install-cmd": "@composer patch-bedrock-protocol",
+      "post-update-cmd": "@composer patch-bedrock-protocol",
       "update-codegen": [
          "@php build/codegen/bedrockdata-path-consts.php",
          "@php build/codegen/biome-ids.php",

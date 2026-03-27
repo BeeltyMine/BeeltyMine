@@ -41,6 +41,7 @@ use pocketmine\network\mcpe\protocol\types\login\legacy\LegacyAuthChain;
 use pocketmine\network\mcpe\protocol\types\login\legacy\LegacyAuthIdentityData;
 use pocketmine\network\mcpe\protocol\types\login\openid\XboxAuthJwtBody;
 use pocketmine\network\mcpe\protocol\types\login\openid\XboxAuthJwtHeader;
+use pocketmine\network\mcpe\protocol\types\skin\SkinData;
 use pocketmine\network\PacketHandlingException;
 use pocketmine\player\Player;
 use pocketmine\player\PlayerInfo;
@@ -51,11 +52,15 @@ use Ramsey\Uuid\UuidInterface;
 use function chr;
 use function count;
 use function gettype;
+use function is_string;
 use function is_array;
 use function is_object;
 use function json_decode;
 use function md5;
 use function ord;
+use function str_ends_with;
+use function substr;
+use function strlen;
 use function var_export;
 use const JSON_THROW_ON_ERROR;
 
@@ -165,10 +170,15 @@ class LoginPacketHandler extends PacketHandler{
 			return null;
 		}
 
-		$clientData = $this->parseClientData($packet->clientDataJwt);
+		$clientDataClaims = $this->parseClientDataClaims($packet->clientDataJwt);
+		$clientData = $this->mapClientData($clientDataClaims);
 
 		try{
-			$skin = $this->session->getTypeConverter()->getSkinAdapter()->fromSkinData(ClientDataToSkinDataHelper::fromClientData($clientData));
+			$skinData = $this->injectPlayFabId(
+				ClientDataToSkinDataHelper::fromClientData($clientData),
+				$clientDataClaims
+			);
+			$skin = $this->session->getTypeConverter()->getSkinAdapter()->fromSkinData($skinData);
 		}catch(\InvalidArgumentException | InvalidSkinException $e){
 			$this->session->disconnectWithError(
 				reason: "Invalid skin: " . $e->getMessage(),
@@ -176,6 +186,11 @@ class LoginPacketHandler extends PacketHandler{
 			);
 
 			return null;
+		}
+		$skin->setFullSkinId($clientData->SkinId);
+		$capeId = $skin->getCapeId();
+		if($capeId !== "" && strlen($clientData->SkinId) > strlen($capeId) && str_ends_with($clientData->SkinId, $capeId)){
+			$skin->setSkinId(substr($clientData->SkinId, 0, -strlen($capeId)));
 		}
 
 		if($xuid !== ""){
@@ -285,13 +300,21 @@ class LoginPacketHandler extends PacketHandler{
 	/**
 	 * @throws PacketHandlingException
 	 */
-	protected function parseClientData(string $clientDataJwt) : ClientData{
+	protected function parseClientDataClaims(string $clientDataJwt) : array{
 		try{
 			[, $clientDataClaims, ] = JwtUtils::parse($clientDataJwt);
 		}catch(JwtException $e){
 			throw PacketHandlingException::wrap($e);
 		}
 
+		return $clientDataClaims;
+	}
+
+	/**
+	 * @param array<string, mixed> $clientDataClaims
+	 * @throws PacketHandlingException
+	 */
+	protected function mapClientData(array $clientDataClaims) : ClientData{
 		$mapper = $this->defaultJsonMapper("ClientData JWT body");
 		try{
 			$clientData = $mapper->map($clientDataClaims, new ClientData());
@@ -299,6 +322,41 @@ class LoginPacketHandler extends PacketHandler{
 			throw PacketHandlingException::wrap($e);
 		}
 		return $clientData;
+	}
+
+	/**
+	 * @param array<string, mixed> $clientDataClaims
+	 */
+	private function injectPlayFabId(SkinData $skinData, array $clientDataClaims) : SkinData{
+		$playFabId = isset($clientDataClaims["PlayFabId"]) && is_string($clientDataClaims["PlayFabId"]) ? $clientDataClaims["PlayFabId"] : $skinData->getPlayFabId();
+
+		if($playFabId === $skinData->getPlayFabId()){
+			return $skinData;
+		}
+
+		return new SkinData(
+			$skinData->getSkinId(),
+			$playFabId,
+			$skinData->getResourcePatch(),
+			$skinData->getSkinImage(),
+			$skinData->getAnimations(),
+			$skinData->getCapeImage(),
+			$skinData->getGeometryData(),
+			$skinData->getGeometryDataEngineVersion(),
+			$skinData->getAnimationData(),
+			$skinData->getCapeId(),
+			$skinData->getFullSkinId(),
+			$skinData->getArmSize(),
+			$skinData->getSkinColor(),
+			$skinData->getPersonaPieces(),
+			$skinData->getPieceTintColors(),
+			$skinData->isVerified(),
+			$skinData->isPremium(),
+			$skinData->isPersona(),
+			$skinData->isPersonaCapeOnClassic(),
+			$skinData->isPrimaryUser(),
+			$skinData->isOverride()
+		);
 	}
 
 	/**

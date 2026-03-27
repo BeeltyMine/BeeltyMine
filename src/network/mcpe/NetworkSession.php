@@ -63,13 +63,16 @@ use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\ChunkRadiusUpdatedPacket;
 use pocketmine\network\mcpe\protocol\ClientboundCloseFormPacket;
 use pocketmine\network\mcpe\protocol\ClientboundPacket;
+use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use pocketmine\network\mcpe\protocol\DisconnectPacket;
 use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
+use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\NetworkChunkPublisherUpdatePacket;
 use pocketmine\network\mcpe\protocol\OpenSignPacket;
 use pocketmine\network\mcpe\protocol\Packet;
 use pocketmine\network\mcpe\protocol\PacketDecodeException;
+use pocketmine\network\mcpe\protocol\PacketViolationWarningPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PlayerListPacket;
 use pocketmine\network\mcpe\protocol\PlayerStartItemCooldownPacket;
@@ -151,7 +154,6 @@ class NetworkSession{
 	private const INCOMING_GAME_PACKETS_BUFFER_TICKS = 100;
 
 	private const INCOMING_PACKET_BATCH_HARD_LIMIT = 300;
-
 	private PacketRateLimiter $packetBatchLimiter;
 	private PacketRateLimiter $gamePacketLimiter;
 
@@ -496,7 +498,6 @@ class NetworkSession{
 		try{
 			$handlerAction = PacketHandlerAction::DISCARD_WITH_DEBUG;
 			//TODO: it would be better to use packet ID and avoid the object allocation, but it's unavoidable for now
-			//because I don't want to copy paste packet header decoding
 			if($this->handlerActions !== null && isset($this->handlerActions[$packet::class])){
 				$handlerAction = $this->handlerActions[$packet::class];
 			}

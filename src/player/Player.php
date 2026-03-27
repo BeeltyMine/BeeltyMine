@@ -111,8 +111,11 @@ use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\NetworkBroadcastUtils;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
+use pocketmine\network\mcpe\protocol\PlayerListPacket;
+use pocketmine\network\mcpe\protocol\PlayerSkinPacket;
 use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
@@ -120,6 +123,7 @@ use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataCollection;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataFlags;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\network\mcpe\protocol\types\entity\PlayerMetadataFlags;
+use pocketmine\network\mcpe\protocol\types\PlayerListEntry;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\PermissibleBase;
@@ -718,9 +722,45 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			return true;
 		}
 
+		$previousSkinId = $this->getSkin()->getSkinId();
 		$this->setSkin($ev->getNewSkin());
-		$this->sendSkin($this->server->getOnlinePlayers());
+		$this->syncSkinToPlayerList();
+		$this->broadcastSkinChange(
+			$newSkinName !== "" ? $newSkinName : $this->getSkin()->getSkinId(),
+			$oldSkinName !== "" ? $oldSkinName : $previousSkinId
+		);
 		return true;
+	}
+
+	private function syncSkinToPlayerList() : void{
+		$entry = PlayerListEntry::createAdditionEntry(
+			$this->getUniqueId(),
+			$this->getId(),
+			$this->getDisplayName(),
+			$this->getNetworkSession()->getTypeConverter()->getSkinAdapter()->toSkinData($this->getSkin()),
+			$this->getXuid()
+		);
+
+		foreach($this->server->getOnlinePlayers() as $player){
+			$player->getNetworkSession()->sendDataPacket(PlayerListPacket::remove([
+				PlayerListEntry::createRemovalEntry($this->getUniqueId())
+			]));
+			$player->getNetworkSession()->sendDataPacket(PlayerListPacket::add([$entry]));
+		}
+	}
+
+	private function broadcastSkinChange(string $newSkinName, string $oldSkinName) : void{
+		NetworkBroadcastUtils::broadcastPackets(
+			$this->server->getOnlinePlayers(),
+			[
+				PlayerSkinPacket::create(
+					$this->getUniqueId(),
+					$oldSkinName,
+					$newSkinName,
+					$this->getNetworkSession()->getTypeConverter()->getSkinAdapter()->toSkinData($this->getSkin())
+				)
+			]
+		);
 	}
 
 	/**

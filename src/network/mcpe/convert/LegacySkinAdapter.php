@@ -23,51 +23,84 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\convert;
 
-use pocketmine\entity\InvalidSkinException;
 use pocketmine\entity\Skin;
 use pocketmine\network\mcpe\protocol\types\skin\SkinData;
 use pocketmine\network\mcpe\protocol\types\skin\SkinImage;
 use function is_array;
 use function is_string;
 use function json_decode;
-use function json_encode;
-use function random_bytes;
-use function str_repeat;
-use const JSON_THROW_ON_ERROR;
 
 class LegacySkinAdapter implements SkinAdapter{
 
+	private static function getDefaultGeometryName(string $armSize) : string{
+		return $armSize === Skin::ARM_SIZE_SLIM ? Skin::DEFAULT_SLIM_GEOMETRY_NAME : Skin::DEFAULT_GEOMETRY_NAME;
+	}
+
+	private static function extractGeometryName(string $resourcePatch, string $armSize) : string{
+		$decodedResourcePatch = json_decode($resourcePatch, true);
+		if(is_array($decodedResourcePatch) && isset($decodedResourcePatch["geometry"]["default"]) && is_string($decodedResourcePatch["geometry"]["default"])){
+			return $decodedResourcePatch["geometry"]["default"];
+		}
+
+		return self::getDefaultGeometryName($armSize);
+	}
+
 	public function toSkinData(Skin $skin) : SkinData{
 		$capeData = $skin->getCapeData();
-		$capeImage = $capeData === "" ? new SkinImage(0, 0, "") : new SkinImage(32, 64, $capeData);
-		$geometryName = $skin->getGeometryName();
-		if($geometryName === ""){
-			$geometryName = "geometry.humanoid.custom";
-		}
+		$capeImage = $capeData === "" ? new SkinImage(0, 0, "") : new SkinImage($skin->getCapeImageHeight(), $skin->getCapeImageWidth(), $capeData);
 		return new SkinData(
 			$skin->getSkinId(),
-			"", //TODO: playfab ID
-			json_encode(["geometry" => ["default" => $geometryName]], JSON_THROW_ON_ERROR),
-			SkinImage::fromLegacy($skin->getSkinData()), [],
+			$skin->getPlayFabId(),
+			$skin->getSkinResourcePatch(),
+			new SkinImage($skin->getSkinImageHeight(), $skin->getSkinImageWidth(), $skin->getSkinData()),
+			$skin->getAnimations(),
 			$capeImage,
-			$skin->getGeometryData()
+			$skin->getGeometryData(),
+			$skin->getGeometryDataEngineVersion(),
+			$skin->getAnimationData(),
+			$skin->getCapeId(),
+			$skin->getFullSkinId(),
+			$skin->getArmSize(),
+			$skin->getSkinColor(),
+			$skin->getPersonaPieces(),
+			$skin->getPieceTintColors(),
+			$skin->isTrusted(),
+			$skin->isPremium(),
+			$skin->isPersona(),
+			$skin->isPersonaCapeOnClassic(),
+			$skin->isPrimaryUser(),
+			$skin->isOverride()
 		);
 	}
 
 	public function fromSkinData(SkinData $data) : Skin{
-		if($data->isPersona()){
-			return new Skin("Standard_Custom", str_repeat(random_bytes(3) . "\xff", 4096));
-		}
+		$skin = new Skin(
+			$data->getSkinId(),
+			$data->getSkinImage()->getData(),
+			$data->getCapeImage()->getData(),
+			self::extractGeometryName($data->getResourcePatch(), $data->getArmSize()),
+			$data->getGeometryData()
+		);
+		$skin->setSkinImageDimensions($data->getSkinImage()->getWidth(), $data->getSkinImage()->getHeight());
+		$skin->setCapeImageDimensions($data->getCapeImage()->getWidth(), $data->getCapeImage()->getHeight());
+		$skin->setSkinResourcePatch($data->getResourcePatch());
+		$skin->setGeometryDataEngineVersion($data->getGeometryDataEngineVersion());
+		$skin->setAnimationData($data->getAnimationData());
+		$skin->setCapeId($data->getCapeId());
+		$skin->setFullSkinId($data->getFullSkinId());
+		$skin->setArmSize($data->getArmSize());
+		$skin->setSkinColor($data->getSkinColor());
+		$skin->setPlayFabId($data->getPlayFabId());
+		$skin->setAnimations($data->getAnimations());
+		$skin->setPersonaPieces($data->getPersonaPieces());
+		$skin->setPieceTintColors($data->getPieceTintColors());
+		$skin->setTrusted($data->isVerified());
+		$skin->setPremium($data->isPremium());
+		$skin->setPersona($data->isPersona());
+		$skin->setPersonaCapeOnClassic($data->isPersonaCapeOnClassic());
+		$skin->setPrimaryUser($data->isPrimaryUser());
+		$skin->setOverride($data->isOverride());
 
-		$capeData = $data->isPersonaCapeOnClassic() ? "" : $data->getCapeImage()->getData();
-
-		$resourcePatch = json_decode($data->getResourcePatch(), true);
-		if(is_array($resourcePatch) && isset($resourcePatch["geometry"]["default"]) && is_string($resourcePatch["geometry"]["default"])){
-			$geometryName = $resourcePatch["geometry"]["default"];
-		}else{
-			throw new InvalidSkinException("Missing geometry name field");
-		}
-
-		return new Skin($data->getSkinId(), $data->getSkinImage()->getData(), $capeData, $geometryName, $data->getGeometryData());
+		return $skin;
 	}
 }

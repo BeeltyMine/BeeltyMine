@@ -37,7 +37,8 @@ class GamemodeCommand extends VanillaCommand{
 		parent::__construct(
 			"gamemode",
 			KnownTranslationFactory::pocketmine_command_gamemode_description(),
-			KnownTranslationFactory::commands_gamemode_usage()
+			KnownTranslationFactory::commands_gamemode_usage(),
+			["gm"]
 		);
 		$this->setPermissions([
 			DefaultPermissionNames::COMMAND_GAMEMODE_SELF,

@@ -154,6 +154,10 @@ class PlayerDeathEvent extends EntityDeathEvent{
 				return KnownTranslationFactory::death_attack_drown($name);
 
 			case EntityDamageEvent::CAUSE_CONTACT:
+				$victim = $deathCause?->getEntity();
+				if($victim instanceof Player && $victim->wasLastDamageFlyIntoWall()){
+					return KnownTranslationFactory::death_attack_flyIntoWall($name);
+				}
 				if($deathCause instanceof EntityDamageByBlockEvent){
 					if($deathCause->getDamager()->getTypeId() === BlockTypeIds::CACTUS){
 						return KnownTranslationFactory::death_attack_cactus($name);

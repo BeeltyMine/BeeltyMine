@@ -99,6 +99,7 @@ use pocketmine\inventory\transaction\TransactionCancelledException;
 use pocketmine\inventory\transaction\TransactionValidationException;
 use pocketmine\item\ConsumableItem;
 use pocketmine\item\Durable;
+use pocketmine\item\Elytra;
 use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\enchantment\MeleeWeaponEnchantment;
 use pocketmine\item\Item;
@@ -297,6 +298,11 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 	protected bool $blockCollision = true;
 	protected bool $flying = false;
 	protected bool $sneakPressed = false;
+	private int $lastGlideTick = -1000;
+	private float $lastGlideHorizontalSpeed = 0.0;
+	private int $lastFlyIntoWallDamageTick = -1000;
+	private bool $takingFlyIntoWallDamage = false;
+	private bool $lastDamageWasFlyIntoWall = false;
 
 	protected float $flightSpeedMultiplier = self::DEFAULT_FLIGHT_SPEED_MULTIPLIER;
 
@@ -1447,7 +1453,13 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			$dy = $newPos->y - $oldPos->y;
 			$dz = $newPos->z - $oldPos->z;
 
+			// Elytra'da sadece yavas ve dusuk acili suzuluste dusus mesafesini sifirla.
+			if($this->isGliding() && abs($dy) < 0.5 && $this->location->pitch <= 40){
+				$this->resetFallDistance();
+			}
+
 			$this->move($dx, $dy, $dz);
+			$this->handleFlyIntoWallDamage($dx, $dz);
 		}
 
 		if($revert){
@@ -1521,6 +1533,59 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		return $this->flying ? 0 : parent::calculateFallDamage($fallDistance);
 	}
 
+	private function handleFlyIntoWallDamage(float $wantedDx, float $wantedDz) : void{
+		if(!$this->isGliding()){
+			$this->lastGlideHorizontalSpeed = 0.0;
+			return;
+		}
+
+		$wantedHorizontalSpeed = sqrt(($wantedDx ** 2) + ($wantedDz ** 2));
+		if(!$this->isCollidedHorizontally && !$this->isFacingGlideCollision()){
+			$this->lastGlideHorizontalSpeed = $wantedHorizontalSpeed;
+			return;
+		}
+
+		$impactSpeed = max($this->lastGlideHorizontalSpeed, $wantedHorizontalSpeed);
+		$this->lastGlideHorizontalSpeed = 0.0;
+		if(($this->server->getTick() - $this->lastFlyIntoWallDamageTick) <= 10){
+			return;
+		}
+		$damage = floor(($impactSpeed * 10) - 3);
+		if($damage <= 0){
+			return;
+		}
+
+		$this->lastFlyIntoWallDamageTick = $this->server->getTick();
+		$this->takingFlyIntoWallDamage = true;
+		try{
+			$this->attack(new EntityDamageEvent($this, EntityDamageEvent::CAUSE_CONTACT, $damage));
+		}finally{
+			$this->takingFlyIntoWallDamage = false;
+		}
+	}
+
+	private function isFacingGlideCollision() : bool{
+		$direction = $this->getDirectionVector();
+		$horizontalLength = sqrt(($direction->x ** 2) + ($direction->z ** 2));
+		if($horizontalLength <= 1.0E-5){
+			return false;
+		}
+
+		$offsetX = ($direction->x / $horizontalLength) * 0.7;
+		$offsetZ = ($direction->z / $horizontalLength) * 0.7;
+		$x = $this->location->x + $offsetX;
+		$z = $this->location->z + $offsetZ;
+
+		foreach([0.6, 1.0] as $height){
+			$block = $this->getWorld()->getBlockAt((int) floor($x), (int) floor($this->location->y + $height), (int) floor($z));
+			if(count($block->getCollisionBoxes()) > 0){
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public function jump() : void{
 		(new PlayerJumpEvent($this))->call();
 		parent::jump();
@@ -1580,6 +1645,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			Timings::$entityBaseTick->startTiming();
 			$this->entityBaseTick($tickDiff);
 			Timings::$entityBaseTick->stopTiming();
+			$this->updateElytraState($currentTick);
 
 			if($this->isCreative() && $this->fireTicks > 1){
 				$this->fireTicks = 1;
@@ -1806,6 +1872,52 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		}
 
 		return false;
+	}
+
+	public function hasUsableElytra() : bool{
+		$chestplate = $this->getArmorInventory()->getChestplate();
+		return $chestplate instanceof Elytra && !$chestplate->isBroken();
+	}
+
+	protected function canStartGlidingWithElytra() : bool{
+		return $this->hasUsableElytra()
+			&& !$this->onGround
+			&& !$this->isUnderwater()
+			&& !$this->isSwimming()
+			&& !$this->isFlying();
+	}
+
+	protected function updateElytraState(int $currentTick) : void{
+		if(!$this->isGliding()){
+			$this->lastGlideHorizontalSpeed = 0.0;
+			return;
+		}
+
+		$this->lastGlideTick = $currentTick;
+
+		if(!$this->hasUsableElytra() || $this->onGround || $this->isUnderwater() || $this->isSwimming() || $this->isFlying()){
+			$this->toggleGlide(false);
+			return;
+		}
+
+		if($currentTick % 20 !== 0){
+			return;
+		}
+
+		$chestplate = $this->getArmorInventory()->getChestplate();
+		if(!$chestplate instanceof Elytra){
+			return;
+		}
+
+		$oldChestplate = clone $chestplate;
+		$chestplate->applyDamage(1);
+		if(!$chestplate->equalsExact($oldChestplate)){
+			$this->getArmorInventory()->setChestplate($chestplate);
+		}
+		if($chestplate->isBroken()){
+			$this->broadcastSound(new ItemBreakSound());
+			$this->toggleGlide(false);
+		}
 	}
 
 	/**
@@ -2180,9 +2292,18 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			return true;
 		}
 		$ev = new PlayerToggleGlideEvent($this, $glide);
+		if($glide && !$this->canStartGlidingWithElytra()){
+			$ev->cancel();
+		}
 		$ev->call();
 		if($ev->isCancelled()){
 			return false;
+		}
+		if($glide){
+			$this->lastGlideTick = $this->server->getTick();
+			$this->resetFallDistance();
+		}else{
+			$this->lastGlideHorizontalSpeed = 0.0;
 		}
 		$this->setGliding($glide);
 		return true;
@@ -2687,6 +2808,8 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			return;
 		}
 
+		$this->lastDamageWasFlyIntoWall = $this->takingFlyIntoWallDamage;
+
 		if($this->isCreative()
 			&& $source->getCause() !== EntityDamageEvent::CAUSE_SUICIDE
 		){
@@ -2696,6 +2819,10 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		}
 
 		parent::attack($source);
+	}
+
+	public function wasLastDamageFlyIntoWall() : bool{
+		return $this->lastDamageWasFlyIntoWall;
 	}
 
 	protected function syncNetworkData(EntityMetadataCollection $properties) : void{

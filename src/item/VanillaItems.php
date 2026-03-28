@@ -182,6 +182,7 @@ use function strtolower;
  * @method static Item FERMENTED_SPIDER_EYE()
  * @method static FireworkRocket FIREWORK_ROCKET()
  * @method static FireworkStar FIREWORK_STAR()
+ * @method static Elytra ELYTRA()
  * @method static FireCharge FIRE_CHARGE()
  * @method static FishingRod FISHING_ROD()
  * @method static Item FLINT()
@@ -721,6 +722,7 @@ final class VanillaItems{
 		self::register("iron_chestplate", fn(IID $id) => new Armor($id, "Iron Chestplate", new ArmorTypeInfo(6, 241, ArmorInventory::SLOT_CHEST, material: ArmorMaterials::IRON()), [EnchantmentTags::CHESTPLATE]));
 		self::register("leather_tunic", fn(IID $id) => new Armor($id, "Leather Tunic", new ArmorTypeInfo(3, 81, ArmorInventory::SLOT_CHEST, material: ArmorMaterials::LEATHER()), [EnchantmentTags::CHESTPLATE]));
 		self::register("netherite_chestplate", fn(IID $id) => new Armor($id, "Netherite Chestplate", new ArmorTypeInfo(8, 593, ArmorInventory::SLOT_CHEST, 3, true, material: ArmorMaterials::NETHERITE()), [EnchantmentTags::CHESTPLATE]));
+		self::register("elytra", fn(IID $id) => new Elytra($id, "Elytra"));
 
 		self::register("chainmail_helmet", fn(IID $id) => new Armor($id, "Chainmail Helmet", new ArmorTypeInfo(2, 166, ArmorInventory::SLOT_HEAD, material: ArmorMaterials::CHAINMAIL()), [EnchantmentTags::HELMET]));
 		self::register("copper_helmet", fn(IID $id) => new Armor($id, "Copper Helmet", new ArmorTypeInfo(2, 122, ArmorInventory::SLOT_HEAD, material: ArmorMaterials::COPPER()), [EnchantmentTags::HELMET]));

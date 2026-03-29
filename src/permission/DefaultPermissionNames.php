@@ -31,6 +31,7 @@ final class DefaultPermissionNames{
 	public const COMMAND_BAN_PLAYER = "pocketmine.command.ban.player";
 	public const COMMAND_CLEAR_OTHER = "pocketmine.command.clear.other";
 	public const COMMAND_CLEAR_SELF = "pocketmine.command.clear.self";
+	public const COMMAND_DEBUG = "pocketmine.command.debug";
 	public const COMMAND_DEFAULTGAMEMODE = "pocketmine.command.defaultgamemode";
 	public const COMMAND_DIFFICULTY = "pocketmine.command.difficulty";
 	public const COMMAND_DUMPMEMORY = "pocketmine.command.dumpmemory";

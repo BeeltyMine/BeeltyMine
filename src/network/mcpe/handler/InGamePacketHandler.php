@@ -838,8 +838,14 @@ class InGamePacketHandler extends PacketHandler{
 		try{
 			$skin = $this->session->getTypeConverter()->getSkinAdapter()->fromSkinData($packet->skin);
 		}catch(InvalidSkinException $e){
-			throw PacketHandlingException::wrap($e, "Invalid skin in PlayerSkinPacket");
+			$this->session->getLogger()->debug("Rejected invalid skin change request: " . $e->getMessage());
+			$this->player->sendSkin([$this->player]);
+			return true;
 		}
+
+		// Custom uploaded skins are often sent as unverified by the client. Once we've accepted and parsed
+		// the skin server-side, rebroadcast it as trusted to avoid other clients falling back to default skins.
+		$skin->setTrusted(true);
 		return $this->player->changeSkin($skin, $packet->newSkinName, $packet->oldSkinName);
 	}
 

@@ -33,6 +33,7 @@ use function explode;
 use function intdiv;
 use function str_replace;
 use function strlen;
+use function str_repeat;
 use function substr;
 use function sqrt;
 use const JSON_THROW_ON_ERROR;
@@ -43,7 +44,9 @@ final class Skin{
 		64 * 32 * 4,
 		64 * 64 * 4,
 		128 * 64 * 4,
-		128 * 128 * 4
+		128 * 128 * 4,
+		256 * 128 * 4,
+		256 * 256 * 4
 	];
 	public const LEGACY_CAPE_IMAGE_WIDTH = 64;
 	public const LEGACY_CAPE_IMAGE_HEIGHT = 32;
@@ -89,7 +92,7 @@ final class Skin{
 	}
 
 	private static function isSupportedSkinDimension(int $dimension) : bool{
-		return $dimension >= 32 && $dimension <= 128 && ($dimension & ($dimension - 1)) === 0;
+		return $dimension >= 32 && $dimension <= 256 && ($dimension & ($dimension - 1)) === 0;
 	}
 
 	/**
@@ -115,7 +118,7 @@ final class Skin{
 			}
 		}
 
-		throw new InvalidSkinException("Invalid skin data size $dataLength bytes (supported skins are power-of-two square or 2:1 images from 32x32 up to 128x128)");
+		throw new InvalidSkinException("Invalid skin data size $dataLength bytes (supported skins are power-of-two square or 2:1 images from 32x32 up to 256x256)");
 	}
 
 	private static function validateImageDimensions(string $name, int $width, int $height, string $data, bool $allowEmpty = false) : void{
@@ -134,6 +137,18 @@ final class Skin{
 
 	private static function getDefaultGeometryName(string $armSize) : string{
 		return $armSize === self::ARM_SIZE_SLIM ? self::DEFAULT_SLIM_GEOMETRY_NAME : self::DEFAULT_GEOMETRY_NAME;
+	}
+
+	public static function createStandardFallback(?string $skinId = null, string $armSize = self::ARM_SIZE_WIDE) : self{
+		$skin = new self(
+			$skinId !== null && $skinId !== "" ? $skinId : "Standard_Custom",
+			str_repeat("\x80\x80\x80\xff", 64 * 64),
+			"",
+			self::getDefaultGeometryName($armSize),
+			""
+		);
+		$skin->setArmSize($armSize);
+		return $skin;
 	}
 
 	private static function createResourcePatch(string $geometryName, string $armSize) : string{

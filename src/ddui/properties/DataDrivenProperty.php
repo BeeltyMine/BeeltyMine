@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace pocketmine\ddui\properties;
 
 use pocketmine\ddui\DataDrivenScreen;
+use pocketmine\network\mcpe\protocol\types\DataStoreValue;
 use pocketmine\player\Player;
 
 abstract class DataDrivenProperty{
@@ -78,4 +79,6 @@ abstract class DataDrivenProperty{
 	}
 
 	abstract public function toSchemaValue() : mixed;
+
+	abstract public function toDataStoreValue() : DataStoreValue;
 }

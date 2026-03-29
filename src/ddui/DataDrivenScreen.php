@@ -11,7 +11,6 @@ use pocketmine\network\mcpe\protocol\ClientboundDataDrivenUICloseScreenPacket;
 use pocketmine\network\mcpe\protocol\ClientboundDataDrivenUIShowScreenPacket;
 use pocketmine\network\mcpe\protocol\ClientboundDataStorePacket;
 use pocketmine\network\mcpe\protocol\types\DataStoreChange;
-use pocketmine\network\mcpe\protocol\types\StringDataStoreValue;
 use pocketmine\player\Player;
 use SplObjectStorage;
 use WeakMap;
@@ -50,7 +49,7 @@ abstract class DataDrivenScreen extends ObjectProperty{
 				$dataStore,
 				$this->getDataProperty(),
 				1,
-				new StringDataStoreValue($this->toPropertyValue())
+				$this->toDataStoreValue()
 			)
 		]));
 		$session->sendDataPacket(ClientboundDataDrivenUIShowScreenPacket::create($this->getIdentifier(), 0, null));

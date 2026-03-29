@@ -63,6 +63,7 @@
    },
    "autoload": {
       "psr-4": {
+         "pocketmine\\network\\mcpe\\protocol\\": "src/network/mcpe/protocol/",
          "pocketmine\\": [
             "src/",
             "generated/"

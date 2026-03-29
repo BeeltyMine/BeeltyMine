@@ -74,6 +74,8 @@ Documentation/*
 /logs/
 /crashdumps/
 /backups/
+!/build/
+!/build/patch-bedrock-protocol.php
 
 # World / player data
 /players/

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace pocketmine\ddui\properties;
 
+use pocketmine\network\mcpe\protocol\types\TypeDataStoreValue;
+
 class ObjectProperty extends DataDrivenProperty{
 	/** @var array<string, DataDrivenProperty> */
 	private array $properties = [];
@@ -35,5 +37,14 @@ class ObjectProperty extends DataDrivenProperty{
 		}
 
 		return $result;
+	}
+
+	public function toDataStoreValue() : TypeDataStoreValue{
+		$result = [];
+		foreach($this->properties as $name => $property){
+			$result[$name] = $property->toDataStoreValue();
+		}
+
+		return new TypeDataStoreValue($result);
 	}
 }

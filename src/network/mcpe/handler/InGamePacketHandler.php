@@ -843,8 +843,6 @@ class InGamePacketHandler extends PacketHandler{
 			return true;
 		}
 
-		// Custom uploaded skins are often sent as unverified by the client. Once we've accepted and parsed
-		// the skin server-side, rebroadcast it as trusted to avoid other clients falling back to default skins.
 		$skin->setTrusted(true);
 		return $this->player->changeSkin($skin, $packet->newSkinName, $packet->oldSkinName);
 	}

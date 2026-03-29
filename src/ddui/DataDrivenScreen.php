@@ -44,6 +44,8 @@ abstract class DataDrivenScreen extends ObjectProperty{
 		[$dataStore] = explode(":", $this->getIdentifier(), 2);
 		$session = $player->getNetworkSession();
 
+		// Send a blank custom form first so we can verify raw DDUI screen opening separately from datastore content.
+		$session->sendDataPacket(ClientboundDataDrivenUIShowScreenPacket::create("minecraft:custom_form", 0, null));
 		$session->sendDataPacket(ClientboundDataStorePacket::create([
 			new DataStoreChange(
 				$dataStore,

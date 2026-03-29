@@ -1,3 +1,17 @@
+﻿# BeeltyMine Dashboard Analysis
+
+Generated: 2026-03-29 12:03:56
+
+## Last Test Results
+
+- Custom: Failed (exit=1, duration=0.61s)
+- PHPStan: Failed (exit=1, duration=0.56s)
+- PHPUnit: Failed (exit=1, duration=0.28s)
+- PHPStan: Failed (exit=1, duration=0.71s)
+- PHPUnit: Failed (exit=1, duration=0.61s)
+
+## TODO Snapshot
+
 # BeeltyMine Performance TODO
 
 Bu liste, kod tabani okunarak cikarilmis performans iyilestirme adaylarini onceliklendirir.
@@ -58,25 +72,3 @@ Ilgili kod: `src/world/World.php`, `src/Server.php`
 
 ## Orta
 
-### 8. AsyncPool task toplama mantigini event-odakli hale getir
-Kisa aciklama: Worker sonucu gelmese bile her tick tum worker kuyruklari dolasiliyor; worker sayisi arttikca sabit maliyet buyur.
-
-Uzun aciklama: `src/Server.php` her tick `asyncPool->collectTasks()` cagiriyor. `src/scheduler/AsyncPool.php` ise butun worker'lari gezip queue durumuna bakiyor. Sistemde zaten notifier tabanli bir uyandirma mekanizmasi oldugu icin, bu taramayi sadece sinyal gelen worker'larda yapmak ve periyodik yedek taramayi daha seyrek uygulamak ana thread sabit maliyetini dusurebilir. Bu iyilestirme tek basina devrim yaratmaz ama yuksek async task trafiginde CPU kazanci saglar.
-
-Ilgili kod: `src/Server.php`, `src/scheduler/AsyncPool.php`
-
-### 9. Mikro-optimizasyon: `setBlock()` icinde cift state hesaplamasini kaldir
-Kisa aciklama: Sicak block yer degistirme yollarinda ayni state bilgisi iki kez uretiliyor.
-
-Uzun aciklama: `src/world/World.php` icindeki `setBlockAt()` akisinda once `getStateId()` aliniyor, sonra blok yaziminda state tekrar hesaplanmis oluyor. Bu tek basina en buyuk problem degil ama block placement/break yogun sunucularda sicak yol oldugu icin etkisi birikir. State bilgisini bir kez uretip alt yazim katmanina tasimak, gereksiz method cagrilarini ve serializer tarafindaki tekrarli isi azaltir.
-
-Ilgili kod: `src/world/World.php`
-
-## Not
-
-Bu maddeler kod okuyarak cikartildi; en yuksek geri donus beklenen siralama:
-
-1. Login ve autosave IO'sunu async/batch yapmak
-2. Chunk save tarafinda temiz chunk'lari tamamen atlamak
-3. World tick kuyruklarina sert butce koymak
-4. Chunk send/cache tarafinda worker churn'unu azaltmak

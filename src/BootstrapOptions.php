@@ -45,6 +45,8 @@ final class BootstrapOptions{
 	public const PLUGINS = "plugins";
 	/** Path to store and load server data */
 	public const DATA = "data";
+	/** Path to write machine-readable live server stats for external dashboards */
+	public const STATS_FILE = "stats-file";
 	/** Shows basic server version information and exits */
 	public const VERSION = "version";
 	/** Disables writing logs to server.log */

@@ -1,0 +1,6 @@
+settings:
+  enable-profiling: false
+player:
+  save-player-data: false
+network:
+  async-compression: false

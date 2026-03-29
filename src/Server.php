@@ -50,6 +50,7 @@ use pocketmine\lang\KnownTranslationFactory;
 use pocketmine\lang\Language;
 use pocketmine\lang\LanguageNotFoundException;
 use pocketmine\lang\Translatable;
+use pocketmine\monitoring\ServerStatsExporter;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\auth\AuthKeyProvider;
 use pocketmine\network\mcpe\compression\CompressBatchPromise;
@@ -258,6 +259,7 @@ class Server
 	private int $sendUsageTicker = 0;
 
 	private MemoryManager $memoryManager;
+	private ?ServerStatsExporter $statsExporter = null;
 
 	private ?ConsoleReaderChildProcessDaemon $console = null;
 	private ?ConsoleCommandSender $consoleSender = null;
@@ -843,7 +845,8 @@ class Server
 		private ThreadSafeClassLoader $autoloader,
 		private AttachableThreadSafeLogger $logger,
 		string $dataPath,
-		string $pluginPath
+		string $pluginPath,
+		?string $statsFilePath = null
 	) {
 		if (self::$instance !== null) {
 			throw new \LogicException("Only one server instance can exist at once");
@@ -860,6 +863,9 @@ class Server
 			$this->logger->info("Received signal interrupt, stopping the server");
 			$this->shutdown();
 		});
+		if($statsFilePath !== null && $statsFilePath !== ""){
+			$this->statsExporter = new ServerStatsExporter($statsFilePath, $this->logger);
+		}
 
 		try {
 			foreach (
@@ -1604,6 +1610,7 @@ class Server
 			}
 
 			$this->hasStopped = true;
+			$this->statsExporter?->write($this, false);
 
 			$this->shutdown();
 
@@ -2035,6 +2042,9 @@ class Server
 		$idx = $this->tickCounter % self::TARGET_TICKS_PER_SECOND;
 		$this->tickAverage[$idx] = $this->currentTPS;
 		$this->useAverage[$idx] = $this->currentUse;
+		if(($this->tickCounter % self::TARGET_TICKS_PER_SECOND) === 0){
+			$this->statsExporter?->write($this);
+		}
 		$this->tickSleeper->resetNotificationProcessingTime();
 
 		if (($this->nextTick - $tickTime) < -1) {

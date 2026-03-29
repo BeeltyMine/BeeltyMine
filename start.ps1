@@ -1,7 +1,8 @@
-﻿[CmdletBinding(PositionalBinding=$false)]
+[CmdletBinding(PositionalBinding=$false)]
 param (
 	[string]$php = "",
 	[switch]$Loop = $false,
+	[switch]$Dashboard = $false,
 	[string]$file = "",
 	[string][Parameter(ValueFromRemainingArguments)]$extraPocketMineArgs
 )
@@ -21,19 +22,50 @@ if($php -ne ""){
 }
 
 if($file -eq ""){
-	if(Test-Path "BeeltyMine-MP.phar"){
-	    $file = "BeeltyMine-MP.phar"
+	if((Test-Path "src\PocketMine.php") -and (Test-Path "vendor\autoload.php")){
+		$file = "src\PocketMine.php"
+		echo "Source bootstrap selected: $file"
+	}elseif(Test-Path "BeeltyMine-MP.phar"){
+		$file = "BeeltyMine-MP.phar"
 	}else{
-	    echo "BeeltyMine-MP.phar not found"
-	    echo "Downloads can be found at https://github.com/pmmp/PocketMine-MP/releases"
-	    pause
-	    exit 1
+		echo "Neither source bootstrap nor BeeltyMine-MP.phar was found"
+		pause
+		exit 1
 	}
 }
 
+$dashboardLaunched = $false
+$powerShellExe = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
+if(-not (Test-Path $powerShellExe)){
+	$powerShellExe = "powershell"
+}
+
 function StartServer{
-	$command = "powershell -NoProfile " + $binary + " " + $file + " " + $extraPocketMineArgs
-	iex $command
+	$serverArgs = @($extraPocketMineArgs)
+
+	if($Dashboard){
+		$statsFile = Join-Path $PSScriptRoot "diagnostics\dashboard\server-stats.json"
+		if(-not $dashboardLaunched){
+			$dashboardScript = Join-Path $PSScriptRoot "dashboard.ps1"
+			New-Item -ItemType Directory -Force -Path (Join-Path $PSScriptRoot "diagnostics\dashboard") | Out-Null
+			Set-Content -Path (Join-Path $PSScriptRoot "diagnostics\dashboard\launcher.log") -Encoding UTF8 -Value ("[{0}] dashboard launch requested" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"))
+			Start-Process $powerShellExe -ArgumentList @(
+				"-NoProfile",
+				"-STA",
+				"-ExecutionPolicy", "Bypass",
+				"-File", $dashboardScript,
+				"-RepoRoot", $PSScriptRoot,
+				"-PhpBinary", $binary,
+				"-PocketMineFile", $file,
+				"-StatsFile", $statsFile
+			) | Out-Null
+			$script:dashboardLaunched = $true
+		}
+
+		$serverArgs = @("--stats-file=$statsFile") + $serverArgs
+	}
+
+	& $binary $file @serverArgs
 }
 
 $loops = 0

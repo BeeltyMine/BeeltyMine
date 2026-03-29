@@ -1,0 +1,42 @@
+﻿[
+    {
+        "name":  "Custom",
+        "status":  "Failed",
+        "exit_code":  1,
+        "duration_seconds":  0.61,
+        "finished_at":  "2026-03-29 11:55:48",
+        "command":  "php vendor/bin/phpunit --filter ExampleTest"
+    },
+    {
+        "name":  "PHPStan",
+        "status":  "Failed",
+        "exit_code":  1,
+        "duration_seconds":  0.56,
+        "finished_at":  "2026-03-29 11:55:42",
+        "command":  "\u0026 \"php\" \"vendor/bin/phpstan\" analyse -c \"phpstan.neon.dist\" --no-progress"
+    },
+    {
+        "name":  "PHPUnit",
+        "status":  "Failed",
+        "exit_code":  1,
+        "duration_seconds":  0.28,
+        "finished_at":  "2026-03-29 11:54:04",
+        "command":  "\u0026 \"php\" \"vendor/bin/phpunit\" --colors=never"
+    },
+    {
+        "name":  "PHPStan",
+        "status":  "Failed",
+        "exit_code":  1,
+        "duration_seconds":  0.71,
+        "finished_at":  "2026-03-29 11:53:37",
+        "command":  "\u0026 \"php\" \"vendor/bin/phpstan\" analyse -c \"phpstan.neon.dist\" --no-progress"
+    },
+    {
+        "name":  "PHPUnit",
+        "status":  "Failed",
+        "exit_code":  1,
+        "duration_seconds":  0.61,
+        "finished_at":  "2026-03-29 11:53:36",
+        "command":  "\u0026 \"php\" \"vendor/bin/phpunit\" --colors=never"
+    }
+]

@@ -69,6 +69,7 @@ use pocketmine\block\MobHead;
 use pocketmine\block\NetherPortal;
 use pocketmine\block\NetherVines;
 use pocketmine\block\NetherWartPlant;
+use pocketmine\block\PaleHangingMoss;
 use pocketmine\block\PaleMossCarpet;
 use pocketmine\block\PinkPetals;
 use pocketmine\block\PitcherCrop;
@@ -404,7 +405,6 @@ final class VanillaBlockMappings{
 		$reg->mapSimple(Blocks::NETHER_WART_BLOCK(), Ids::NETHER_WART_BLOCK);
 		$reg->mapSimple(Blocks::NOTE_BLOCK(), Ids::NOTEBLOCK);
 		$reg->mapSimple(Blocks::OBSIDIAN(), Ids::OBSIDIAN);
-		$reg->mapSimple(Blocks::PALE_HANGING_MOSS(), Ids::PALE_HANGING_MOSS);
 		$reg->mapSimple(Blocks::PALE_MOSS_BLOCK(), Ids::PALE_MOSS_BLOCK);
 		$reg->mapSimple(Blocks::PACKED_ICE(), Ids::PACKED_ICE);
 		$reg->mapSimple(Blocks::PACKED_MUD(), Ids::PACKED_MUD);
@@ -622,6 +622,9 @@ final class VanillaBlockMappings{
 		$reg->mapModel(Model::create(Blocks::MANGROVE_PROPAGULE(), Ids::MANGROVE_PROPAGULE)->properties([
 			new IntProperty(StateNames::PROPAGULE_STAGE, 0, 4, fn(MangrovePropagule $b) => $b->getStage(), fn(MangrovePropagule $b, int $v) => $b->setStage($v)),
 			new BoolProperty(StateNames::HANGING, fn(MangrovePropagule $b) => $b->isHanging(), fn(MangrovePropagule $b, bool $v) => $b->setHanging($v))
+		]));
+		$reg->mapModel(Model::create(Blocks::PALE_HANGING_MOSS(), Ids::PALE_HANGING_MOSS)->properties([
+			new BoolProperty(StateNames::TIP, fn(PaleHangingMoss $b) => $b->isTip(), fn(PaleHangingMoss $b, bool $v) => $b->setTip($v))
 		]));
 		$reg->mapModel(Model::create(Blocks::PALE_MOSS_CARPET(), Ids::PALE_MOSS_CARPET)->properties([
 			new ValueFromStringProperty(

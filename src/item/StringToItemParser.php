@@ -175,6 +175,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("banner", fn() => Blocks::BANNER());
 		$result->registerBlock("barrel", fn() => Blocks::BARREL());
 		$result->registerBlock("barrier", fn() => Blocks::BARRIER());
+		$result->registerBlock("beehive", fn() => Blocks::BEEHIVE());
 		$result->registerBlock("basalt", fn() => Blocks::BASALT());
 		$result->registerBlock("beacon", fn() => Blocks::BEACON());
 		$result->registerBlock("bed", fn() => Blocks::BED());
@@ -413,6 +414,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("dragon_egg", fn() => Blocks::DRAGON_EGG());
 		$result->registerBlock("dragon_head", fn() => Blocks::MOB_HEAD()->setMobHeadType(MobHeadType::DRAGON));
 		$result->registerBlock("dried_kelp_block", fn() => Blocks::DRIED_KELP());
+		$result->registerBlock("dripstone_block", fn() => Blocks::DRIPSTONE_BLOCK());
 		$result->registerBlock("dyed_shulker_box", fn() => Blocks::DYED_SHULKER_BOX());
 		$result->registerBlock("element_0", fn() => Blocks::ELEMENT_ZERO());
 		$result->registerBlock("element_1", fn() => Blocks::ELEMENT_HYDROGEN());
@@ -789,6 +791,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("large_amethyst_bud", fn() => Blocks::AMETHYST_CLUSTER()->setStage(AmethystCluster::STAGE_LARGE_BUD));
 		$result->registerBlock("large_fern", fn() => Blocks::LARGE_FERN());
 		$result->registerBlock("lava", fn() => Blocks::LAVA());
+		$result->registerBlock("leaf_litter", fn() => Blocks::LEAF_LITTER());
 		$result->registerBlock("leave", fn() => Blocks::OAK_LEAVES());
 		$result->registerBlock("leave2", fn() => Blocks::ACACIA_LEAVES());
 		$result->registerBlock("leaves", fn() => Blocks::OAK_LEAVES());
@@ -936,6 +939,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("polished_basalt", fn() => Blocks::POLISHED_BASALT());
 		$result->registerBlock("polished_blackstone", fn() => Blocks::POLISHED_BLACKSTONE());
 		$result->registerBlock("polished_blackstone_brick_slab", fn() => Blocks::POLISHED_BLACKSTONE_BRICK_SLAB());
+		$result->registerBlock("pointed_dripstone", fn() => Blocks::POINTED_DRIPSTONE());
 		$result->registerBlock("polished_blackstone_brick_stairs", fn() => Blocks::POLISHED_BLACKSTONE_BRICK_STAIRS());
 		$result->registerBlock("polished_blackstone_brick_wall", fn() => Blocks::POLISHED_BLACKSTONE_BRICK_WALL());
 		$result->registerBlock("polished_blackstone_bricks", fn() => Blocks::POLISHED_BLACKSTONE_BRICKS());

@@ -111,14 +111,19 @@ final class MangrovePropagule extends Flowable{
 			return true;
 		}
 
+		$matured = false;
 		if($this->stage < self::MAX_STAGE){
 			$this->stage = self::MAX_STAGE;
 			$this->position->getWorld()->setBlock($this->position, $this);
+			$matured = true;
+		}
+
+		if($this->grow($player)){
 			$item->pop();
 			return true;
 		}
 
-		if($this->grow($player)){
+		if($matured){
 			$item->pop();
 			return true;
 		}
@@ -147,7 +152,8 @@ final class MangrovePropagule extends Flowable{
 		$supportBlock = $block->getSide(Facing::DOWN);
 		return $supportBlock->hasTypeTag(BlockTypeTags::DIRT) ||
 			$supportBlock->hasTypeTag(BlockTypeTags::MUD) ||
-			$supportBlock->hasTypeTag(BlockTypeTags::MOSS);
+			$supportBlock->hasTypeTag(BlockTypeTags::MOSS) ||
+			$supportBlock->getTypeId() === BlockTypeIds::CLAY;
 	}
 
 	private function canHangAt(Block $block) : bool{

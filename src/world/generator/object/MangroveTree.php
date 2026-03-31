@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace pocketmine\world\generator\object;
 
+use pocketmine\block\Block;
+use pocketmine\block\BlockTypeIds;
+use pocketmine\block\MangrovePropagule;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
@@ -35,8 +38,8 @@ final class MangroveTree extends Tree{
 		$cx = $x;
 		$cy = $y;
 		$cz = $z;
-		$bendStart = max(2, $trunkHeight - 4);
-		$bendLength = 1 + $random->nextBoundedInt(2);
+		$bendStart = max(3, $trunkHeight - 3);
+		$bendLength = 1;
 
 		for($i = 0; $i < $trunkHeight; ++$i){
 			$transaction->addBlockAt($cx, $cy, $cz, $this->trunkBlock);
@@ -48,19 +51,24 @@ final class MangroveTree extends Tree{
 		}
 
 		$this->canopyCenters[] = new Vector3($cx, $cy - 1, $cz);
-		$sideDirection = Facing::HORIZONTAL[($directionIndex + 1 + $random->nextBoundedInt(2)) % count(Facing::HORIZONTAL)];
 		$this->extendBranch($transaction, $cx, $cy - 2, $cz, $direction, 2);
-		$this->extendBranch($transaction, $cx, $cy - 3, $cz, $sideDirection, 1);
+
+		$sideDirection = Facing::HORIZONTAL[($directionIndex + 1 + $random->nextBoundedInt(2)) % count(Facing::HORIZONTAL)];
+		if($random->nextBoundedInt(3) !== 0){
+			$this->extendBranch($transaction, $cx, $cy - 3, $cz, $sideDirection, 1);
+		}
+
 		$this->placeRoots($transaction, $x, $y, $z, $directionIndex);
 	}
 
 	protected function placeCanopy(int $x, int $y, int $z, Random $random, BlockTransaction $transaction) : void{
 		foreach($this->canopyCenters as $index => $center){
 			$radius = $index === 0 ? 3 : 2;
-			$this->placeLeafLayer($transaction, $center->getFloorX(), $center->getFloorY() + 1, $center->getFloorZ(), 1);
+			$this->placeLeafLayer($transaction, $center->getFloorX(), $center->getFloorY() + 1, $center->getFloorZ(), 1, trimCorners: true);
 			$this->placeLeafLayer($transaction, $center->getFloorX(), $center->getFloorY(), $center->getFloorZ(), $radius, trimCorners: $index !== 0);
-			$this->placeLeafLayer($transaction, $center->getFloorX(), $center->getFloorY() - 1, $center->getFloorZ(), $radius, trimCorners: true, hanging: true, propaguleChance: $index === 0 ? 5 : 4);
-			$this->placeLeafLayer($transaction, $center->getFloorX(), $center->getFloorY() - 2, $center->getFloorZ(), $radius - 1, trimCorners: true, hanging: true, propaguleChance: 0);
+			$this->placeLeafLayer($transaction, $center->getFloorX(), $center->getFloorY() - 1, $center->getFloorZ(), $radius, trimCorners: true, hanging: true, propaguleChance: $index === 0 ? 5 : 6);
+			$this->placeLeafLayer($transaction, $center->getFloorX(), $center->getFloorY() - 2, $center->getFloorZ(), $radius, trimCorners: true, hanging: true, propaguleChance: 0, leafChanceDivisor: 4);
+			$this->placeLeafLayer($transaction, $center->getFloorX(), $center->getFloorY() - 3, $center->getFloorZ(), $radius - 1, trimCorners: true, hanging: true, propaguleChance: 0, leafChanceDivisor: 3);
 		}
 	}
 
@@ -88,6 +96,7 @@ final class MangroveTree extends Tree{
 			[$x, $z + 1, 1],
 			[$x, $z - 1, 1],
 			[$x + Facing::OFFSET[Facing::HORIZONTAL[$directionIndex]][0], $z + Facing::OFFSET[Facing::HORIZONTAL[$directionIndex]][2], 2],
+			[$x + Facing::OFFSET[Facing::HORIZONTAL[($directionIndex + 1) % count(Facing::HORIZONTAL)]][0], $z + Facing::OFFSET[Facing::HORIZONTAL[($directionIndex + 1) % count(Facing::HORIZONTAL)]][2], 2],
 			[$x + Facing::OFFSET[Facing::HORIZONTAL[($directionIndex + 2) % count(Facing::HORIZONTAL)]][0], $z + Facing::OFFSET[Facing::HORIZONTAL[($directionIndex + 2) % count(Facing::HORIZONTAL)]][2], 1],
 		];
 
@@ -100,12 +109,16 @@ final class MangroveTree extends Tree{
 		}
 	}
 
-	private function placeLeafLayer(BlockTransaction $transaction, int $centerX, int $y, int $centerZ, int $radius, bool $trimCorners = false, bool $hanging = false, int $propaguleChance = 0) : void{
+	private function placeLeafLayer(BlockTransaction $transaction, int $centerX, int $y, int $centerZ, int $radius, bool $trimCorners = false, bool $hanging = false, int $propaguleChance = 0, int $leafChanceDivisor = 1) : void{
 		for($x = -$radius; $x <= $radius; ++$x){
 			for($z = -$radius; $z <= $radius; ++$z){
 				if($trimCorners && abs($x) === $radius && abs($z) === $radius){
 					continue;
 				}
+				if($leafChanceDivisor > 1 && abs($x) === $radius && abs($z) === $radius - 1 && (($centerX + $centerZ + $x + $z) % $leafChanceDivisor) === 0){
+					continue;
+				}
+
 				$xx = $centerX + $x;
 				$zz = $centerZ + $z;
 				if($transaction->fetchBlockAt($xx, $y, $zz)->canBeReplaced()){
@@ -115,9 +128,17 @@ final class MangroveTree extends Tree{
 				if($hanging && abs($x) + abs($z) >= $radius + 1 && $transaction->fetchBlockAt($xx, $y - 1, $zz)->canBeReplaced()){
 					if($propaguleChance > 0 && ((abs($x) + abs($z) + $xx + $zz) % $propaguleChance) === 0){
 						$transaction->addBlockAt($xx, $y - 1, $zz, VanillaBlocks::MANGROVE_PROPAGULE()->setHanging(true)->setStage(4));
+					}else{
+						$transaction->addBlockAt($xx, $y - 1, $zz, $this->leafBlock);
 					}
 				}
 			}
 		}
+	}
+
+	protected function canOverride(Block $block) : bool{
+		return parent::canOverride($block)
+			|| $block instanceof MangrovePropagule
+			|| $block->getTypeId() === BlockTypeIds::MANGROVE_PROPAGULE;
 	}
 }

@@ -28,6 +28,7 @@ final class BlockTypeTags{
 
 	public const DIRT = self::PREFIX . "dirt";
 	public const MUD = self::PREFIX . "mud";
+	public const MOSS = self::PREFIX . "moss";
 	public const SAND = self::PREFIX . "sand";
 	public const POTTABLE_PLANTS = self::PREFIX . "pottable";
 	public const FIRE = self::PREFIX . "fire";

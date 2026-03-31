@@ -47,7 +47,7 @@ class DoublePlant extends Flowable{
 
 	public function place(BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
 		$down = $blockReplace->getSide(Facing::DOWN);
-		if($down->hasTypeTag(BlockTypeTags::DIRT) && $blockReplace->getSide(Facing::UP)->canBeReplaced()){
+		if(($down->hasTypeTag(BlockTypeTags::DIRT) || $down->hasTypeTag(BlockTypeTags::MOSS)) && $blockReplace->getSide(Facing::UP)->canBeReplaced()){
 			$top = clone $this;
 			$top->top = true;
 			$tx->addBlock($blockReplace->position, $this)->addBlock($blockReplace->position->getSide(Facing::UP), $top);
@@ -72,7 +72,7 @@ class DoublePlant extends Flowable{
 
 	public function onNearbyBlockChange() : void{
 		$down = $this->getSide(Facing::DOWN);
-		if(!$this->isValidHalfPlant() || (!$this->top && !$down->hasTypeTag(BlockTypeTags::DIRT) && !$down->hasTypeTag(BlockTypeTags::MUD))){
+		if(!$this->isValidHalfPlant() || (!$this->top && !$down->hasTypeTag(BlockTypeTags::DIRT) && !$down->hasTypeTag(BlockTypeTags::MUD) && !$down->hasTypeTag(BlockTypeTags::MOSS))){
 			$this->position->getWorld()->useBreakOn($this->position);
 		}
 	}

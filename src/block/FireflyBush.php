@@ -7,7 +7,7 @@ namespace pocketmine\block;
 use pocketmine\block\utils\StaticSupportTrait;
 use pocketmine\math\Facing;
 
-class Flower extends Flowable{
+final class FireflyBush extends Flowable{
 	use StaticSupportTrait;
 
 	private function canBeSupportedAt(Block $block) : bool{

@@ -32,7 +32,7 @@ use pocketmine\math\Vector3;
 use pocketmine\utils\Random;
 use pocketmine\world\BlockTransaction;
 use pocketmine\world\ChunkManager;
-use pocketmine\world\World;
+use function abs;
 use function count;
 use function max;
 use function min;
@@ -67,70 +67,55 @@ final class AzaleaTree extends Tree{
 		$transaction->addBlockAt($x, $y - 1, $z, VanillaBlocks::DIRT()->setDirtType(DirtType::ROOTED));
 
 		$direction = Facing::HORIZONTAL[$random->nextRange(0, count(Facing::HORIZONTAL) - 1)];
+		$branchStart = max(2, $trunkHeight - 2);
+		for($yy = 0; $yy < $branchStart; ++$yy){
+			$transaction->addBlockAt($x, $y + $yy, $z, $this->trunkBlock);
+		}
+
 		$cx = $x;
-		$cy = $y;
+		$cy = $y + $branchStart;
 		$cz = $z;
-
-		$sideUpCount = min(self::SIDE_UP_STEPS, max(0, $trunkHeight - self::LEADUP_SMALL));
-		$leadUpCount = min($trunkHeight - $sideUpCount, self::LEADUP_LARGE);
-		$total = $leadUpCount + $sideUpCount + 1;
-		if($total < $trunkHeight){
-			$leadUpCount += ($trunkHeight - $total);
+		for($i = 0; $i < min(2, $trunkHeight - $branchStart + 1); ++$i){
+			$cx += Facing::OFFSET[$direction][0];
+			$cz += Facing::OFFSET[$direction][2];
+			$transaction->addBlockAt($cx, $cy, $cz, $this->trunkBlock);
+			$cy++;
+			$transaction->addBlockAt($cx, $cy, $cz, $this->trunkBlock);
 		}
 
-		for($i = 0; $i < $total; ++$i){
-			$isLeadUp = $i < $leadUpCount;
-			$isSideUp = $i < $leadUpCount + $sideUpCount - 1;
-
-			if(!$isLeadUp){
-				$cx += Facing::OFFSET[$direction][0];
-				$cz += Facing::OFFSET[$direction][2];
-			}
-
-			if($this->canOverride($transaction->fetchBlockAt($cx, $cy, $cz))){
-				$transaction->addBlockAt($cx, $cy, $cz, $this->trunkBlock);
-			}
-
-			if($i >= self::MIN_HEIGHT_FOR_LEAVES){
-				$this->foliageAttachments[] = new Vector3($cx, $cy, $cz);
-			}
-
-			if($isLeadUp || $isSideUp){
-				$cy++;
-			}
-		}
+		$this->foliageAttachments[] = new Vector3($cx, $cy, $cz);
+		$this->foliageAttachments[] = new Vector3($x, $y + $branchStart, $z);
 	}
 
 	protected function placeCanopy(int $x, int $y, int $z, Random $random, BlockTransaction $transaction) : void{
-		$radius = 3;
-		$foliageHeight = 2;
-		$attempts = 50;
+		foreach($this->foliageAttachments as $index => $attachment){
+			$cx = $attachment->getFloorX();
+			$cy = $attachment->getFloorY();
+			$cz = $attachment->getFloorZ();
 
-		$visited = [];
-		foreach($this->foliageAttachments as $attachment){
-			$centerX = $attachment->getFloorX();
-			$centerY = $attachment->getFloorY();
-			$centerZ = $attachment->getFloorZ();
+			$this->placeLeafLayer($transaction, $cx, $cy + 1, $cz, 1, $random);
+			$this->placeLeafLayer($transaction, $cx, $cy, $cz, $index === 0 ? 3 : 2, $random);
+			$this->placeLeafLayer($transaction, $cx, $cy - 1, $cz, 2, $random, trimCorners: true);
+			$this->placeLeafLayer($transaction, $cx, $cy - 2, $cz, 1, $random, trimCorners: true);
+		}
+	}
 
-			for($a = 0; $a < $attempts; ++$a){
-				$dx = $random->nextBoundedInt($radius) - $random->nextBoundedInt($radius);
-				$dy = $random->nextBoundedInt($foliageHeight) - $random->nextBoundedInt($foliageHeight);
-				$dz = $random->nextBoundedInt($radius) - $random->nextBoundedInt($radius);
-
-				$xx = $centerX + $dx;
-				$yy = $centerY + $dy;
-				$zz = $centerZ + $dz;
-
-				$hash = World::blockHash($xx, $yy, $zz);
-				if(isset($visited[$hash])){
+	private function placeLeafLayer(BlockTransaction $transaction, int $centerX, int $y, int $centerZ, int $radius, Random $random, bool $trimCorners = false) : void{
+		for($x = -$radius; $x <= $radius; ++$x){
+			for($z = -$radius; $z <= $radius; ++$z){
+				if($trimCorners && abs($x) === $radius && abs($z) === $radius){
 					continue;
 				}
-				$visited[$hash] = true;
 
-				$existing = $transaction->fetchBlockAt($xx, $yy, $zz);
-				if($existing->isTransparent()){
-					$leafBlock = ($random->nextBoundedInt(4) === 0) ? VanillaBlocks::FLOWERING_AZALEA_LEAVES() : VanillaBlocks::AZALEA_LEAVES();
-					$transaction->addBlockAt($xx, $yy, $zz, $leafBlock);
+				$xx = $centerX + $x;
+				$zz = $centerZ + $z;
+				if($transaction->fetchBlockAt($xx, $y, $zz)->canBeReplaced()){
+					$transaction->addBlockAt(
+						$xx,
+						$y,
+						$zz,
+						$random->nextBoundedInt(4) === 0 ? VanillaBlocks::FLOWERING_AZALEA_LEAVES() : VanillaBlocks::AZALEA_LEAVES()
+					);
 				}
 			}
 		}

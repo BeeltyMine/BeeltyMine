@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\Fallable;
 use pocketmine\block\utils\PointedDripstoneThickness;
 use pocketmine\block\utils\SupportType;
 use pocketmine\data\runtime\RuntimeDataDescriber;
+use pocketmine\entity\Entity;
+use pocketmine\entity\Location;
+use pocketmine\entity\object\FallingBlock;
 use pocketmine\item\Item;
 use pocketmine\math\Axis;
 use pocketmine\math\AxisAlignedBB;
@@ -14,8 +18,9 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\world\BlockTransaction;
+use function max;
 
-final class PointedDripstone extends Transparent{
+final class PointedDripstone extends Transparent implements Fallable{
 	private PointedDripstoneThickness $thickness = PointedDripstoneThickness::TIP;
 	private bool $hanging = false;
 
@@ -86,7 +91,13 @@ final class PointedDripstone extends Transparent{
 
 	public function onNearbyBlockChange() : void{
 		if(!$this->canBeSupportedAt($this)){
-			$this->position->getWorld()->useBreakOn($this->position);
+			if($this->hanging){
+				$this->collapseHangingDripstone();
+			}else{
+				$world = $this->position->getWorld();
+				$world->setBlock($this->position, VanillaBlocks::AIR());
+				$world->dropItem($this->position->add(0.5, 0.5, 0.5), $this->asItem());
+			}
 			return;
 		}
 
@@ -94,6 +105,37 @@ final class PointedDripstone extends Transparent{
 		if($newThickness !== $this->thickness){
 			$this->position->getWorld()->setBlock($this->position, (clone $this)->setThickness($newThickness));
 		}
+	}
+
+	public function tickFalling() : ?Block{
+		return null;
+	}
+
+	public function onHitGround(FallingBlock $blockEntity) : bool{
+		return false;
+	}
+
+	public function getFallDamagePerBlock() : float{
+		return 1.0;
+	}
+
+	public function getMaxFallDamage() : float{
+		return 40.0;
+	}
+
+	public function getLandSound() : ?\pocketmine\world\sound\Sound{
+		return null;
+	}
+
+	public function onEntityLand(Entity $entity) : ?float{
+		if(!$this->hanging && $this->thickness === PointedDripstoneThickness::TIP){
+			$fallDistance = $entity->getFallDistance();
+			if($fallDistance > 0){
+				$entity->setFallDistance(max($fallDistance, ($fallDistance * 2.0) + 1.0));
+			}
+		}
+
+		return null;
 	}
 
 	protected function recalculateCollisionBoxes() : array{
@@ -164,5 +206,22 @@ final class PointedDripstone extends Transparent{
 
 	private static function isOppositeOrientation(Block $block, bool $hanging) : bool{
 		return $block instanceof self && $block->hanging !== $hanging;
+	}
+
+	private function collapseHangingDripstone() : void{
+		$world = $this->position->getWorld();
+		$current = $this;
+
+		while($current instanceof self && $current->hanging){
+			$position = $current->position;
+			$next = $world->getBlock($position->getSide(Facing::DOWN));
+
+			$world->setBlock($position, VanillaBlocks::AIR());
+
+			$fall = new FallingBlock(Location::fromObject($position->add(0.5, 0, 0.5), $world), clone $current);
+			$fall->spawnToAll();
+
+			$current = $next;
+		}
 	}
 }

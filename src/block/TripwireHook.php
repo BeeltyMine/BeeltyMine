@@ -81,7 +81,7 @@ class TripwireHook extends Flowable implements HorizontalFacing{
 
 	public function onNearbyBlockChange() : void{
 		if(!$this->canBeSupportedAt($this, Facing::opposite($this->facing))){
-			$this->position->getWorld()->useBreakOn($this->position);
+			$this->position->getWorld()->setBlock($this->position, VanillaBlocks::AIR());
 			return;
 		}
 
@@ -96,7 +96,7 @@ class TripwireHook extends Flowable implements HorizontalFacing{
 		}
 
 		if(!$current->canBeSupportedAt($current, Facing::opposite($current->facing))){
-			$world->useBreakOn($this->position);
+			$world->setBlock($this->position, VanillaBlocks::AIR());
 			return;
 		}
 

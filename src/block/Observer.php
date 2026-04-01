@@ -43,7 +43,7 @@ class Observer extends Opaque implements AnyFacing, PoweredByRedstone{
 	use PoweredByRedstoneTrait;
 
 	private const PULSE_DELAY_TICKS = 2;
-	private const MIN_TRIGGER_INTERVAL_TICKS = 6;
+	private const MIN_TRIGGER_INTERVAL_TICKS = 8;
 
 	/** @var string[] */
 	private static array $lastObservedState = [];

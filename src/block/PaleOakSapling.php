@@ -11,8 +11,8 @@ use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\utils\Random;
-use pocketmine\world\generator\object\TreeFactory;
-use pocketmine\world\generator\object\TreeType;
+use pocketmine\world\generator\object\PaleOakTree;
+use pocketmine\world\generator\object\SmallPaleOakTree;
 use function mt_rand;
 
 final class PaleOakSapling extends Sapling{
@@ -44,12 +44,14 @@ final class PaleOakSapling extends Sapling{
 
 	private function growPaleOak(?Player $player) : bool{
 		[$anchorX, $anchorZ] = $this->findClusterAnchor();
-		if($anchorX === null || $anchorZ === null){
-			return false;
+		$isBigTree = $anchorX !== null && $anchorZ !== null;
+		if(!$isBigTree){
+			$anchorX = $this->position->getFloorX();
+			$anchorZ = $this->position->getFloorZ();
 		}
 
 		$random = new Random(mt_rand());
-		$tree = TreeFactory::get($random, TreeType::PALE_OAK);
+		$tree = $isBigTree ? new PaleOakTree() : new SmallPaleOakTree(4, 7);
 		$transaction = $tree?->getBlockTransaction($this->position->getWorld(), $anchorX, $this->position->getFloorY(), $anchorZ, $random);
 		if($transaction === null){
 			return false;

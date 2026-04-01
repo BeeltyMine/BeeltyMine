@@ -33,7 +33,9 @@ final class PaleHangingMoss extends Flowable{
 
 	private function canBeSupportedAt(Block $block) : bool{
 		$above = $block->getSide(Facing::UP);
-		return $above instanceof self || $block->getAdjacentSupportType(Facing::UP)->hasCenterSupport();
+		return $above instanceof self ||
+			$above instanceof Leaves ||
+			$block->getAdjacentSupportType(Facing::UP)->hasCenterSupport();
 	}
 
 	public function onNearbyBlockChange() : void{

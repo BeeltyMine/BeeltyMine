@@ -33,6 +33,7 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\utils\Random;
+use pocketmine\world\generator\object\BigSpruceTree;
 use pocketmine\world\generator\object\TreeFactory;
 use function mt_rand;
 
@@ -95,8 +96,22 @@ class Sapling extends Flowable{
 
 	private function grow(?Player $player) : bool{
 		$random = new Random(mt_rand());
-		$tree = TreeFactory::get($random, $this->saplingType->getTreeType());
-		$transaction = $tree?->getBlockTransaction($this->position->getWorld(), $this->position->getFloorX(), $this->position->getFloorY(), $this->position->getFloorZ(), $random);
+		$x = $this->position->getFloorX();
+		$y = $this->position->getFloorY();
+		$z = $this->position->getFloorZ();
+
+		$tree = null;
+		if($this->saplingType === SaplingType::SPRUCE){
+			[$anchorX, $anchorZ] = $this->findSpruceClusterAnchor();
+			if($anchorX !== null && $anchorZ !== null){
+				$x = $anchorX;
+				$z = $anchorZ;
+				$tree = new BigSpruceTree();
+			}
+		}
+
+		$tree ??= TreeFactory::get($random, $this->saplingType->getTreeType());
+		$transaction = $tree?->getBlockTransaction($this->position->getWorld(), $x, $y, $z, $random);
 		if($transaction === null){
 			return false;
 		}
@@ -107,6 +122,35 @@ class Sapling extends Flowable{
 			return $transaction->apply();
 		}
 		return false;
+	}
+
+	/**
+	 * @return array{0: int|null, 1: int|null}
+	 */
+	private function findSpruceClusterAnchor() : array{
+		$x = $this->position->getFloorX();
+		$y = $this->position->getFloorY();
+		$z = $this->position->getFloorZ();
+
+		foreach([[0, 0], [-1, 0], [0, -1], [-1, -1]] as [$xOff, $zOff]){
+			$anchorX = $x + $xOff;
+			$anchorZ = $z + $zOff;
+			if(
+				$this->isSameSaplingTypeAt($anchorX, $y, $anchorZ, SaplingType::SPRUCE) &&
+				$this->isSameSaplingTypeAt($anchorX + 1, $y, $anchorZ, SaplingType::SPRUCE) &&
+				$this->isSameSaplingTypeAt($anchorX, $y, $anchorZ + 1, SaplingType::SPRUCE) &&
+				$this->isSameSaplingTypeAt($anchorX + 1, $y, $anchorZ + 1, SaplingType::SPRUCE)
+			){
+				return [$anchorX, $anchorZ];
+			}
+		}
+
+		return [null, null];
+	}
+
+	private function isSameSaplingTypeAt(int $x, int $y, int $z, SaplingType $saplingType) : bool{
+		$block = $this->position->getWorld()->getBlockAt($x, $y, $z);
+		return $block instanceof self && $block->saplingType === $saplingType;
 	}
 
 	public function getFuelTime() : int{

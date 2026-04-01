@@ -58,6 +58,7 @@
         "BARRIER": 1,
         "BASALT": 3,
         "BEACON": 1,
+        "BEE_NEST": 24,
         "BEEHIVE": 24,
         "BED": 256,
         "BEDROCK": 2,

@@ -31,6 +31,7 @@ use pocketmine\block\BambooSapling;
 use pocketmine\block\Barrel;
 use pocketmine\block\Bed;
 use pocketmine\block\Bedrock;
+use pocketmine\block\BeeNest;
 use pocketmine\block\Beehive;
 use pocketmine\block\Bell;
 use pocketmine\block\BigDripleafHead;
@@ -1384,6 +1385,10 @@ final class VanillaBlockMappings{
 		]));
 		$reg->mapModel(Model::create(Blocks::CHISELED_QUARTZ(), Ids::CHISELED_QUARTZ_BLOCK)->properties([$commonProperties->pillarAxis]));
 		$reg->mapModel(Model::create(Blocks::CHEST(), Ids::CHEST)->properties([$commonProperties->horizontalFacingCardinal]));
+		$reg->mapModel(Model::create(Blocks::BEE_NEST(), Ids::BEE_NEST)->properties([
+			$commonProperties->horizontalFacingSWNE,
+			new IntProperty(StateNames::HONEY_LEVEL, 0, 5, fn(BeeNest $b) => $b->getHoneyLevel(), fn(BeeNest $b, int $v) => $b->setHoneyLevel($v))
+		]));
 		$reg->mapModel(Model::create(Blocks::BEEHIVE(), Ids::BEEHIVE)->properties([
 			$commonProperties->horizontalFacingSWNE,
 			new IntProperty(StateNames::HONEY_LEVEL, 0, 5, fn(Beehive $b) => $b->getHoneyLevel(), fn(Beehive $b, int $v) => $b->setHoneyLevel($v))

@@ -12,6 +12,7 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\utils\Random;
+use pocketmine\block\VanillaBlocks;
 use pocketmine\world\generator\object\TreeFactory;
 use pocketmine\world\generator\object\TreeType;
 use function mt_rand;
@@ -138,6 +139,13 @@ final class MangrovePropagule extends Flowable{
 		if($transaction === null){
 			return false;
 		}
+
+		$transaction->addBlockAt(
+			$this->position->getFloorX(),
+			$this->position->getFloorY(),
+			$this->position->getFloorZ(),
+			VanillaBlocks::AIR()
+		);
 
 		$ev = new StructureGrowEvent($this, $transaction, $player);
 		$ev->call();

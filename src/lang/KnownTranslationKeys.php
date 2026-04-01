@@ -159,6 +159,7 @@ final class KnownTranslationKeys{
 	public const DEATH_ATTACK_TRIDENT = "death.attack.trident";
 	public const DEATH_ATTACK_WITHER = "death.attack.wither";
 	public const DEATH_FELL_ACCIDENT_GENERIC = "death.fell.accident.generic";
+	public const DEATH_FELL_ACCIDENT_STALAGMITE = "death.fell.accident.stalagmite";
 	public const DEFAULT_GAMEMODE = "default_gamemode";
 	public const DEFAULT_VALUES_INFO = "default_values_info";
 	public const DISCONNECTIONSCREEN_INVALIDNAME = "disconnectionScreen.invalidName";

@@ -33,7 +33,9 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\utils\Random;
+use pocketmine\world\generator\object\BigJungleTree;
 use pocketmine\world\generator\object\BigSpruceTree;
+use pocketmine\world\generator\object\DarkOakTree;
 use pocketmine\world\generator\object\TreeFactory;
 use function mt_rand;
 
@@ -101,13 +103,35 @@ class Sapling extends Flowable{
 		$z = $this->position->getFloorZ();
 
 		$tree = null;
-		if($this->saplingType === SaplingType::SPRUCE){
-			[$anchorX, $anchorZ] = $this->findSpruceClusterAnchor();
-			if($anchorX !== null && $anchorZ !== null){
+		switch($this->saplingType){
+			case SaplingType::SPRUCE:
+				[$anchorX, $anchorZ] = $this->findClusterAnchor(SaplingType::SPRUCE);
+				if($anchorX !== null && $anchorZ !== null){
+					$x = $anchorX;
+					$z = $anchorZ;
+					$tree = new BigSpruceTree();
+				}
+				break;
+
+			case SaplingType::JUNGLE:
+				[$anchorX, $anchorZ] = $this->findClusterAnchor(SaplingType::JUNGLE);
+				if($anchorX !== null && $anchorZ !== null){
+					$x = $anchorX;
+					$z = $anchorZ;
+					$tree = new BigJungleTree();
+				}
+				break;
+
+			case SaplingType::DARK_OAK:
+				[$anchorX, $anchorZ] = $this->findClusterAnchor(SaplingType::DARK_OAK);
+				if($anchorX === null || $anchorZ === null){
+					return false;
+				}
+
 				$x = $anchorX;
 				$z = $anchorZ;
-				$tree = new BigSpruceTree();
-			}
+				$tree = new DarkOakTree();
+				break;
 		}
 
 		$tree ??= TreeFactory::get($random, $this->saplingType->getTreeType());
@@ -127,7 +151,7 @@ class Sapling extends Flowable{
 	/**
 	 * @return array{0: int|null, 1: int|null}
 	 */
-	private function findSpruceClusterAnchor() : array{
+	private function findClusterAnchor(SaplingType $saplingType) : array{
 		$x = $this->position->getFloorX();
 		$y = $this->position->getFloorY();
 		$z = $this->position->getFloorZ();
@@ -136,10 +160,10 @@ class Sapling extends Flowable{
 			$anchorX = $x + $xOff;
 			$anchorZ = $z + $zOff;
 			if(
-				$this->isSameSaplingTypeAt($anchorX, $y, $anchorZ, SaplingType::SPRUCE) &&
-				$this->isSameSaplingTypeAt($anchorX + 1, $y, $anchorZ, SaplingType::SPRUCE) &&
-				$this->isSameSaplingTypeAt($anchorX, $y, $anchorZ + 1, SaplingType::SPRUCE) &&
-				$this->isSameSaplingTypeAt($anchorX + 1, $y, $anchorZ + 1, SaplingType::SPRUCE)
+				$this->isSameSaplingTypeAt($anchorX, $y, $anchorZ, $saplingType) &&
+				$this->isSameSaplingTypeAt($anchorX + 1, $y, $anchorZ, $saplingType) &&
+				$this->isSameSaplingTypeAt($anchorX, $y, $anchorZ + 1, $saplingType) &&
+				$this->isSameSaplingTypeAt($anchorX + 1, $y, $anchorZ + 1, $saplingType)
 			){
 				return [$anchorX, $anchorZ];
 			}

@@ -756,6 +756,12 @@ final class KnownTranslationFactory{
 		]);
 	}
 
+	public static function death_fell_accident_stalagmite(Translatable|string $param0) : Translatable{
+		return new Translatable(KnownTranslationKeys::DEATH_FELL_ACCIDENT_STALAGMITE, [
+			0 => $param0,
+		]);
+	}
+
 	public static function default_gamemode() : Translatable{
 		return new Translatable(KnownTranslationKeys::DEFAULT_GAMEMODE, []);
 	}

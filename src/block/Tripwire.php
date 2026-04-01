@@ -24,10 +24,16 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\data\runtime\RuntimeDataDescriber;
+use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
+use pocketmine\math\AxisAlignedBB;
+use pocketmine\math\Facing;
+use pocketmine\player\Player;
 
 class Tripwire extends Flowable{
+	private const DEACTIVATION_DELAY_TICKS = 10;
+
 	protected bool $triggered = false;
 	protected bool $suspended = false; //unclear usage, makes hitbox bigger if set
 	protected bool $connected = false;
@@ -72,7 +78,83 @@ class Tripwire extends Flowable{
 		return $this;
 	}
 
+	public function hasEntityCollision() : bool{
+		return true;
+	}
+
+	public function onPostPlace() : void{
+		$this->notifyAttachedHooks();
+	}
+
+	public function onNearbyBlockChange() : void{
+		$this->notifyAttachedHooks();
+	}
+
+	public function onEntityInside(Entity $entity) : bool{
+		if(!self::canEntityTrigger($entity)){
+			return true;
+		}
+
+		$world = $this->position->getWorld();
+		if(!$this->triggered){
+			$world->setBlock($this->position, (clone $this)->setTriggered(true), false);
+			$world->notifyNeighbourBlockUpdate($this->position);
+			$this->notifyAttachedHooks();
+		}
+
+		$world->scheduleDelayedBlockUpdate($this->position, self::DEACTIVATION_DELAY_TICKS);
+		return true;
+	}
+
+	public function onScheduledUpdate() : void{
+		$world = $this->position->getWorld();
+		$current = $world->getBlock($this->position);
+		if(!$current instanceof self){
+			return;
+		}
+
+		$triggered = $current->hasTriggeringEntities();
+		if($current->triggered !== $triggered){
+			$world->setBlock($this->position, (clone $current)->setTriggered($triggered), false);
+			$world->notifyNeighbourBlockUpdate($this->position);
+			$current->notifyAttachedHooks();
+		}
+
+		if($triggered){
+			$world->scheduleDelayedBlockUpdate($this->position, self::DEACTIVATION_DELAY_TICKS);
+		}
+	}
+
+	public function onBreak(Item $item, ?Player $player = null, array &$returnedItems = []) : bool{
+		$this->notifyAttachedHooks();
+		return parent::onBreak($item, $player, $returnedItems);
+	}
+
 	public function asItem() : Item{
 		return VanillaItems::STRING();
+	}
+
+	private function notifyAttachedHooks() : void{
+		TripwireHook::scheduleHooksForTripwirePosition($this->position->getWorld(), $this->position);
+	}
+
+	private function hasTriggeringEntities() : bool{
+		foreach($this->position->getWorld()->getNearbyEntities($this->getActivationBox()) as $entity){
+			if(self::canEntityTrigger($entity)){
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private function getActivationBox() : AxisAlignedBB{
+		return AxisAlignedBB::one()
+			->trim(Facing::UP, 15 / 16)
+			->offset($this->position->x, $this->position->y, $this->position->z);
+	}
+
+	private static function canEntityTrigger(Entity $entity) : bool{
+		return !($entity instanceof Player && $entity->isSpectator());
 	}
 }

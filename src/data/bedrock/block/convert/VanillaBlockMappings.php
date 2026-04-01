@@ -48,9 +48,11 @@ use pocketmine\block\Copper;
 use pocketmine\block\CopperLantern;
 use pocketmine\block\DaylightSensor;
 use pocketmine\block\DetectorRail;
+use pocketmine\block\Dispenser;
 use pocketmine\block\Dirt;
 use pocketmine\block\DoublePitcherCrop;
 use pocketmine\block\DoublePlant;
+use pocketmine\block\Dropper;
 use pocketmine\block\EndPortalFrame;
 use pocketmine\block\EndRod;
 use pocketmine\block\Farmland;
@@ -72,11 +74,14 @@ use pocketmine\block\MobHead;
 use pocketmine\block\NetherPortal;
 use pocketmine\block\NetherVines;
 use pocketmine\block\NetherWartPlant;
+use pocketmine\block\Observer;
 use pocketmine\block\PaleHangingMoss;
 use pocketmine\block\PaleMossCarpet;
 use pocketmine\block\PinkPetals;
 use pocketmine\block\PitcherCrop;
 use pocketmine\block\PointedDripstone;
+use pocketmine\block\Piston;
+use pocketmine\block\PistonArmCollision;
 use pocketmine\block\PoweredRail;
 use pocketmine\block\Rail;
 use pocketmine\block\RedMushroomBlock;
@@ -89,6 +94,7 @@ use pocketmine\block\SeaPickle;
 use pocketmine\block\SmallDripleaf;
 use pocketmine\block\SnowLayer;
 use pocketmine\block\Sponge;
+use pocketmine\block\StickyPistonArmCollision;
 use pocketmine\block\StraightOnlyRail;
 use pocketmine\block\Sugarcane;
 use pocketmine\block\SweetBerryBush;
@@ -1407,6 +1413,14 @@ final class VanillaBlockMappings{
 			new BoolProperty(StateNames::RAIL_DATA_BIT, fn(DetectorRail $b) => $b->isActivated(), fn(DetectorRail $b, bool $v) => $b->setActivated($v)),
 			new IntProperty(StateNames::RAIL_DIRECTION, 0, 5, fn(StraightOnlyRail $b) => $b->getShape(), fn(StraightOnlyRail $b, int $v) => $b->setShape($v)) //TODO: shared with ActivatorRail
 		]));
+		$reg->mapModel(Model::create(Blocks::DISPENSER(), Ids::DISPENSER)->properties([
+			$commonProperties->anyFacingClassic,
+			new BoolProperty(StateNames::TRIGGERED_BIT, fn(Dispenser $b) => $b->isTriggered(), fn(Dispenser $b, bool $v) => $b->setTriggered($v)),
+		]));
+		$reg->mapModel(Model::create(Blocks::DROPPER(), Ids::DROPPER)->properties([
+			$commonProperties->anyFacingClassic,
+			new BoolProperty(StateNames::TRIGGERED_BIT, fn(Dropper $b) => $b->isTriggered(), fn(Dropper $b, bool $v) => $b->setTriggered($v)),
+		]));
 
 		//E
 		$reg->mapModel(Model::create(Blocks::ENDER_CHEST(), Ids::ENDER_CHEST)->properties([$commonProperties->horizontalFacingCardinal]));
@@ -1476,8 +1490,24 @@ final class VanillaBlockMappings{
 		$reg->mapModel(Model::create(Blocks::NETHER_PORTAL(), Ids::PORTAL)->properties([
 			new ValueFromStringProperty(StateNames::PORTAL_AXIS, ValueMappings::getInstance()->portalAxis, fn(NetherPortal $b) => $b->getAxis(), fn(NetherPortal $b, int $v) => $b->setAxis($v))
 		]));
+		$reg->mapModel(Model::create(Blocks::OBSERVER(), Ids::OBSERVER)->properties([
+			new ValueFromStringProperty(StateNames::MC_FACING_DIRECTION, ValueMappings::getInstance()->blockFace, fn(Observer $b) => $b->getFacing(), fn(Observer $b, int $v) => $b->setFacing($v)),
+			new BoolProperty(StateNames::POWERED_BIT, fn(Observer $b) => $b->isPowered(), fn(Observer $b, bool $v) => $b->setPowered($v)),
+		]));
 
 		//P
+		$reg->mapModel(Model::create(Blocks::PISTON(), Ids::PISTON)->properties([
+			new ValueFromIntProperty(StateNames::FACING_DIRECTION, ValueMappings::getInstance()->facingEndRod, fn(Piston $b) => $b->getFacing(), fn(Piston $b, int $v) => $b->setFacing($v)),
+		]));
+		$reg->mapModel(Model::create(Blocks::PISTON_ARM_COLLISION(), Ids::PISTON_ARM_COLLISION)->properties([
+			new ValueFromIntProperty(StateNames::FACING_DIRECTION, ValueMappings::getInstance()->facingEndRod, fn(PistonArmCollision $b) => $b->getFacing(), fn(PistonArmCollision $b, int $v) => $b->setFacing($v)),
+		]));
+		$reg->mapModel(Model::create(Blocks::STICKY_PISTON(), Ids::STICKY_PISTON)->properties([
+			new ValueFromIntProperty(StateNames::FACING_DIRECTION, ValueMappings::getInstance()->facingEndRod, fn(Piston $b) => $b->getFacing(), fn(Piston $b, int $v) => $b->setFacing($v)),
+		]));
+		$reg->mapModel(Model::create(Blocks::STICKY_PISTON_ARM_COLLISION(), Ids::STICKY_PISTON_ARM_COLLISION)->properties([
+			new ValueFromIntProperty(StateNames::FACING_DIRECTION, ValueMappings::getInstance()->facingEndRod, fn(StickyPistonArmCollision $b) => $b->getFacing(), fn(StickyPistonArmCollision $b, int $v) => $b->setFacing($v)),
+		]));
 		$reg->mapModel(Model::create(Blocks::PINK_PETALS(), Ids::PINK_PETALS)->properties([
 			//Pink petals only uses 0-3, but GROWTH state can go up to 7
 			new IntProperty(StateNames::GROWTH, 0, 7, fn(PinkPetals $b) => $b->getCount(), fn(PinkPetals $b, int $v) => $b->setCount(min($v, PinkPetals::MAX_COUNT)), offset: 1),

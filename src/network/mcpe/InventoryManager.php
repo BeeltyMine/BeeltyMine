@@ -28,6 +28,8 @@ use pocketmine\block\inventory\BlockInventory;
 use pocketmine\block\inventory\BrewingStandInventory;
 use pocketmine\block\inventory\CartographyTableInventory;
 use pocketmine\block\inventory\CraftingTableInventory;
+use pocketmine\block\inventory\DispenserInventory;
+use pocketmine\block\inventory\DropperInventory;
 use pocketmine\block\inventory\EnchantInventory;
 use pocketmine\block\inventory\FurnaceInventory;
 use pocketmine\block\inventory\HopperInventory;
@@ -369,6 +371,8 @@ class InventoryManager{
 		if($inv instanceof BlockInventory){
 			$blockPosition = BlockPosition::fromVector3($inv->getHolder());
 			$windowType = match(true){
+				$inv instanceof DropperInventory => WindowTypes::DROPPER,
+				$inv instanceof DispenserInventory => WindowTypes::DISPENSER,
 				$inv instanceof LoomInventory => WindowTypes::LOOM,
 				$inv instanceof FurnaceInventory => match($inv->getFurnaceType()){
 						FurnaceType::FURNACE => WindowTypes::FURNACE,

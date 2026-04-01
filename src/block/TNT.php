@@ -1,21 +1,24 @@
 <?php
-
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
- *
+ *  ____            _ _         __  __ _            
+ * |  _ \          | | |       |  \/  (_)           
+ * | |_) | ___  ___| | |_ _   _| \  / |_ _ __   ___ 
+ * |  _ < / _ \/ _ \ | __| | | | |\/| | | '_ \ / _ \
+ * | |_) |  __/  __/ | |_| |_| | |  | | | | | |  __/
+ * |____/ \___|\___|_|\__|\__, |_|  |_|_|_| |_|\___|
+ *                         __/ |                    
+ *                        |___/                     
+ *    _  _
+ *   | )/ )
+ *  \\ |//,' __
+ * (")(_)-"()))=- BeeltyMine Team @ Since Ayrz
+ *   (\\
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
- *
  *
  */
 
@@ -23,6 +26,7 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\RedstonePowerHelper;
 use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\entity\Location;
 use pocketmine\entity\object\PrimedTNT;
@@ -75,6 +79,22 @@ class TNT extends Opaque{
 			return true;
 		}
 		return parent::onBreak($item, $player, $returnedItems);
+	}
+
+	public function onPostPlace() : void{
+		$this->onNearbyBlockChange();
+	}
+
+	public function onNearbyBlockChange() : void{
+		$world = $this->position->getWorld();
+		$current = $world->getBlock($this->position);
+		if(!$current instanceof self){
+			return;
+		}
+
+		if(RedstonePowerHelper::getStrongestNeighborPower($current) > 0){
+			$current->ignite();
+		}
 	}
 
 	public function onInteract(Item $item, int $face, Vector3 $clickVector, ?Player $player = null, array &$returnedItems = []) : bool{

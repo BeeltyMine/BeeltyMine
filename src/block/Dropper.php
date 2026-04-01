@@ -27,24 +27,13 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-use pocketmine\block\utils\PoweredByRedstone;
-use pocketmine\block\utils\RailPoweredByRedstoneTrait;
-use pocketmine\block\utils\RedstonePowerHelper;
+use pocketmine\block\inventory\DispenserInventory;
+use pocketmine\item\Item;
 
-class PoweredRail extends StraightOnlyRail implements PoweredByRedstone{
-	use RailPoweredByRedstoneTrait;
-
-	public function onNearbyBlockChange() : void{
-		$world = $this->position->getWorld();
-		parent::onNearbyBlockChange();
-
-		if(!$world->getBlock($this->position) instanceof self){
-			return;
-		}
-
-		$shouldBePowered = RedstonePowerHelper::getStrongestNeighborPower($this) > 0;
-		if($shouldBePowered !== $this->powered){
-			$world->setBlock($this->position, (clone $this)->setPowered($shouldBePowered));
-		}
-	}
+class Dropper extends Dispenser
+{
+    protected function tryDispenseSpecialItem(DispenserInventory $inventory, int $slot, Item $item): bool
+    {
+        return false;
+    }
 }

@@ -25,26 +25,15 @@
 
 declare(strict_types=1);
 
-namespace pocketmine\block;
+namespace pocketmine\world\sound;
 
-use pocketmine\block\utils\PoweredByRedstone;
-use pocketmine\block\utils\RailPoweredByRedstoneTrait;
-use pocketmine\block\utils\RedstonePowerHelper;
+use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
+use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 
-class PoweredRail extends StraightOnlyRail implements PoweredByRedstone{
-	use RailPoweredByRedstoneTrait;
+class FenceGateOpenSound implements Sound{
 
-	public function onNearbyBlockChange() : void{
-		$world = $this->position->getWorld();
-		parent::onNearbyBlockChange();
-
-		if(!$world->getBlock($this->position) instanceof self){
-			return;
-		}
-
-		$shouldBePowered = RedstonePowerHelper::getStrongestNeighborPower($this) > 0;
-		if($shouldBePowered !== $this->powered){
-			$world->setBlock($this->position, (clone $this)->setPowered($shouldBePowered));
-		}
+	public function encode(Vector3 $pos) : array{
+		return [LevelSoundEventPacket::nonActorSound(LevelSoundEvent::FENCE_GATE_OPEN, $pos, false)];
 	}
 }

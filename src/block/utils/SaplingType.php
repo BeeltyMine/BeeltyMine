@@ -36,6 +36,7 @@ use pocketmine\world\generator\object\TreeType;
  * @method static SaplingType JUNGLE()
  * @method static SaplingType OAK()
  * @method static SaplingType SPRUCE()
+ * @method static SaplingType CHERRY()
  */
 enum SaplingType{
 	use LegacyEnumShimTrait;
@@ -46,7 +47,7 @@ enum SaplingType{
 	case JUNGLE;
 	case ACACIA;
 	case DARK_OAK;
-	//TODO: cherry
+	case CHERRY;
 
 	public function getTreeType() : TreeType{
 		return match($this){
@@ -56,6 +57,7 @@ enum SaplingType{
 			self::JUNGLE => TreeType::JUNGLE,
 			self::ACACIA => TreeType::ACACIA,
 			self::DARK_OAK => TreeType::DARK_OAK,
+			self::CHERRY => TreeType::CHERRY,
 		};
 	}
 

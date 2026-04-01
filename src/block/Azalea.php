@@ -82,6 +82,7 @@ class Azalea extends Flowable{
 		$supportBlock = $block->getSide(Facing::DOWN);
 		return $supportBlock->getTypeId() === BlockTypeIds::CLAY ||
 			$supportBlock->hasTypeTag(BlockTypeTags::DIRT) ||
-			$supportBlock->hasTypeTag(BlockTypeTags::MUD);
+			$supportBlock->hasTypeTag(BlockTypeTags::MUD) ||
+			$supportBlock->hasTypeTag(BlockTypeTags::MOSS);
 	}
 }

@@ -915,6 +915,7 @@ final class VanillaBlocks{
 		self::register("activator_rail", fn(BID $id) => new ActivatorRail($id, "Activator Rail", $railBreakInfo));
 		self::register("anvil", fn(BID $id) => new Anvil($id, "Anvil", new Info(BreakInfo::pickaxe(5.0, ToolTier::WOOD, 6000.0))));
 		self::register("azalea", fn(BID $id) => new Azalea($id, "Azalea", new Info(BreakInfo::instant(), [Tags::POTTABLE_PLANTS])));
+		self::register("firefly_bush", fn(BID $id) => new FireflyBush($id, "Firefly Bush", new Info(BreakInfo::instant(), [Tags::POTTABLE_PLANTS])));
 		self::register("flowering_azalea", fn(BID $id) => new Azalea($id, "Flowering Azalea", new Info(BreakInfo::instant(), [Tags::POTTABLE_PLANTS])));
 		self::register("bamboo", fn(BID $id) => new Bamboo($id, "Bamboo", new Info(new class(1.0, ToolType::AXE) extends BreakInfo{
 			public function getBreakTime(Item $item) : float{
@@ -1294,6 +1295,7 @@ final class VanillaBlocks{
 			$name = $saplingType->getDisplayName();
 			self::register(strtolower($saplingType->name) . "_sapling", fn(BID $id) => new Sapling($id, $name . " Sapling", $saplingTypeInfo, $saplingType));
 		}
+		self::register("pale_oak_sapling", fn(BID $id) => new PaleOakSapling($id, "Pale Oak Sapling", $saplingTypeInfo));
 		foreach(LeavesType::cases() as $leavesType){
 			$name = $leavesType->getDisplayName();
 			self::register(strtolower($leavesType->name) . "_leaves", fn(BID $id) => new Leaves($id, $name . " Leaves", $leavesBreakInfo, $leavesType));
@@ -1386,8 +1388,19 @@ final class VanillaBlocks{
 		));
 
 		self::register("mangrove_roots", fn(BID $id) => new MangroveRoots($id, "Mangrove Roots", new Info(BreakInfo::axe(0.7))));
+		self::register("mangrove_propagule", fn(BID $id) => new MangrovePropagule($id, "Mangrove Propagule", new Info(BreakInfo::instant(), [Tags::POTTABLE_PLANTS])));
 		self::register("muddy_mangrove_roots", fn(BID $id) => new SimplePillar($id, "Muddy Mangrove Roots", new Info(BreakInfo::shovel(0.7), [Tags::MUD])));
+		self::register("moss_block", fn(BID $id) => new MossBlock($id, "Moss Block", new Info(new BreakInfo(0.1, ToolType::HOE), [Tags::MOSS])));
+		self::register("moss_carpet", fn(BID $id) => new MossCarpet($id, "Moss Carpet", new Info(new BreakInfo(0.1, ToolType::HOE))));
 		self::register("froglight", fn(BID $id) => new Froglight($id, "Froglight", new Info(new BreakInfo(0.3))));
+		self::register("pale_hanging_moss", fn(BID $id) => new PaleHangingMoss($id, "Pale Hanging Moss", new Info(BreakInfo::instant())));
+		self::register("pale_moss_block", fn(BID $id) => new PaleMossBlock($id, "Pale Moss Block", new Info(new BreakInfo(0.1, ToolType::HOE), [Tags::MOSS])));
+		self::register("pale_moss_carpet", fn(BID $id) => new PaleMossCarpet($id, "Pale Moss Carpet", new Info(new BreakInfo(0.1, ToolType::HOE))));
+		self::register("bee_nest", fn(BID $id) => new BeeNest($id, "Bee Nest", new Info(BreakInfo::axe(0.3))));
+		self::register("beehive", fn(BID $id) => new Beehive($id, "Beehive", new Info(BreakInfo::axe(0.6))));
+		self::register("dripstone_block", fn(BID $id) => new Opaque($id, "Dripstone Block", new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD))));
+		self::register("leaf_litter", fn(BID $id) => new LeafLitter($id, "Leaf Litter", new Info(BreakInfo::instant())));
+		self::register("pointed_dripstone", fn(BID $id) => new PointedDripstone($id, "Pointed Dripstone", new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD))));
 		self::register("sculk", fn(BID $id) => new Sculk($id, "Sculk", new Info(new BreakInfo(0.2, ToolType::HOE))));
 		self::register("reinforced_deepslate", fn(BID $id) => new class($id, "Reinforced Deepslate", new Info(new BreakInfo(55.0, ToolType::NONE, 0, 6000.0))) extends Opaque{
 			public function getDropsForCompatibleTool(Item $item) : array{

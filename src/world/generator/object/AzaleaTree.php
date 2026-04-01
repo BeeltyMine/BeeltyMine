@@ -25,115 +25,150 @@ namespace pocketmine\world\generator\object;
 
 use pocketmine\block\Block;
 use pocketmine\block\BlockTypeIds;
+use pocketmine\block\Leaves;
 use pocketmine\block\utils\DirtType;
 use pocketmine\block\VanillaBlocks;
-use pocketmine\math\Facing;
-use pocketmine\math\Vector3;
 use pocketmine\utils\Random;
 use pocketmine\world\BlockTransaction;
 use pocketmine\world\ChunkManager;
 use pocketmine\world\World;
-use function count;
-use function max;
-use function min;
 
 final class AzaleaTree extends Tree{
-	/** @var Vector3[] */
-	private array $foliageAttachments = [];
-
-	private const TREE_HEIGHT_BASE = 4;
-	private const TREE_HEIGHT_RANDOM = 3;
-	private const MIN_HEIGHT_FOR_LEAVES = 3;
-
-	private const LEADUP_SMALL = 2;
-	private const LEADUP_LARGE = 3;
-	private const SIDE_UP_STEPS = 2;
-
 	public function __construct(){
 		parent::__construct(VanillaBlocks::OAK_LOG(), VanillaBlocks::AZALEA_LEAVES(), 0);
 	}
 
 	public function getBlockTransaction(ChunkManager $world, int $x, int $y, int $z, Random $random) : ?BlockTransaction{
-		$this->treeHeight = $random->nextBoundedInt(self::TREE_HEIGHT_RANDOM) + self::TREE_HEIGHT_BASE;
-		$this->foliageAttachments = [];
-		return parent::getBlockTransaction($world, $x, $y, $z, $random);
-	}
+		$this->treeHeight = $random->nextBoundedInt(2) + 2;
 
-	protected function generateTrunkHeight(Random $random) : int{
-		return min(self::TREE_HEIGHT_BASE + $random->nextBoundedInt(2), 5);
-	}
+		if($y < World::Y_MIN + 1 || $y + $this->treeHeight + 2 >= World::Y_MAX){
+			return null;
+		}
 
-	protected function placeTrunk(int $x, int $y, int $z, Random $random, int $trunkHeight, BlockTransaction $transaction) : void{
+		$transaction = new BlockTransaction($world);
+		$topY = $y + $this->treeHeight;
+
+		for($i = 0; $i < $this->treeHeight + 1; ++$i){
+			$this->placeLogAt($transaction, $x, $y + $i, $z);
+		}
+
 		$transaction->addBlockAt($x, $y - 1, $z, VanillaBlocks::DIRT()->setDirtType(DirtType::ROOTED));
 
-		$direction = Facing::HORIZONTAL[$random->nextRange(0, count(Facing::HORIZONTAL) - 1)];
-		$cx = $x;
-		$cy = $y;
-		$cz = $z;
+		$azaleaLeaves = (clone VanillaBlocks::AZALEA_LEAVES())->setNoDecay(true)->setCheckDecay(false);
+		$floweringAzaleaLeaves = (clone VanillaBlocks::FLOWERING_AZALEA_LEAVES())->setNoDecay(true)->setCheckDecay(false);
 
-		$sideUpCount = min(self::SIDE_UP_STEPS, max(0, $trunkHeight - self::LEADUP_SMALL));
-		$leadUpCount = min($trunkHeight - $sideUpCount, self::LEADUP_LARGE);
-		$total = $leadUpCount + $sideUpCount + 1;
-		if($total < $trunkHeight){
-			$leadUpCount += ($trunkHeight - $total);
+		for($offX = -2; $offX <= 1; ++$offX){
+			for($offZ = -2; $offZ <= 1; ++$offZ){
+				$this->placeLeafSymmetric(
+					$transaction,
+					$x,
+					$topY + 1 + $random->nextRange(0, 1),
+					$z,
+					$offX,
+					$offZ,
+					$random->nextRange(0, 1),
+					$random->nextRange(0, 1),
+					$random,
+					$azaleaLeaves,
+					$floweringAzaleaLeaves
+				);
+
+				$this->placeLeafSymmetric(
+					$transaction,
+					$x,
+					$topY,
+					$z,
+					$offX,
+					$offZ,
+					0,
+					0,
+					$random,
+					$azaleaLeaves,
+					$floweringAzaleaLeaves
+				);
+
+				$this->placeLeafSymmetric(
+					$transaction,
+					$x,
+					$topY + 1,
+					$z,
+					$offX,
+					$offZ,
+					0,
+					0,
+					$random,
+					$azaleaLeaves,
+					$floweringAzaleaLeaves
+				);
+
+				$this->placeLeafSymmetric(
+					$transaction,
+					$x,
+					$topY + 2 + $random->nextRange(-1, 0),
+					$z,
+					$offX,
+					$offZ,
+					$random->nextRange(-1, 0),
+					$random->nextRange(-1, 0),
+					$random,
+					$azaleaLeaves,
+					$floweringAzaleaLeaves
+				);
+			}
 		}
 
-		for($i = 0; $i < $total; ++$i){
-			$isLeadUp = $i < $leadUpCount;
-			$isSideUp = $i < $leadUpCount + $sideUpCount - 1;
+		return $transaction;
+	}
 
-			if(!$isLeadUp){
-				$cx += Facing::OFFSET[$direction][0];
-				$cz += Facing::OFFSET[$direction][2];
-			}
-
-			if($this->canOverride($transaction->fetchBlockAt($cx, $cy, $cz))){
-				$transaction->addBlockAt($cx, $cy, $cz, $this->trunkBlock);
-			}
-
-			if($i >= self::MIN_HEIGHT_FOR_LEAVES){
-				$this->foliageAttachments[] = new Vector3($cx, $cy, $cz);
-			}
-
-			if($isLeadUp || $isSideUp){
-				$cy++;
-			}
+	private function placeLogAt(BlockTransaction $transaction, int $x, int $y, int $z) : void{
+		$typeId = $transaction->fetchBlockAt($x, $y, $z)->getTypeId();
+		if(
+			$typeId === BlockTypeIds::AIR ||
+			$typeId === BlockTypeIds::AZALEA ||
+			$typeId === BlockTypeIds::FLOWERING_AZALEA ||
+			$typeId === BlockTypeIds::AZALEA_LEAVES ||
+			$typeId === BlockTypeIds::FLOWERING_AZALEA_LEAVES
+		){
+			$transaction->addBlockAt($x, $y, $z, $this->trunkBlock);
 		}
 	}
 
-	protected function placeCanopy(int $x, int $y, int $z, Random $random, BlockTransaction $transaction) : void{
-		$radius = 3;
-		$foliageHeight = 2;
-		$attempts = 50;
-
-		$visited = [];
-		foreach($this->foliageAttachments as $attachment){
-			$centerX = $attachment->getFloorX();
-			$centerY = $attachment->getFloorY();
-			$centerZ = $attachment->getFloorZ();
-
-			for($a = 0; $a < $attempts; ++$a){
-				$dx = $random->nextBoundedInt($radius) - $random->nextBoundedInt($radius);
-				$dy = $random->nextBoundedInt($foliageHeight) - $random->nextBoundedInt($foliageHeight);
-				$dz = $random->nextBoundedInt($radius) - $random->nextBoundedInt($radius);
-
-				$xx = $centerX + $dx;
-				$yy = $centerY + $dy;
-				$zz = $centerZ + $dz;
-
-				$hash = World::blockHash($xx, $yy, $zz);
-				if(isset($visited[$hash])){
-					continue;
-				}
-				$visited[$hash] = true;
-
-				$existing = $transaction->fetchBlockAt($xx, $yy, $zz);
-				if($existing->isTransparent()){
-					$leafBlock = ($random->nextBoundedInt(4) === 0) ? VanillaBlocks::FLOWERING_AZALEA_LEAVES() : VanillaBlocks::AZALEA_LEAVES();
-					$transaction->addBlockAt($xx, $yy, $zz, $leafBlock);
-				}
-			}
+	private function placeLeafAt(
+		BlockTransaction $transaction,
+		int $x,
+		int $y,
+		int $z,
+		Random $random,
+		Leaves $azaleaLeaves,
+		Leaves $floweringAzaleaLeaves
+	) : void{
+		if($transaction->fetchBlockAt($x, $y, $z)->getTypeId() === BlockTypeIds::AIR){
+			$transaction->addBlockAt(
+				$x,
+				$y,
+				$z,
+				$random->nextBoundedInt(3) === 1 ? clone $floweringAzaleaLeaves : clone $azaleaLeaves
+			);
 		}
+	}
+
+	private function placeLeafSymmetric(
+		BlockTransaction $transaction,
+		int $x,
+		int $y,
+		int $z,
+		int $offX,
+		int $offZ,
+		int $addX,
+		int $addZ,
+		Random $random,
+		Leaves $azaleaLeaves,
+		Leaves $floweringAzaleaLeaves
+	) : void{
+		$this->placeLeafAt($transaction, $x + $offX + $addX, $y, $z + $offZ + $addZ, $random, $azaleaLeaves, $floweringAzaleaLeaves);
+		$this->placeLeafAt($transaction, $x - $offX + $addX, $y, $z + $offZ + $addZ, $random, $azaleaLeaves, $floweringAzaleaLeaves);
+		$this->placeLeafAt($transaction, $x + $offX + $addX, $y, $z - $offZ + $addZ, $random, $azaleaLeaves, $floweringAzaleaLeaves);
+		$this->placeLeafAt($transaction, $x - $offX + $addX, $y, $z - $offZ + $addZ, $random, $azaleaLeaves, $floweringAzaleaLeaves);
 	}
 
 	protected function canOverride(Block $block) : bool{

@@ -31,6 +31,8 @@ use pocketmine\block\BambooSapling;
 use pocketmine\block\Barrel;
 use pocketmine\block\Bed;
 use pocketmine\block\Bedrock;
+use pocketmine\block\BeeNest;
+use pocketmine\block\Beehive;
 use pocketmine\block\Bell;
 use pocketmine\block\BigDripleafHead;
 use pocketmine\block\Block;
@@ -60,16 +62,21 @@ use pocketmine\block\FrostedIce;
 use pocketmine\block\GlazedTerracotta;
 use pocketmine\block\Hopper;
 use pocketmine\block\Lantern;
+use pocketmine\block\LeafLitter;
 use pocketmine\block\Leaves;
 use pocketmine\block\Lectern;
 use pocketmine\block\Lever;
 use pocketmine\block\Light;
+use pocketmine\block\MangrovePropagule;
 use pocketmine\block\MobHead;
 use pocketmine\block\NetherPortal;
 use pocketmine\block\NetherVines;
 use pocketmine\block\NetherWartPlant;
+use pocketmine\block\PaleHangingMoss;
+use pocketmine\block\PaleMossCarpet;
 use pocketmine\block\PinkPetals;
 use pocketmine\block\PitcherCrop;
+use pocketmine\block\PointedDripstone;
 use pocketmine\block\PoweredRail;
 use pocketmine\block\Rail;
 use pocketmine\block\RedMushroomBlock;
@@ -123,6 +130,7 @@ use pocketmine\data\bedrock\block\convert\property\ValueFromIntProperty;
 use pocketmine\data\bedrock\block\convert\property\ValueFromStringProperty;
 use pocketmine\data\bedrock\block\convert\property\ValueMappings;
 use pocketmine\data\bedrock\block\convert\property\ValueSetFromIntProperty;
+use pocketmine\data\bedrock\block\convert\property\WallConnectionTypeShim;
 use pocketmine\math\Facing;
 use function array_map;
 use function min;
@@ -218,6 +226,7 @@ final class VanillaBlockMappings{
 		$reg->mapSimple(Blocks::DIORITE(), Ids::DIORITE);
 		$reg->mapSimple(Blocks::DRAGON_EGG(), Ids::DRAGON_EGG);
 		$reg->mapSimple(Blocks::DRIED_KELP(), Ids::DRIED_KELP_BLOCK);
+		$reg->mapSimple(Blocks::DRIPSTONE_BLOCK(), Ids::DRIPSTONE_BLOCK);
 		$reg->mapSimple(Blocks::ELEMENT_ACTINIUM(), Ids::ELEMENT_89);
 		$reg->mapSimple(Blocks::ELEMENT_ALUMINUM(), Ids::ELEMENT_13);
 		$reg->mapSimple(Blocks::ELEMENT_AMERICIUM(), Ids::ELEMENT_95);
@@ -345,6 +354,7 @@ final class VanillaBlockMappings{
 		$reg->mapSimple(Blocks::FERN(), Ids::FERN);
 		$reg->mapSimple(Blocks::FLETCHING_TABLE(), Ids::FLETCHING_TABLE);
 		$reg->mapSimple(Blocks::FLOWERING_AZALEA(), Ids::FLOWERING_AZALEA);
+		$reg->mapSimple(Blocks::FIREFLY_BUSH(), Ids::FIREFLY_BUSH);
 		$reg->mapSimple(Blocks::GILDED_BLACKSTONE(), Ids::GILDED_BLACKSTONE);
 		$reg->mapSimple(Blocks::GLASS(), Ids::GLASS);
 		$reg->mapSimple(Blocks::GLASS_PANE(), Ids::GLASS_PANE);
@@ -381,6 +391,8 @@ final class VanillaBlockMappings{
 		$reg->mapSimple(Blocks::LILY_PAD(), Ids::WATERLILY);
 		$reg->mapSimple(Blocks::MAGMA(), Ids::MAGMA);
 		$reg->mapSimple(Blocks::MANGROVE_ROOTS(), Ids::MANGROVE_ROOTS);
+		$reg->mapSimple(Blocks::MOSS_BLOCK(), Ids::MOSS_BLOCK);
+		$reg->mapSimple(Blocks::MOSS_CARPET(), Ids::MOSS_CARPET);
 		$reg->mapSimple(Blocks::MELON(), Ids::MELON_BLOCK);
 		$reg->mapSimple(Blocks::MONSTER_SPAWNER(), Ids::MOB_SPAWNER);
 		$reg->mapSimple(Blocks::MOSSY_COBBLESTONE(), Ids::MOSSY_COBBLESTONE);
@@ -398,6 +410,7 @@ final class VanillaBlockMappings{
 		$reg->mapSimple(Blocks::NETHER_WART_BLOCK(), Ids::NETHER_WART_BLOCK);
 		$reg->mapSimple(Blocks::NOTE_BLOCK(), Ids::NOTEBLOCK);
 		$reg->mapSimple(Blocks::OBSIDIAN(), Ids::OBSIDIAN);
+		$reg->mapSimple(Blocks::PALE_MOSS_BLOCK(), Ids::PALE_MOSS_BLOCK);
 		$reg->mapSimple(Blocks::PACKED_ICE(), Ids::PACKED_ICE);
 		$reg->mapSimple(Blocks::PACKED_MUD(), Ids::PACKED_MUD);
 		$reg->mapSimple(Blocks::PODZOL(), Ids::PODZOL);
@@ -550,9 +563,11 @@ final class VanillaBlockMappings{
 		foreach([
 			Ids::ACACIA_SAPLING => Blocks::ACACIA_SAPLING(),
 			Ids::BIRCH_SAPLING => Blocks::BIRCH_SAPLING(),
+			Ids::CHERRY_SAPLING => Blocks::CHERRY_SAPLING(),
 			Ids::DARK_OAK_SAPLING => Blocks::DARK_OAK_SAPLING(),
 			Ids::JUNGLE_SAPLING => Blocks::JUNGLE_SAPLING(),
 			Ids::OAK_SAPLING => Blocks::OAK_SAPLING(),
+			Ids::PALE_OAK_SAPLING => Blocks::PALE_OAK_SAPLING(),
 			Ids::SPRUCE_SAPLING => Blocks::SPRUCE_SAPLING(),
 		] as $id => $block){
 			$reg->mapModel(Model::create($block, $id)->properties($properties));
@@ -608,6 +623,44 @@ final class VanillaBlockMappings{
 		$reg->mapModel(Model::create(Blocks::SWEET_BERRY_BUSH(), Ids::SWEET_BERRY_BUSH)->properties([
 			//TODO: berry bush only wants 0-3, but it can be bigger in MCPE due to misuse of GROWTH state which goes up to 7
 			new IntProperty(StateNames::GROWTH, 0, 7, fn(SweetBerryBush $b) => $b->getAge(), fn(SweetBerryBush $b, int $v) => $b->setAge(min($v, SweetBerryBush::STAGE_MATURE)))
+		]));
+		$reg->mapModel(Model::create(Blocks::MANGROVE_PROPAGULE(), Ids::MANGROVE_PROPAGULE)->properties([
+			new IntProperty(StateNames::PROPAGULE_STAGE, 0, 4, fn(MangrovePropagule $b) => $b->getStage(), fn(MangrovePropagule $b, int $v) => $b->setStage($v)),
+			new BoolProperty(StateNames::HANGING, fn(MangrovePropagule $b) => $b->isHanging(), fn(MangrovePropagule $b, bool $v) => $b->setHanging($v))
+		]));
+		$reg->mapModel(Model::create(Blocks::LEAF_LITTER(), Ids::LEAF_LITTER)->properties([
+			$commonProperties->horizontalFacingCardinal,
+			new IntProperty(StateNames::GROWTH, 0, 7, fn(LeafLitter $b) => $b->getCount() - 1, fn(LeafLitter $b, int $v) => $b->setCount($v + 1))
+		]));
+		$reg->mapModel(Model::create(Blocks::PALE_HANGING_MOSS(), Ids::PALE_HANGING_MOSS)->properties([
+			new BoolProperty(StateNames::TIP, fn(PaleHangingMoss $b) => $b->isTip(), fn(PaleHangingMoss $b, bool $v) => $b->setTip($v))
+		]));
+		$reg->mapModel(Model::create(Blocks::PALE_MOSS_CARPET(), Ids::PALE_MOSS_CARPET)->properties([
+			new ValueFromStringProperty(
+				StateNames::PALE_MOSS_CARPET_SIDE_EAST,
+				EnumFromRawStateMap::string(WallConnectionTypeShim::class, fn(WallConnectionTypeShim $case) => $case->getValue()),
+				fn(PaleMossCarpet $b) => WallConnectionTypeShim::serialize($b->getConnection(Facing::EAST)),
+				fn(PaleMossCarpet $b, WallConnectionTypeShim $v) => $b->setConnection(Facing::EAST, $v->deserialize())
+			),
+			new ValueFromStringProperty(
+				StateNames::PALE_MOSS_CARPET_SIDE_NORTH,
+				EnumFromRawStateMap::string(WallConnectionTypeShim::class, fn(WallConnectionTypeShim $case) => $case->getValue()),
+				fn(PaleMossCarpet $b) => WallConnectionTypeShim::serialize($b->getConnection(Facing::NORTH)),
+				fn(PaleMossCarpet $b, WallConnectionTypeShim $v) => $b->setConnection(Facing::NORTH, $v->deserialize())
+			),
+			new ValueFromStringProperty(
+				StateNames::PALE_MOSS_CARPET_SIDE_SOUTH,
+				EnumFromRawStateMap::string(WallConnectionTypeShim::class, fn(WallConnectionTypeShim $case) => $case->getValue()),
+				fn(PaleMossCarpet $b) => WallConnectionTypeShim::serialize($b->getConnection(Facing::SOUTH)),
+				fn(PaleMossCarpet $b, WallConnectionTypeShim $v) => $b->setConnection(Facing::SOUTH, $v->deserialize())
+			),
+			new ValueFromStringProperty(
+				StateNames::PALE_MOSS_CARPET_SIDE_WEST,
+				EnumFromRawStateMap::string(WallConnectionTypeShim::class, fn(WallConnectionTypeShim $case) => $case->getValue()),
+				fn(PaleMossCarpet $b) => WallConnectionTypeShim::serialize($b->getConnection(Facing::WEST)),
+				fn(PaleMossCarpet $b, WallConnectionTypeShim $v) => $b->setConnection(Facing::WEST, $v->deserialize())
+			),
+			new DummyProperty(StateNames::UPPER_BLOCK_BIT, false)
 		]));
 		$reg->mapModel(Model::create(Blocks::TORCHFLOWER_CROP(), Ids::TORCHFLOWER_CROP)->properties([
 			//TODO: this property can have values 0-7, but only 0-1 are valid
@@ -1332,6 +1385,14 @@ final class VanillaBlockMappings{
 		]));
 		$reg->mapModel(Model::create(Blocks::CHISELED_QUARTZ(), Ids::CHISELED_QUARTZ_BLOCK)->properties([$commonProperties->pillarAxis]));
 		$reg->mapModel(Model::create(Blocks::CHEST(), Ids::CHEST)->properties([$commonProperties->horizontalFacingCardinal]));
+		$reg->mapModel(Model::create(Blocks::BEE_NEST(), Ids::BEE_NEST)->properties([
+			$commonProperties->horizontalFacingSWNE,
+			new IntProperty(StateNames::HONEY_LEVEL, 0, 5, fn(BeeNest $b) => $b->getHoneyLevel(), fn(BeeNest $b, int $v) => $b->setHoneyLevel($v))
+		]));
+		$reg->mapModel(Model::create(Blocks::BEEHIVE(), Ids::BEEHIVE)->properties([
+			$commonProperties->horizontalFacingSWNE,
+			new IntProperty(StateNames::HONEY_LEVEL, 0, 5, fn(Beehive $b) => $b->getHoneyLevel(), fn(Beehive $b, int $v) => $b->setHoneyLevel($v))
+		]));
 		$reg->mapModel(Model::create(Blocks::CHORUS_FLOWER(), Ids::CHORUS_FLOWER)->properties([
 			new IntProperty(StateNames::AGE, ChorusFlower::MIN_AGE, ChorusFlower::MAX_AGE, fn(ChorusFlower $b) => $b->getAge(), fn(ChorusFlower $b, int $v) => $b->setAge($v))
 		]));
@@ -1483,6 +1544,15 @@ final class VanillaBlockMappings{
 		$reg->mapModel(Model::create(Blocks::STONE_PRESSURE_PLATE(), Ids::STONE_PRESSURE_PLATE)->properties($commonProperties->simplePressurePlateProperties));
 		$reg->mapModel(Model::create(Blocks::STONECUTTER(), Ids::STONECUTTER_BLOCK)->properties([
 			$commonProperties->horizontalFacingCardinal
+		]));
+		$reg->mapModel(Model::create(Blocks::POINTED_DRIPSTONE(), Ids::POINTED_DRIPSTONE)->properties([
+			new ValueFromStringProperty(
+				StateNames::DRIPSTONE_THICKNESS,
+				EnumFromRawStateMap::string(\pocketmine\block\utils\PointedDripstoneThickness::class, fn(\pocketmine\block\utils\PointedDripstoneThickness $case) => $case->value),
+				fn(PointedDripstone $b) => $b->getThickness(),
+				fn(PointedDripstone $b, \pocketmine\block\utils\PointedDripstoneThickness $v) => $b->setThickness($v)
+			),
+			new BoolProperty(StateNames::HANGING, fn(PointedDripstone $b) => $b->isHanging(), fn(PointedDripstone $b, bool $v) => $b->setHanging($v))
 		]));
 		$reg->mapModel(Model::create(Blocks::SUGARCANE(), Ids::REEDS)->properties([
 			new IntProperty(StateNames::AGE, 0, 15, fn(Sugarcane $b) => $b->getAge(), fn(Sugarcane $b, int $v) => $b->setAge($v))

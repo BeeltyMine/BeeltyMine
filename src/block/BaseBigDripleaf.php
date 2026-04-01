@@ -45,7 +45,8 @@ abstract class BaseBigDripleaf extends Transparent implements HorizontalFacing{
 			($block instanceof BaseBigDripleaf && $block->isHead() === $head) ||
 			$block->getTypeId() === BlockTypeIds::CLAY ||
 			$block->hasTypeTag(BlockTypeTags::DIRT) ||
-			$block->hasTypeTag(BlockTypeTags::MUD);
+			$block->hasTypeTag(BlockTypeTags::MUD) ||
+			$block->hasTypeTag(BlockTypeTags::MOSS);
 	}
 
 	public function onNearbyBlockChange() : void{

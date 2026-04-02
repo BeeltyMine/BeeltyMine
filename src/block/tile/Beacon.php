@@ -24,17 +24,34 @@ declare(strict_types=1);
 namespace pocketmine\block\tile;
 
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\world\beacon\BeaconStructure;
 
 final class Beacon extends Spawnable{
+	private const TAG_LEVELS = "Levels"; //TAG_Int
 	private const TAG_PRIMARY = "primary"; //TAG_Int
 	private const TAG_SECONDARY = "secondary"; //TAG_Int
 
 	private int $primaryEffect = 0;
 	private int $secondaryEffect = 0;
 
+	public function __construct(\pocketmine\world\World $world, \pocketmine\math\Vector3 $pos){
+		parent::__construct($world, $pos);
+		$world->getServer()->getBeaconManager()->registerBeacon($this);
+	}
+
 	protected function addAdditionalSpawnData(CompoundTag $nbt) : void{
+		$nbt->setInt(self::TAG_LEVELS, $this->getCurrentLevel());
 		$nbt->setInt(self::TAG_PRIMARY, $this->primaryEffect);
 		$nbt->setInt(self::TAG_SECONDARY, $this->secondaryEffect);
+	}
+
+	private function getCurrentLevel() : int{
+		$world = $this->position->getWorld();
+		$pos = $this->position;
+
+		return BeaconStructure::calculateLevel(function(int $layer, int $offsetX, int $offsetZ) use ($world, $pos) : bool{
+			return BeaconStructure::isValidBaseBlockTypeId($world->getBlockAt($pos->getFloorX() + $offsetX, $pos->getFloorY() - $layer, $pos->getFloorZ() + $offsetZ)->getTypeId());
+		});
 	}
 
 	public function readSaveData(CompoundTag $nbt) : void{
@@ -50,9 +67,24 @@ final class Beacon extends Spawnable{
 
 	public function getPrimaryEffect() : int{ return $this->primaryEffect; }
 
-	public function setPrimaryEffect(int $primaryEffect) : void{ $this->primaryEffect = $primaryEffect; }
+	public function setPrimaryEffect(int $primaryEffect) : void{
+		$this->primaryEffect = $primaryEffect;
+		$this->clearSpawnCompoundCache();
+		$this->position->getWorld()->getServer()->getBeaconManager()->invalidate();
+	}
 
 	public function getSecondaryEffect() : int{ return $this->secondaryEffect; }
 
-	public function setSecondaryEffect(int $secondaryEffect) : void{ $this->secondaryEffect = $secondaryEffect; }
+	public function setSecondaryEffect(int $secondaryEffect) : void{
+		$this->secondaryEffect = $secondaryEffect;
+		$this->clearSpawnCompoundCache();
+		$this->position->getWorld()->getServer()->getBeaconManager()->invalidate();
+	}
+
+	public function close() : void{
+		if(!$this->closed){
+			$this->position->getWorld()->getServer()->getBeaconManager()->unregisterBeacon($this);
+		}
+		parent::close();
+	}
 }

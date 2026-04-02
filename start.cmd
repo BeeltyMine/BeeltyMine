@@ -30,27 +30,29 @@ if "%PHP_BINARY%"=="" (
 	exit 1
 )
 
-if exist src\PocketMine.php (
-	if exist vendor\autoload.php (
-		set POCKETMINE_FILE=src\PocketMine.php
+if exist BeeltyMine-MP.phar (
+	set POCKETMINE_FILE=BeeltyMine-MP.phar
+) else (
+	if exist src\PocketMine.php (
+		if exist vendor\autoload.php (
+			set POCKETMINE_FILE=src\PocketMine.php
+		) else (
+			set POCKETMINE_FILE=
+		)
 	) else (
 		set POCKETMINE_FILE=
 	)
-) else (
-	set POCKETMINE_FILE=
 )
 
 if "%POCKETMINE_FILE%"=="" (
-	if exist BeeltyMine-MP.phar (
-		set POCKETMINE_FILE=BeeltyMine-MP.phar
-	) else (
-		echo Neither source bootstrap nor BeeltyMine-MP.phar was found
-		pause
-		exit 1
-	)
+	echo Neither BeeltyMine-MP.phar nor source bootstrap was found
+	pause
+	exit 1
 )
 
 set EXTRA_PM_ARGS=%*
+
+echo Launching %POCKETMINE_FILE%
 
 if defined DASHBOARD (
 	set STATS_FILE=%CD%\diagnostics\dashboard\server-stats.json

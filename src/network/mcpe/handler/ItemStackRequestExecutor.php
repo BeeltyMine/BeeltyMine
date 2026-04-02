@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe\handler;
 
 use pocketmine\block\inventory\EnchantInventory;
+use pocketmine\block\inventory\SmithingTableInventory;
 use pocketmine\inventory\Inventory;
 use pocketmine\inventory\transaction\action\CreateItemAction;
 use pocketmine\inventory\transaction\action\DestroyItemAction;
@@ -31,6 +32,7 @@ use pocketmine\inventory\transaction\action\DropItemAction;
 use pocketmine\inventory\transaction\CraftingTransaction;
 use pocketmine\inventory\transaction\EnchantingTransaction;
 use pocketmine\inventory\transaction\InventoryTransaction;
+use pocketmine\inventory\transaction\SmithingTransaction;
 use pocketmine\inventory\transaction\TransactionBuilder;
 use pocketmine\inventory\transaction\TransactionBuilderInventory;
 use pocketmine\item\Durable;
@@ -239,6 +241,29 @@ class ItemStackRequestExecutor{
 			throw new ItemStackRequestProcessException("Cannot craft a recipe more than 256 times");
 		}
 		$craftingManager = $this->player->getServer()->getCraftingManager();
+		if($recipeId >= InventoryManager::SMITHING_RECIPE_NETWORK_OFFSET){
+			$smithingIndex = $recipeId - InventoryManager::SMITHING_RECIPE_NETWORK_OFFSET;
+			$smithingRecipe = $craftingManager->getSmithingRecipeFromIndex($smithingIndex);
+			if($smithingRecipe === null){
+				throw new ItemStackRequestProcessException("No such smithing recipe index: $smithingIndex");
+			}
+
+			$this->specialTransaction = new SmithingTransaction($this->player, $smithingRecipe);
+
+			$window = $this->player->getCurrentWindow();
+			if($window instanceof SmithingTableInventory){
+				$result = $smithingRecipe->getResultFor([
+					$window->getItem(SmithingTableInventory::SLOT_INPUT),
+					$window->getItem(SmithingTableInventory::SLOT_ADDITION),
+					$window->getItem(SmithingTableInventory::SLOT_TEMPLATE)
+				]);
+				if($result !== null){
+					$this->setNextCreatedItem($result);
+				}
+			}
+
+			return;
+		}
 		$recipeIndex = $recipeId - CraftingDataCache::RECIPE_ID_OFFSET;
 		$recipe = $craftingManager->getCraftingRecipeFromIndex($recipeIndex);
 		if($recipe === null){
@@ -295,7 +320,7 @@ class ItemStackRequestExecutor{
 	 * @throws ItemStackRequestProcessException
 	 */
 	private function assertDoingCrafting() : void{
-		if(!$this->specialTransaction instanceof CraftingTransaction && !$this->specialTransaction instanceof EnchantingTransaction){
+		if(!$this->specialTransaction instanceof CraftingTransaction && !$this->specialTransaction instanceof EnchantingTransaction && !$this->specialTransaction instanceof SmithingTransaction){
 			if($this->specialTransaction === null){
 				throw new ItemStackRequestProcessException("Expected CraftRecipe or CraftRecipeAuto action to precede this action");
 			}else{

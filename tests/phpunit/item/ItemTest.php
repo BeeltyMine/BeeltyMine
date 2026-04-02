@@ -25,6 +25,10 @@ namespace pocketmine\item;
 
 use PHPUnit\Framework\TestCase;
 use pocketmine\block\VanillaBlocks;
+use pocketmine\crafting\ExactRecipeIngredient;
+use pocketmine\crafting\SmithingTrimRecipe;
+use pocketmine\data\bedrock\ArmorTrimMaterialTypeIdMap;
+use pocketmine\data\bedrock\ArmorTrimPatternTypeIdMap;
 use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\enchantment\VanillaEnchantments;
 
@@ -144,5 +148,49 @@ class ItemTest extends TestCase{
 		$this->item->addEnchantment(new EnchantmentInstance(VanillaEnchantments::SHARPNESS(), 1));
 		$this->item->removeEnchantment(VanillaEnchantments::SHARPNESS());
 		self::assertNull($this->item->getNamedTag()->getTag(Item::TAG_ENCH));
+	}
+
+	public function testArmorTrimPersistsThroughNbtSerialization() : void{
+		$armor = VanillaItems::DIAMOND_CHESTPLATE();
+		self::assertInstanceOf(Armor::class, $armor);
+
+		$armor->setTrim(new ArmorTrim(VanillaArmorTrimMaterials::GOLD(), VanillaArmorTrimPatterns::SPIRE()));
+		$deserialized = Item::nbtDeserialize($armor->nbtSerialize());
+
+		self::assertInstanceOf(Armor::class, $deserialized);
+		$trim = $deserialized->getTrim();
+		self::assertNotNull($trim);
+		self::assertSame(VanillaArmorTrimMaterials::GOLD(), $trim->getMaterial());
+		self::assertSame(VanillaArmorTrimPatterns::SPIRE(), $trim->getPattern());
+	}
+
+	public function testArmorTrimMapsResolveByIdAndItem() : void{
+		$materialMap = ArmorTrimMaterialTypeIdMap::getInstance();
+		$patternMap = ArmorTrimPatternTypeIdMap::getInstance();
+
+		self::assertSame(VanillaArmorTrimMaterials::EMERALD(), $materialMap->fromId('emerald'));
+		self::assertSame(VanillaArmorTrimMaterials::EMERALD(), $materialMap->fromItem(VanillaItems::EMERALD()));
+		self::assertSame(VanillaArmorTrimPatterns::SENTRY(), $patternMap->fromId('sentry'));
+		self::assertSame(VanillaArmorTrimPatterns::SENTRY(), $patternMap->fromItem(VanillaItems::SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE()));
+	}
+
+	public function testSmithingTrimRecipeCreatesTrimmedArmor() : void{
+		$recipe = new SmithingTrimRecipe(
+			new ExactRecipeIngredient(VanillaItems::DIAMOND_HELMET()),
+			new ExactRecipeIngredient(VanillaItems::EMERALD()),
+			new ExactRecipeIngredient(VanillaItems::SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE())
+		);
+
+		$result = $recipe->getResultFor([
+			VanillaItems::DIAMOND_HELMET(),
+			VanillaItems::EMERALD(),
+			VanillaItems::SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE()
+		]);
+
+		self::assertInstanceOf(Armor::class, $result);
+		$trim = $result->getTrim();
+		self::assertNotNull($trim);
+		self::assertSame('emerald', ArmorTrimMaterialTypeIdMap::getInstance()->toId($trim->getMaterial()));
+		self::assertSame('sentry', ArmorTrimPatternTypeIdMap::getInstance()->toId($trim->getPattern()));
 	}
 }

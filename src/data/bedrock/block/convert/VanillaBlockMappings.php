@@ -108,6 +108,7 @@ use pocketmine\block\utils\HorizontalFacing;
 use pocketmine\block\utils\LeverFacing;
 use pocketmine\block\utils\MobHeadType;
 use pocketmine\block\utils\MushroomBlockType;
+use pocketmine\block\utils\PointedDripstoneThickness;
 use pocketmine\block\utils\PoweredByRedstone;
 use pocketmine\block\VanillaBlocks as Blocks;
 use pocketmine\block\Vine;
@@ -1548,9 +1549,9 @@ final class VanillaBlockMappings{
 		$reg->mapModel(Model::create(Blocks::POINTED_DRIPSTONE(), Ids::POINTED_DRIPSTONE)->properties([
 			new ValueFromStringProperty(
 				StateNames::DRIPSTONE_THICKNESS,
-				EnumFromRawStateMap::string(\pocketmine\block\utils\PointedDripstoneThickness::class, fn(\pocketmine\block\utils\PointedDripstoneThickness $case) => $case->value),
+				EnumFromRawStateMap::string(PointedDripstoneThickness::class, fn(PointedDripstoneThickness $case) => $case->value),
 				fn(PointedDripstone $b) => $b->getThickness(),
-				fn(PointedDripstone $b, \pocketmine\block\utils\PointedDripstoneThickness $v) => $b->setThickness($v)
+				fn(PointedDripstone $b, PointedDripstoneThickness $v) => $b->setThickness($v)
 			),
 			new BoolProperty(StateNames::HANGING, fn(PointedDripstone $b) => $b->isHanging(), fn(PointedDripstone $b, bool $v) => $b->setHanging($v))
 		]));

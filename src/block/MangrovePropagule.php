@@ -13,6 +13,7 @@ use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\utils\Random;
 use pocketmine\block\VanillaBlocks;
+use pocketmine\world\BlockTransaction;
 use pocketmine\world\generator\object\TreeFactory;
 use pocketmine\world\generator\object\TreeType;
 use function mt_rand;
@@ -57,7 +58,7 @@ final class MangrovePropagule extends Flowable{
 			parent::canBePlacedAt($blockReplace, $clickVector, $face, $isClickedBlock);
 	}
 
-	public function place(\pocketmine\world\BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
+	public function place(BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
 		$this->hanging = $face === Facing::DOWN && $blockClicked->getTypeId() === BlockTypeIds::MANGROVE_LEAVES;
 		return parent::place($tx, $item, $blockReplace, $blockClicked, $face, $clickVector, $player);
 	}

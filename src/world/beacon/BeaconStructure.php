@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace pocketmine\world\beacon;
 
+use pocketmine\block\VanillaBlocks;
+
 final class BeaconStructure{
 	private const MAX_LAYERS = 4;
 
@@ -41,11 +43,11 @@ final class BeaconStructure{
 
 		if($validTypeIds === null){
 			$validTypeIds = [
-				\pocketmine\block\VanillaBlocks::IRON()->getTypeId() => true,
-				\pocketmine\block\VanillaBlocks::GOLD()->getTypeId() => true,
-				\pocketmine\block\VanillaBlocks::EMERALD()->getTypeId() => true,
-				\pocketmine\block\VanillaBlocks::DIAMOND()->getTypeId() => true,
-				\pocketmine\block\VanillaBlocks::NETHERITE()->getTypeId() => true,
+				VanillaBlocks::IRON()->getTypeId() => true,
+				VanillaBlocks::GOLD()->getTypeId() => true,
+				VanillaBlocks::EMERALD()->getTypeId() => true,
+				VanillaBlocks::DIAMOND()->getTypeId() => true,
+				VanillaBlocks::NETHERITE()->getTypeId() => true,
 			];
 		}
 

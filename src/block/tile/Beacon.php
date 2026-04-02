@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace pocketmine\block\tile;
 
+use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\world\beacon\BeaconStructure;
+use pocketmine\world\World;
 
 final class Beacon extends Spawnable{
 	private const TAG_LEVELS = "Levels"; //TAG_Int
@@ -34,7 +36,7 @@ final class Beacon extends Spawnable{
 	private int $primaryEffect = 0;
 	private int $secondaryEffect = 0;
 
-	public function __construct(\pocketmine\world\World $world, \pocketmine\math\Vector3 $pos){
+	public function __construct(World $world, Vector3 $pos){
 		parent::__construct($world, $pos);
 		$world->getServer()->getBeaconManager()->registerBeacon($this);
 	}

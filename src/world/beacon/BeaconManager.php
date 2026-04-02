@@ -18,7 +18,7 @@ use function count;
 use function spl_object_id;
 
 final class BeaconManager{
-	private const UPDATE_INTERVAL_TICKS = Server::TARGET_TICKS_PER_SECOND;
+	private const UPDATE_INTERVAL_TICKS = Server::TARGET_TICKS_PER_SECOND * 10;
 	private const EFFECT_DURATION_TICKS = self::UPDATE_INTERVAL_TICKS + 5;
 	private const EFFECT_REAPPLY_THRESHOLD_TICKS = self::UPDATE_INTERVAL_TICKS;
 
@@ -96,15 +96,20 @@ final class BeaconManager{
 			return BeaconStructure::isValidBaseBlockTypeId($world->getBlockAt($pos->getFloorX() + $offsetX, $pos->getFloorY() - $layer, $pos->getFloorZ() + $offsetZ)->getTypeId());
 		});
 		if($level <= 0){
+			$beacon->clearEffects();
 			return;
 		}
 
 		$primaryEffect = $this->resolvePrimaryEffect($beacon, $level);
 		if($primaryEffect === null){
+			$beacon->clearEffects();
 			return;
 		}
 
 		$secondaryEffect = $this->resolveSecondaryEffect($beacon, $primaryEffect, $level);
+		if($beacon->getSecondaryEffect() !== 0 && $secondaryEffect === null){
+			$beacon->clearSecondaryEffect();
+		}
 		$primaryAmplifier = BeaconStructure::getPrimaryAmplifier($level, $secondaryEffect !== null && $secondaryEffect === $primaryEffect);
 		$range = BeaconStructure::getRangeForLevel($level);
 

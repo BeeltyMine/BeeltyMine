@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\block\tile;
 
+use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\world\beacon\BeaconStructure;
@@ -60,6 +61,31 @@ final class Beacon extends Spawnable{
 		//TODO: PC uses Primary and Secondary (capitalized first letter), we don't read them here because the IDs would be different
 		$this->primaryEffect = $nbt->getInt(self::TAG_PRIMARY, 0);
 		$this->secondaryEffect = $nbt->getInt(self::TAG_SECONDARY, 0);
+	}
+
+	public function copyDataFromItem(Item $item) : void{
+		// Beacons should always start with no selected powers when placed from an item.
+	}
+
+	public function clearEffects() : void{
+		if($this->primaryEffect === 0 && $this->secondaryEffect === 0){
+			return;
+		}
+
+		$this->primaryEffect = 0;
+		$this->secondaryEffect = 0;
+		$this->clearSpawnCompoundCache();
+		$this->position->getWorld()->getServer()->getBeaconManager()->invalidate();
+	}
+
+	public function clearSecondaryEffect() : void{
+		if($this->secondaryEffect === 0){
+			return;
+		}
+
+		$this->secondaryEffect = 0;
+		$this->clearSpawnCompoundCache();
+		$this->position->getWorld()->getServer()->getBeaconManager()->invalidate();
 	}
 
 	protected function writeSaveData(CompoundTag $nbt) : void{

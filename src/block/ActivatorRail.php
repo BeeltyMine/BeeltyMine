@@ -25,9 +25,24 @@ namespace pocketmine\block;
 
 use pocketmine\block\utils\PoweredByRedstone;
 use pocketmine\block\utils\RailPoweredByRedstoneTrait;
+use pocketmine\block\utils\RedstonePowerHelper;
 
 class ActivatorRail extends StraightOnlyRail implements PoweredByRedstone{
 	use RailPoweredByRedstoneTrait;
+
+	public function onNearbyBlockChange() : void{
+		$world = $this->position->getWorld();
+		parent::onNearbyBlockChange();
+
+		if(!$world->getBlock($this->position) instanceof self){
+			return;
+		}
+
+		$shouldBePowered = RedstonePowerHelper::getStrongestNeighborPower($this) > 0;
+		if($shouldBePowered !== $this->powered){
+			$world->setBlock($this->position, (clone $this)->setPowered($shouldBePowered));
+		}
+	}
 
 	//TODO
 }

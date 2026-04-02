@@ -26,6 +26,7 @@ namespace pocketmine\block;
 use pocketmine\block\tile\Hopper as TileHopper;
 use pocketmine\block\utils\PoweredByRedstone;
 use pocketmine\block\utils\PoweredByRedstoneTrait;
+use pocketmine\block\utils\RedstonePowerHelper;
 use pocketmine\block\utils\SupportType;
 use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\item\Item;
@@ -94,6 +95,13 @@ class Hopper extends Transparent implements PoweredByRedstone{
 
 	public function onScheduledUpdate() : void{
 		//TODO
+	}
+
+	public function onNearbyBlockChange() : void{
+		$shouldBePowered = RedstonePowerHelper::getStrongestNeighborPower($this) > 0;
+		if($shouldBePowered !== $this->powered){
+			$this->position->getWorld()->setBlock($this->position, (clone $this)->setPowered($shouldBePowered));
+		}
 	}
 
 	//TODO: redstone logic, sucking logic

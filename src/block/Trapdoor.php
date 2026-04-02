@@ -33,7 +33,8 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\world\BlockTransaction;
-use pocketmine\world\sound\DoorSound;
+use pocketmine\world\sound\TrapdoorCloseSound;
+use pocketmine\world\sound\TrapdoorOpenSound;
 
 class Trapdoor extends Transparent implements HorizontalFacing{
 	use HorizontalFacingTrait;
@@ -87,7 +88,7 @@ class Trapdoor extends Transparent implements HorizontalFacing{
 		$this->open = !$this->open;
 		$world = $this->position->getWorld();
 		$world->setBlock($this->position, $this);
-		$world->addSound($this->position, new DoorSound());
+		$world->addSound($this->position, $this->open ? new TrapdoorOpenSound() : new TrapdoorCloseSound());
 		return true;
 	}
 }

@@ -35,7 +35,8 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\world\BlockTransaction;
-use pocketmine\world\sound\DoorSound;
+use pocketmine\world\sound\FenceGateCloseSound;
+use pocketmine\world\sound\FenceGateOpenSound;
 
 class FenceGate extends Transparent implements HorizontalFacing, WoodMaterial{
 	use WoodTypeTrait;
@@ -110,7 +111,7 @@ class FenceGate extends Transparent implements HorizontalFacing, WoodMaterial{
 
 		$world = $this->position->getWorld();
 		$world->setBlock($this->position, $this);
-		$world->addSound($this->position, new DoorSound());
+		$world->addSound($this->position, $this->open ? new FenceGateOpenSound() : new FenceGateCloseSound());
 		return true;
 	}
 

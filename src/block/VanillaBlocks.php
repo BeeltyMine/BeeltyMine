@@ -41,6 +41,8 @@ use pocketmine\block\tile\Chest as TileChest;
 use pocketmine\block\tile\ChiseledBookshelf as TileChiseledBookshelf;
 use pocketmine\block\tile\Comparator as TileComparator;
 use pocketmine\block\tile\DaylightSensor as TileDaylightSensor;
+use pocketmine\block\tile\Dispenser as TileDispenser;
+use pocketmine\block\tile\Dropper as TileDropper;
 use pocketmine\block\tile\EnchantTable as TileEnchantingTable;
 use pocketmine\block\tile\EnderChest as TileEnderChest;
 use pocketmine\block\tile\FlowerPot as TileFlowerPot;
@@ -54,6 +56,7 @@ use pocketmine\block\tile\MobHead as TileMobHead;
 use pocketmine\block\tile\MonsterSpawner as TileMonsterSpawner;
 use pocketmine\block\tile\NormalFurnace as TileNormalFurnace;
 use pocketmine\block\tile\Note as TileNote;
+use pocketmine\block\tile\PistonArm as TilePistonArm;
 use pocketmine\block\tile\Shelf as TileShelf;
 use pocketmine\block\tile\ShulkerBox as TileShulkerBox;
 use pocketmine\block\tile\Sign as TileSign;
@@ -326,6 +329,7 @@ use function strtolower;
  * @method static Stair DEEPSLATE_TILE_STAIRS()
  * @method static Wall DEEPSLATE_TILE_WALL()
  * @method static DetectorRail DETECTOR_RAIL()
+ * @method static Dispenser DISPENSER()
  * @method static Opaque DIAMOND()
  * @method static DiamondOre DIAMOND_ORE()
  * @method static Opaque DIORITE()
@@ -333,6 +337,7 @@ use function strtolower;
  * @method static Stair DIORITE_STAIRS()
  * @method static Wall DIORITE_WALL()
  * @method static Dirt DIRT()
+ * @method static Dropper DROPPER()
  * @method static DoublePitcherCrop DOUBLE_PITCHER_CROP()
  * @method static DoubleTallGrass DOUBLE_TALLGRASS()
  * @method static DragonEgg DRAGON_EGG()
@@ -617,6 +622,7 @@ use function strtolower;
  * @method static NetherWartPlant NETHER_WART()
  * @method static Opaque NETHER_WART_BLOCK()
  * @method static Note NOTE_BLOCK()
+ * @method static Observer OBSERVER()
  * @method static WoodenButton OAK_BUTTON()
  * @method static CeilingCenterHangingSign OAK_CEILING_CENTER_HANGING_SIGN()
  * @method static CeilingEdgesHangingSign OAK_CEILING_EDGES_HANGING_SIGN()
@@ -666,6 +672,8 @@ use function strtolower;
  * @method static Flower PINK_TULIP()
  * @method static PitcherCrop PITCHER_CROP()
  * @method static DoublePlant PITCHER_PLANT()
+ * @method static PistonArmCollision PISTON_ARM_COLLISION()
+ * @method static Piston PISTON()
  * @method static Podzol PODZOL()
  * @method static Opaque POLISHED_ANDESITE()
  * @method static Slab POLISHED_ANDESITE_SLAB()
@@ -812,6 +820,8 @@ use function strtolower;
  * @method static StainedGlassPane STAINED_GLASS_PANE()
  * @method static StainedHardenedGlass STAINED_HARDENED_GLASS()
  * @method static StainedHardenedGlassPane STAINED_HARDENED_GLASS_PANE()
+ * @method static StickyPistonArmCollision STICKY_PISTON_ARM_COLLISION()
+ * @method static StickyPiston STICKY_PISTON()
  * @method static Opaque STONE()
  * @method static Stonecutter STONECUTTER()
  * @method static Opaque STONE_BRICKS()
@@ -990,9 +1000,11 @@ final class VanillaBlocks{
 		self::register("daylight_sensor", fn(BID $id) => new DaylightSensor($id, "Daylight Sensor", new Info(BreakInfo::axe(0.2))), TileDaylightSensor::class);
 		self::register("dead_bush", fn(BID $id) => new DeadBush($id, "Dead Bush", new Info(BreakInfo::instant(ToolType::SHEARS, 1), [Tags::POTTABLE_PLANTS])));
 		self::register("detector_rail", fn(BID $id) => new DetectorRail($id, "Detector Rail", $railBreakInfo));
+		self::register("dispenser", fn(BID $id) => new Dispenser($id, "Dispenser", new Info(BreakInfo::pickaxe(3.5, ToolTier::WOOD))), TileDispenser::class);
 
 		self::register("diamond", fn(BID $id) => new Opaque($id, "Diamond Block", new Info(BreakInfo::pickaxe(5.0, ToolTier::IRON, 30.0))));
 		self::register("dirt", fn(BID $id) => new Dirt($id, "Dirt", new Info(BreakInfo::shovel(0.5), [Tags::DIRT])));
+		self::register("dropper", fn(BID $id) => new Dropper($id, "Dropper", new Info(BreakInfo::pickaxe(3.5, ToolTier::WOOD))), TileDropper::class);
 		self::register("sunflower", fn(BID $id) => new DoublePlant($id, "Sunflower", new Info(BreakInfo::instant())));
 		self::register("lilac", fn(BID $id) => new DoublePlant($id, "Lilac", new Info(BreakInfo::instant())));
 		self::register("rose_bush", fn(BID $id) => new DoublePlant($id, "Rose Bush", new Info(BreakInfo::instant())));
@@ -1111,8 +1123,13 @@ final class VanillaBlocks{
 		self::register("nether_wart", fn(BID $id) => new NetherWartPlant($id, "Nether Wart", new Info(BreakInfo::instant())));
 		self::register("netherrack", fn(BID $id) => new Netherrack($id, "Netherrack", new Info(BreakInfo::pickaxe(0.4, ToolTier::WOOD))));
 		self::register("note_block", fn(BID $id) => new Note($id, "Note Block", new Info(BreakInfo::axe(0.8))), TileNote::class);
+		self::register("observer", fn(BID $id) => new Observer($id, "Observer", new Info(BreakInfo::pickaxe(3.5, ToolTier::WOOD, 17.5))));
 		self::register("obsidian", fn(BID $id) => new Opaque($id, "Obsidian", new Info(BreakInfo::pickaxe(35.0 /* 50 in PC */,  ToolTier::DIAMOND, 6000.0))));
 		self::register("packed_ice", fn(BID $id) => new PackedIce($id, "Packed Ice", new Info(BreakInfo::pickaxe(0.5))));
+		self::register("piston_arm_collision", fn(BID $id) => new PistonArmCollision($id, "Piston Head", new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD, 7.5))));
+		self::register("piston", fn(BID $id) => new Piston($id, "Piston", new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD, 7.5))), TilePistonArm::class);
+		self::register("sticky_piston_arm_collision", fn(BID $id) => new StickyPistonArmCollision($id, "Sticky Piston Head", new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD, 7.5))));
+		self::register("sticky_piston", fn(BID $id) => new StickyPiston($id, "Sticky Piston", new Info(BreakInfo::pickaxe(1.5, ToolTier::WOOD, 7.5))), TilePistonArm::class);
 		self::register("podzol", fn(BID $id) => new Podzol($id, "Podzol", new Info(BreakInfo::shovel(0.5), [Tags::DIRT])));
 		self::register("potatoes", fn(BID $id) => new Potato($id, "Potato Block", new Info(BreakInfo::instant())));
 		self::register("powered_rail", fn(BID $id) => new PoweredRail($id, "Powered Rail", $railBreakInfo));

@@ -54,6 +54,7 @@ use pocketmine\block\tile\MobHead as TileMobHead;
 use pocketmine\block\tile\MonsterSpawner as TileMonsterSpawner;
 use pocketmine\block\tile\NormalFurnace as TileNormalFurnace;
 use pocketmine\block\tile\Note as TileNote;
+use pocketmine\block\tile\Shelf as TileShelf;
 use pocketmine\block\tile\ShulkerBox as TileShulkerBox;
 use pocketmine\block\tile\Sign as TileSign;
 use pocketmine\block\tile\Smoker as TileSmoker;
@@ -91,6 +92,7 @@ use function strtolower;
  * @method static Wood ACACIA_LOG()
  * @method static Planks ACACIA_PLANKS()
  * @method static WoodenPressurePlate ACACIA_PRESSURE_PLATE()
+ * @method static Shelf ACACIA_SHELF()
  * @method static Sapling ACACIA_SAPLING()
  * @method static FloorSign ACACIA_SIGN()
  * @method static WoodenSlab ACACIA_SLAB()
@@ -115,6 +117,7 @@ use function strtolower;
  * @method static Leaves AZALEA_LEAVES()
  * @method static Flower AZURE_BLUET()
  * @method static Bamboo BAMBOO()
+ * @method static Shelf BAMBOO_SHELF()
  * @method static Planks BAMBOO_MOSAIC()
  * @method static WoodenSlab BAMBOO_MOSAIC_SLAB()
  * @method static WoodenStairs BAMBOO_MOSAIC_STAIRS()
@@ -140,6 +143,7 @@ use function strtolower;
  * @method static Wood BIRCH_LOG()
  * @method static Planks BIRCH_PLANKS()
  * @method static WoodenPressurePlate BIRCH_PRESSURE_PLATE()
+ * @method static Shelf BIRCH_SHELF()
  * @method static Sapling BIRCH_SAPLING()
  * @method static FloorSign BIRCH_SIGN()
  * @method static WoodenSlab BIRCH_SLAB()
@@ -192,6 +196,7 @@ use function strtolower;
  * @method static Wood CHERRY_LOG()
  * @method static Planks CHERRY_PLANKS()
  * @method static WoodenPressurePlate CHERRY_PRESSURE_PLATE()
+ * @method static Shelf CHERRY_SHELF()
  * @method static FloorSign CHERRY_SIGN()
  * @method static WoodenSlab CHERRY_SLAB()
  * @method static WoodenStairs CHERRY_STAIRS()
@@ -261,6 +266,7 @@ use function strtolower;
  * @method static Nylium CRIMSON_NYLIUM()
  * @method static Planks CRIMSON_PLANKS()
  * @method static WoodenPressurePlate CRIMSON_PRESSURE_PLATE()
+ * @method static Shelf CRIMSON_SHELF()
  * @method static NetherRoots CRIMSON_ROOTS()
  * @method static FloorSign CRIMSON_SIGN()
  * @method static WoodenSlab CRIMSON_SLAB()
@@ -288,6 +294,7 @@ use function strtolower;
  * @method static Wood DARK_OAK_LOG()
  * @method static Planks DARK_OAK_PLANKS()
  * @method static WoodenPressurePlate DARK_OAK_PRESSURE_PLATE()
+ * @method static Shelf DARK_OAK_SHELF()
  * @method static Sapling DARK_OAK_SAPLING()
  * @method static FloorSign DARK_OAK_SIGN()
  * @method static WoodenSlab DARK_OAK_SLAB()
@@ -527,6 +534,7 @@ use function strtolower;
  * @method static Wood JUNGLE_LOG()
  * @method static Planks JUNGLE_PLANKS()
  * @method static WoodenPressurePlate JUNGLE_PRESSURE_PLATE()
+ * @method static Shelf JUNGLE_SHELF()
  * @method static Sapling JUNGLE_SAPLING()
  * @method static FloorSign JUNGLE_SIGN()
  * @method static WoodenSlab JUNGLE_SLAB()
@@ -564,6 +572,7 @@ use function strtolower;
  * @method static Wood MANGROVE_LOG()
  * @method static Planks MANGROVE_PLANKS()
  * @method static WoodenPressurePlate MANGROVE_PRESSURE_PLATE()
+ * @method static Shelf MANGROVE_SHELF()
  * @method static MangroveRoots MANGROVE_ROOTS()
  * @method static FloorSign MANGROVE_SIGN()
  * @method static WoodenSlab MANGROVE_SLAB()
@@ -618,6 +627,7 @@ use function strtolower;
  * @method static Wood OAK_LOG()
  * @method static Planks OAK_PLANKS()
  * @method static WoodenPressurePlate OAK_PRESSURE_PLATE()
+ * @method static Shelf OAK_SHELF()
  * @method static Sapling OAK_SAPLING()
  * @method static FloorSign OAK_SIGN()
  * @method static WoodenSlab OAK_SLAB()
@@ -643,6 +653,7 @@ use function strtolower;
  * @method static Wood PALE_OAK_LOG()
  * @method static Planks PALE_OAK_PLANKS()
  * @method static WoodenPressurePlate PALE_OAK_PRESSURE_PLATE()
+ * @method static Shelf PALE_OAK_SHELF()
  * @method static FloorSign PALE_OAK_SIGN()
  * @method static WoodenSlab PALE_OAK_SLAB()
  * @method static WoodenStairs PALE_OAK_STAIRS()
@@ -787,6 +798,7 @@ use function strtolower;
  * @method static Wood SPRUCE_LOG()
  * @method static Planks SPRUCE_PLANKS()
  * @method static WoodenPressurePlate SPRUCE_PRESSURE_PLATE()
+ * @method static Shelf SPRUCE_SHELF()
  * @method static Sapling SPRUCE_SAPLING()
  * @method static FloorSign SPRUCE_SIGN()
  * @method static WoodenSlab SPRUCE_SLAB()
@@ -847,6 +859,7 @@ use function strtolower;
  * @method static Nylium WARPED_NYLIUM()
  * @method static Planks WARPED_PLANKS()
  * @method static WoodenPressurePlate WARPED_PRESSURE_PLATE()
+ * @method static Shelf WARPED_SHELF()
  * @method static NetherRoots WARPED_ROOTS()
  * @method static FloorSign WARPED_SIGN()
  * @method static WoodenSlab WARPED_SLAB()
@@ -1444,6 +1457,7 @@ final class VanillaBlocks{
 			}
 
 			self::register($idName("planks"), fn(BID $id) => new Planks($id, $name . " Planks", $planksBreakInfo, $woodType));
+			self::register($idName("shelf"), fn(BID $id) => new Shelf($id, $name . " Shelf", $planksBreakInfo, $woodType), TileShelf::class);
 			self::register($idName("fence"), fn(BID $id) => new WoodenFence($id, $name . " Fence", $planksBreakInfo, $woodType));
 			self::register($idName("slab"), fn(BID $id) => new WoodenSlab($id, $name, $planksBreakInfo, $woodType));
 

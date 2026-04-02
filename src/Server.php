@@ -121,6 +121,7 @@ use pocketmine\world\format\io\WritableWorldProviderManagerEntry;
 use pocketmine\world\generator\Generator;
 use pocketmine\world\generator\GeneratorManager;
 use pocketmine\world\generator\InvalidGeneratorOptionsException;
+use pocketmine\world\beacon\BeaconManager;
 use pocketmine\world\Position;
 use pocketmine\world\World;
 use pocketmine\world\WorldCreationOptions;
@@ -271,6 +272,7 @@ class Server
 	private ResourcePackManager $resourceManager;
 
 	private WorldManager $worldManager;
+	private BeaconManager $beaconManager;
 
 	private int $maxPlayers;
 
@@ -485,6 +487,10 @@ class Server
 	public function getWorldManager(): WorldManager
 	{
 		return $this->worldManager;
+	}
+
+	public function getBeaconManager() : BeaconManager{
+		return $this->beaconManager;
 	}
 
 	public function getAsyncPool(): AsyncPool
@@ -1120,6 +1126,7 @@ class Server
 			}
 
 			$this->worldManager = new WorldManager($this, Path::join($this->dataPath, "worlds"), $providerManager);
+			$this->beaconManager = new BeaconManager();
 			$this->worldManager->setAutoSave($this->configGroup->getConfigBool(ServerProperties::AUTO_SAVE, $this->worldManager->getAutoSave()));
 			$this->worldManager->setAutoSaveInterval($this->configGroup->getPropertyInt(Yml::TICKS_PER_AUTOSAVE, $this->worldManager->getAutoSaveInterval()));
 
@@ -1984,6 +1991,7 @@ class Server
 		Timings::$schedulerAsync->stopTiming();
 
 		$this->worldManager->tick($this->tickCounter);
+		$this->beaconManager->tick($this->tickCounter);
 
 		Timings::$connection->startTiming();
 		$this->network->tick();

@@ -23,11 +23,28 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
-final class Beacon extends Transparent{
+use pocketmine\block\inventory\BeaconInventory;
+use pocketmine\block\tile\Beacon as BeaconTile;
+use pocketmine\item\Item;
+use pocketmine\math\Vector3;
+use pocketmine\player\Player;
 
+final class Beacon extends Transparent{
 	public function getLightLevel() : int{
 		return 15;
 	}
 
-	//TODO
+	public function onInteract(Item $item, int $face, Vector3 $clickVector, ?Player $player = null, array &$returnedItems = []) : bool{
+		if($player instanceof Player){
+			$tile = $this->position->getWorld()->getTile($this->position);
+			if($tile instanceof BeaconTile){
+				foreach($this->position->getWorld()->createBlockUpdatePackets([$this->position]) as $packet){
+					$player->getNetworkSession()->sendDataPacket($packet);
+				}
+				$player->setCurrentWindow(new BeaconInventory($tile));
+			}
+		}
+
+		return true;
+	}
 }

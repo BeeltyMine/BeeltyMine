@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\handler;
 
+use pocketmine\block\Beacon as BeaconBlock;
 use pocketmine\block\BaseSign;
+use pocketmine\block\inventory\BeaconInventory;
 use pocketmine\block\Lectern;
+use pocketmine\block\tile\Beacon as BeaconTile;
 use pocketmine\block\tile\Sign;
 use pocketmine\block\utils\SignText;
 use pocketmine\entity\Attribute;
@@ -98,6 +101,8 @@ use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
+use pocketmine\world\beacon\BeaconEffects;
+use pocketmine\world\beacon\BeaconStructure;
 use pocketmine\world\format\Chunk;
 use function array_push;
 use function count;
@@ -374,6 +379,10 @@ class InGamePacketHandler extends PacketHandler{
 	}
 
 	private function handleNormalTransaction(NormalTransactionData $data, int $itemStackRequestId) : bool{
+		if(($legacyBeaconResult = $this->handleLegacyBeaconTransaction($data)) !== null){
+			return $legacyBeaconResult;
+		}
+
 		//When the ItemStackRequest system is used, this transaction type is used for dropping items by pressing Q.
 		//I don't know why they don't just use ItemStackRequest for that too, which already supports dropping items by
 		//clicking them outside an open inventory menu, but for now it is what it is.
@@ -450,6 +459,112 @@ class InGamePacketHandler extends PacketHandler{
 
 		$transaction = new InventoryTransaction($this->player, $builder->generateActions());
 		return $this->executeInventoryTransaction($transaction, $itemStackRequestId);
+	}
+
+	private function getBeaconLevel(BeaconTile $beacon) : int{
+		$world = $beacon->getPosition()->getWorld();
+		$pos = $beacon->getPosition();
+
+		return BeaconStructure::calculateLevel(function(int $layer, int $offsetX, int $offsetZ) use ($world, $pos) : bool{
+			return BeaconStructure::isValidBaseBlockTypeId($world->getBlockAt($pos->getFloorX() + $offsetX, $pos->getFloorY() - $layer, $pos->getFloorZ() + $offsetZ)->getTypeId());
+		});
+	}
+
+	private function syncBeaconWindow(BeaconInventory $window) : void{
+		$this->inventoryManager->syncContents($window);
+		$pos = $window->getHolder();
+		foreach($this->player->getWorld()->createBlockUpdatePackets([$pos]) as $updatePacket){
+			$this->session->sendDataPacket($updatePacket);
+		}
+	}
+
+	private function commitPendingBeaconSelection(BeaconInventory $window) : bool{
+		if(!$window->hasPendingSelection()){
+			return false;
+		}
+
+		$primary = $window->getPendingPrimaryEffect();
+		$secondary = $window->getPendingSecondaryEffect();
+		$level = $this->getBeaconLevel($window->getBeacon());
+		if(
+			!BeaconEffects::isPrimaryEffectAllowed($level, $primary) ||
+			!BeaconEffects::isSecondaryEffectAllowed($level, $primary, $secondary)
+		){
+			return false;
+		}
+
+		$payment = $window->hasPendingPayment() ? $window->getPendingPayment() : $window->getPaymentItem();
+		if($payment->isNull() || !BeaconEffects::isValidPaymentItem($payment)){
+			return false;
+		}
+
+		if($window->hasPendingPayment()){
+			$window->clearPendingPayment();
+		}else{
+			$currentPayment = $window->getPaymentItem();
+			$currentPayment->pop(1);
+			$window->setItem(BeaconInventory::SLOT_PAYMENT, $currentPayment->getCount() > 0 ? $currentPayment : VanillaItems::AIR());
+		}
+
+		$beacon = $window->getBeacon();
+		$beacon->setPrimaryEffect($primary);
+		$beacon->setSecondaryEffect($secondary);
+		$window->clearPendingSelection();
+		$this->syncBeaconWindow($window);
+
+		return true;
+	}
+
+	private function isLegacyBeaconPaymentAction(BeaconInventory $window, NetworkInventoryAction $action) : bool{
+		$oldCount = $action->oldItem->getItemStack()->getCount();
+		$newCount = $action->newItem->getItemStack()->getCount();
+		if($oldCount <= $newCount){
+			return false;
+		}
+
+		if($action->sourceType === NetworkInventoryAction::SOURCE_TODO){
+			return $action->windowId === NetworkInventoryAction::SOURCE_TYPE_BEACON ||
+				$action->windowId === NetworkInventoryAction::SOURCE_TYPE_ANVIL_RESULT ||
+				$action->windowId === NetworkInventoryAction::SOURCE_TYPE_ANVIL_OUTPUT;
+		}
+
+		if($action->sourceType === NetworkInventoryAction::SOURCE_CONTAINER){
+			$info = $this->inventoryManager->locateWindowAndSlot($action->windowId, $action->inventorySlot);
+			return $info !== null && $info[0] === $window && $info[1] === BeaconInventory::SLOT_PAYMENT;
+		}
+
+		return false;
+	}
+
+	private function handleLegacyBeaconTransaction(NormalTransactionData $data) : ?bool{
+		$currentWindow = $this->player->getCurrentWindow();
+		if(!$currentWindow instanceof BeaconInventory){
+			return null;
+		}
+
+		$paymentActionFound = false;
+		foreach($data->getActions() as $action){
+			if($this->isLegacyBeaconPaymentAction($currentWindow, $action)){
+				$paymentActionFound = true;
+			}
+		}
+		if(!$paymentActionFound){
+			return null;
+		}
+
+		$payment = $currentWindow->getPaymentItem();
+		if($payment->isNull() || !BeaconEffects::isValidPaymentItem($payment)){
+			$currentWindow->restorePendingPaymentToSlot();
+			$this->syncBeaconWindow($currentWindow);
+			return false;
+		}
+
+		$consumed = $payment->pop(1);
+		$currentWindow->setItem(BeaconInventory::SLOT_PAYMENT, $payment->getCount() > 0 ? $payment : VanillaItems::AIR());
+		$currentWindow->rememberPendingPayment($consumed);
+		$this->commitPendingBeaconSelection($currentWindow);
+
+		return true;
 	}
 
 	private function handleUseItemTransaction(UseItemTransactionData $data) : bool{
@@ -796,6 +911,30 @@ class InGamePacketHandler extends PacketHandler{
 				$this->updateSignText($nbt, Sign::TAG_BACK_TEXT, false, $block, $pos);
 			}
 
+			return true;
+		}
+
+		if($block instanceof BeaconBlock){
+			$currentWindow = $this->player->getCurrentWindow();
+			if(!$currentWindow instanceof BeaconInventory || !$currentWindow->getHolder()->equals($pos)){
+				return false;
+			}
+
+			$primary = $nbt->getInt("primary", $nbt->getInt("Primary", 0));
+			$secondary = $nbt->getInt("secondary", $nbt->getInt("Secondary", 0));
+			$level = $this->getBeaconLevel($currentWindow->getBeacon());
+			if(
+				!BeaconEffects::isPrimaryEffectAllowed($level, $primary) ||
+				!BeaconEffects::isSecondaryEffectAllowed($level, $primary, $secondary)
+			){
+				$currentWindow->clearPendingSelection();
+				$currentWindow->restorePendingPaymentToSlot();
+				$this->syncBeaconWindow($currentWindow);
+				return false;
+			}
+
+			$currentWindow->setPendingSelection($primary, $secondary);
+			$this->commitPendingBeaconSelection($currentWindow);
 			return true;
 		}
 

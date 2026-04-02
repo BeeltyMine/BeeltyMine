@@ -23,14 +23,18 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\handler;
 
+use pocketmine\block\inventory\BeaconInventory;
 use pocketmine\block\inventory\EnchantInventory;
+use pocketmine\block\inventory\SmithingTableInventory;
 use pocketmine\inventory\Inventory;
+use pocketmine\inventory\transaction\BeaconPaymentTransaction;
 use pocketmine\inventory\transaction\action\CreateItemAction;
 use pocketmine\inventory\transaction\action\DestroyItemAction;
 use pocketmine\inventory\transaction\action\DropItemAction;
 use pocketmine\inventory\transaction\CraftingTransaction;
 use pocketmine\inventory\transaction\EnchantingTransaction;
 use pocketmine\inventory\transaction\InventoryTransaction;
+use pocketmine\inventory\transaction\SmithingTransaction;
 use pocketmine\inventory\transaction\TransactionBuilder;
 use pocketmine\inventory\transaction\TransactionBuilderInventory;
 use pocketmine\item\Durable;
@@ -45,6 +49,7 @@ use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\CraftRecipeAut
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\CraftRecipeStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\CreativeCreateStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\DeprecatedCraftingResultsStackRequestAction;
+use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\BeaconPaymentStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\DestroyStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\DropStackRequestAction;
 use pocketmine\network\mcpe\protocol\types\inventory\stackrequest\ItemStackRequest;
@@ -77,6 +82,7 @@ class ItemStackRequestExecutor{
 	private ?Item $nextCreatedItem = null;
 	private bool $createdItemFromCreativeInventory = false;
 	private int $createdItemsTakenCount = 0;
+	private bool $beaconPaymentConsumedInRequest = false;
 
 	public function __construct(
 		private Player $player,
@@ -239,6 +245,29 @@ class ItemStackRequestExecutor{
 			throw new ItemStackRequestProcessException("Cannot craft a recipe more than 256 times");
 		}
 		$craftingManager = $this->player->getServer()->getCraftingManager();
+		if($recipeId >= InventoryManager::SMITHING_RECIPE_NETWORK_OFFSET){
+			$smithingIndex = $recipeId - InventoryManager::SMITHING_RECIPE_NETWORK_OFFSET;
+			$smithingRecipe = $craftingManager->getSmithingRecipeFromIndex($smithingIndex);
+			if($smithingRecipe === null){
+				throw new ItemStackRequestProcessException("No such smithing recipe index: $smithingIndex");
+			}
+
+			$this->specialTransaction = new SmithingTransaction($this->player, $smithingRecipe);
+
+			$window = $this->player->getCurrentWindow();
+			if($window instanceof SmithingTableInventory){
+				$result = $smithingRecipe->getResultFor([
+					$window->getItem(SmithingTableInventory::SLOT_INPUT),
+					$window->getItem(SmithingTableInventory::SLOT_ADDITION),
+					$window->getItem(SmithingTableInventory::SLOT_TEMPLATE)
+				]);
+				if($result !== null){
+					$this->setNextCreatedItem($result);
+				}
+			}
+
+			return;
+		}
 		$recipeIndex = $recipeId - CraftingDataCache::RECIPE_ID_OFFSET;
 		$recipe = $craftingManager->getCraftingRecipeFromIndex($recipeIndex);
 		if($recipe === null){
@@ -295,13 +324,19 @@ class ItemStackRequestExecutor{
 	 * @throws ItemStackRequestProcessException
 	 */
 	private function assertDoingCrafting() : void{
-		if(!$this->specialTransaction instanceof CraftingTransaction && !$this->specialTransaction instanceof EnchantingTransaction){
+		if(!$this->specialTransaction instanceof CraftingTransaction && !$this->specialTransaction instanceof EnchantingTransaction && !$this->specialTransaction instanceof SmithingTransaction){
 			if($this->specialTransaction === null){
 				throw new ItemStackRequestProcessException("Expected CraftRecipe or CraftRecipeAuto action to precede this action");
 			}else{
 				throw new ItemStackRequestProcessException("A different special transaction is already in progress");
 			}
 		}
+	}
+
+	private function isBeaconPaymentSlot(ItemStackRequestSlotInfo $slotInfo) : bool{
+		return $slotInfo->getContainerName()->getContainerId() === ContainerUIIds::BEACON_PAYMENT &&
+			$slotInfo->getSlotId() === UIInventorySlotOffset::BEACON_PAYMENT &&
+			$this->player->getCurrentWindow() instanceof BeaconInventory;
 	}
 
 	/**
@@ -331,7 +366,11 @@ class ItemStackRequestExecutor{
 
 		}elseif($action instanceof DestroyStackRequestAction){
 			$destroyed = $this->removeItemFromSlot($action->getSource(), $action->getCount());
-			$this->builder->addAction(new DestroyItemAction($destroyed));
+			if($this->isBeaconPaymentSlot($action->getSource())){
+				$this->beaconPaymentConsumedInRequest = true;
+			}else{
+				$this->builder->addAction(new DestroyItemAction($destroyed));
+			}
 
 		}elseif($action instanceof CreativeCreateStackRequestAction){
 			$item = $this->player->getCreativeInventory()->getItem($action->getCreativeItemId());
@@ -367,6 +406,20 @@ class ItemStackRequestExecutor{
 			$this->setNextCreatedItem($nextResultItem);
 		}elseif($action instanceof DeprecatedCraftingResultsStackRequestAction){
 			//no obvious use
+		}elseif($action instanceof BeaconPaymentStackRequestAction){
+			$window = $this->player->getCurrentWindow();
+			if(!$window instanceof BeaconInventory){
+				throw new ItemStackRequestProcessException("Beacon payment action received without an open beacon inventory");
+			}
+			if($this->specialTransaction !== null){
+				throw new ItemStackRequestProcessException("Another special transaction is already in progress");
+			}
+			$this->specialTransaction = new BeaconPaymentTransaction(
+				$this->player,
+				$window->getBeacon(),
+				$action->getPrimaryEffectId(),
+				$action->getSecondaryEffectId()
+			);
 		}elseif($action instanceof MineBlockStackRequestAction){
 			$slot = $action->getHotbarSlot();
 			$this->requestSlotInfos[] = new ItemStackRequestSlotInfo(new FullContainerName(ContainerUIIds::HOTBAR), $slot, $action->getStackId());
@@ -392,6 +445,15 @@ class ItemStackRequestExecutor{
 			}catch(ItemStackRequestProcessException $e){
 				throw new ItemStackRequestProcessException("Error processing action $k (" . (new \ReflectionClass($action))->getShortName() . "): " . $e->getMessage(), 0, $e);
 			}
+		}
+		if($this->specialTransaction instanceof BeaconPaymentTransaction && !$this->beaconPaymentConsumedInRequest){
+			$paymentSlot = new ItemStackRequestSlotInfo(
+				new FullContainerName(ContainerUIIds::BEACON_PAYMENT),
+				UIInventorySlotOffset::BEACON_PAYMENT,
+				$this->request->getRequestId()
+			);
+			$this->removeItemFromSlot($paymentSlot, 1);
+			$this->beaconPaymentConsumedInRequest = true;
 		}
 		$this->setNextCreatedItem(null);
 		$inventoryActions = $this->builder->generateActions();

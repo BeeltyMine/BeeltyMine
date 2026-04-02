@@ -756,6 +756,12 @@ final class KnownTranslationFactory{
 		]);
 	}
 
+	public static function death_fell_accident_stalagmite(Translatable|string $param0) : Translatable{
+		return new Translatable(KnownTranslationKeys::DEATH_FELL_ACCIDENT_STALAGMITE, [
+			0 => $param0,
+		]);
+	}
+
 	public static function default_gamemode() : Translatable{
 		return new Translatable(KnownTranslationKeys::DEFAULT_GAMEMODE, []);
 	}
@@ -1053,6 +1059,10 @@ final class KnownTranslationFactory{
 
 	public static function item_record_far_desc() : Translatable{
 		return new Translatable(KnownTranslationKeys::ITEM_RECORD_FAR_DESC, []);
+	}
+
+	public static function item_record_lava_chicken_desc() : Translatable{
+		return new Translatable(KnownTranslationKeys::ITEM_RECORD_LAVA_CHICKEN_DESC, []);
 	}
 
 	public static function item_record_mall_desc() : Translatable{

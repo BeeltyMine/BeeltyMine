@@ -23,6 +23,21 @@ declare(strict_types=1);
 
 namespace pocketmine\data\runtime;
 
+use pocketmine\block\utils\BellAttachmentType;
+use pocketmine\block\utils\CopperOxidation;
+use pocketmine\block\utils\CoralType;
+use pocketmine\block\utils\DirtType;
+use pocketmine\block\utils\DripleafState;
+use pocketmine\block\utils\DyeColor;
+use pocketmine\block\utils\FroglightType;
+use pocketmine\block\utils\LeverFacing;
+use pocketmine\block\utils\MobHeadType;
+use pocketmine\block\utils\MushroomBlockType;
+use pocketmine\block\utils\SlabType;
+use pocketmine\item\MedicineType as ItemMedicineType;
+use pocketmine\item\PotionType;
+use pocketmine\item\SuspiciousStewType;
+
 /**
  * Provides backwards-compatible shims for the old codegen'd enum describer methods.
  * This is kept for plugin backwards compatibility, but these functions should not be used in new code.
@@ -31,59 +46,59 @@ namespace pocketmine\data\runtime;
 trait LegacyRuntimeEnumDescriberTrait{
 	abstract protected function enum(\UnitEnum &$case) : void;
 
-	public function bellAttachmentType(\pocketmine\block\utils\BellAttachmentType &$value) : void{
+	public function bellAttachmentType(BellAttachmentType &$value) : void{
 		$this->enum($value);
 	}
 
-	public function copperOxidation(\pocketmine\block\utils\CopperOxidation &$value) : void{
+	public function copperOxidation(CopperOxidation &$value) : void{
 		$this->enum($value);
 	}
 
-	public function coralType(\pocketmine\block\utils\CoralType &$value) : void{
+	public function coralType(CoralType &$value) : void{
 		$this->enum($value);
 	}
 
-	public function dirtType(\pocketmine\block\utils\DirtType &$value) : void{
+	public function dirtType(DirtType &$value) : void{
 		$this->enum($value);
 	}
 
-	public function dripleafState(\pocketmine\block\utils\DripleafState &$value) : void{
+	public function dripleafState(DripleafState &$value) : void{
 		$this->enum($value);
 	}
 
-	public function dyeColor(\pocketmine\block\utils\DyeColor &$value) : void{
+	public function dyeColor(DyeColor &$value) : void{
 		$this->enum($value);
 	}
 
-	public function froglightType(\pocketmine\block\utils\FroglightType &$value) : void{
+	public function froglightType(FroglightType &$value) : void{
 		$this->enum($value);
 	}
 
-	public function leverFacing(\pocketmine\block\utils\LeverFacing &$value) : void{
+	public function leverFacing(LeverFacing &$value) : void{
 		$this->enum($value);
 	}
 
-	public function medicineType(\pocketmine\item\MedicineType &$value) : void{
+	public function medicineType(ItemMedicineType &$value) : void{
 		$this->enum($value);
 	}
 
-	public function mobHeadType(\pocketmine\block\utils\MobHeadType &$value) : void{
+	public function mobHeadType(MobHeadType &$value) : void{
 		$this->enum($value);
 	}
 
-	public function mushroomBlockType(\pocketmine\block\utils\MushroomBlockType &$value) : void{
+	public function mushroomBlockType(MushroomBlockType &$value) : void{
 		$this->enum($value);
 	}
 
-	public function potionType(\pocketmine\item\PotionType &$value) : void{
+	public function potionType(PotionType &$value) : void{
 		$this->enum($value);
 	}
 
-	public function slabType(\pocketmine\block\utils\SlabType &$value) : void{
+	public function slabType(SlabType &$value) : void{
 		$this->enum($value);
 	}
 
-	public function suspiciousStewType(\pocketmine\item\SuspiciousStewType &$value) : void{
+	public function suspiciousStewType(SuspiciousStewType &$value) : void{
 		$this->enum($value);
 	}
 }

@@ -18,6 +18,8 @@ use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\world\BlockTransaction;
+use pocketmine\world\sound\Sound;
+
 use function max;
 
 final class PointedDripstone extends Transparent implements Fallable{
@@ -123,7 +125,7 @@ final class PointedDripstone extends Transparent implements Fallable{
 		return 40.0;
 	}
 
-	public function getLandSound() : ?\pocketmine\world\sound\Sound{
+	public function getLandSound() : ?Sound{
 		return null;
 	}
 

@@ -22,17 +22,18 @@ if($php -ne ""){
 }
 
 if($file -eq ""){
-	if((Test-Path "src\PocketMine.php") -and (Test-Path "vendor\autoload.php")){
-		$file = "src\PocketMine.php"
-		echo "Source bootstrap selected: $file"
-	}elseif(Test-Path "BeeltyMine-MP.phar"){
+	if(Test-Path "BeeltyMine-MP.phar"){
 		$file = "BeeltyMine-MP.phar"
+	}elseif((Test-Path "src\PocketMine.php") -and (Test-Path "vendor\autoload.php")){
+		$file = "src\PocketMine.php"
 	}else{
-		echo "Neither source bootstrap nor BeeltyMine-MP.phar was found"
+		echo "Neither BeeltyMine-MP.phar nor source bootstrap was found"
 		pause
 		exit 1
 	}
 }
+
+echo "Launching $file"
 
 $dashboardLaunched = $false
 $powerShellExe = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"

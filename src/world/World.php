@@ -85,6 +85,7 @@ use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Limits;
 use pocketmine\utils\ReversePriorityQueue;
 use pocketmine\utils\Utils;
+use pocketmine\world\beacon\BeaconStructure;
 use pocketmine\world\biome\Biome;
 use pocketmine\world\biome\BiomeRegistry;
 use pocketmine\world\format\Chunk;
@@ -2052,6 +2053,7 @@ class World implements ChunkManager{
 		$this->timings->setBlock->startTiming();
 
 		$this->unlockChunk($chunkX, $chunkZ, null);
+		$oldBlock = $this->getBlockAt($x, $y, $z, false, false);
 
 		$block = clone $block;
 
@@ -2082,12 +2084,30 @@ class World implements ChunkManager{
 			$listener->onBlockChanged($pos);
 		}
 
+		if(self::blockChangeAffectsBeacons($oldBlock, $block)){
+			$this->server->getBeaconManager()->invalidate();
+		}
+
 		if($update){
 			$this->updateAllLight($x, $y, $z);
 			$this->internalNotifyNeighbourBlockUpdate($x, $y, $z);
 		}
 
 		$this->timings->setBlock->stopTiming();
+	}
+
+	private static function blockChangeAffectsBeacons(Block $oldBlock, Block $newBlock) : bool{
+		static $beaconTypeId = null;
+
+		$beaconTypeId ??= VanillaBlocks::BEACON()->getTypeId();
+
+		$oldTypeId = $oldBlock->getTypeId();
+		$newTypeId = $newBlock->getTypeId();
+
+		return $oldTypeId === $beaconTypeId ||
+			$newTypeId === $beaconTypeId ||
+			BeaconStructure::isValidBaseBlockTypeId($oldTypeId) ||
+			BeaconStructure::isValidBaseBlockTypeId($newTypeId);
 	}
 
 	public function dropItem(Vector3 $source, Item $item, ?Vector3 $motion = null, int $delay = 10) : ?ItemEntity{

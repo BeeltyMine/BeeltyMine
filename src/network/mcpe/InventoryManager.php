@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace pocketmine\network\mcpe;
 
 use pocketmine\block\inventory\AnvilInventory;
+use pocketmine\block\inventory\BeaconInventory;
 use pocketmine\block\inventory\BlockInventory;
 use pocketmine\block\inventory\BrewingStandInventory;
 use pocketmine\block\inventory\CartographyTableInventory;
@@ -83,6 +84,8 @@ use function spl_object_id;
  * @phpstan-type ContainerOpenClosure \Closure(int $id, Inventory $inventory) : (list<ClientboundPacket>|null)
  */
 class InventoryManager{
+	public const SMITHING_RECIPE_NETWORK_OFFSET = 200000;
+
 	/**
 	 * @var InventoryManagerEntry[] spl_object_id(Inventory) => InventoryManagerEntry
 	 * @phpstan-var array<int, InventoryManagerEntry>
@@ -318,6 +321,7 @@ class InventoryManager{
 		//TODO: make this dynamic so plugins can add mappings for stuff not implemented by PM
 		return match(true){
 			$inventory instanceof AnvilInventory => UIInventorySlotOffset::ANVIL,
+			$inventory instanceof BeaconInventory => [UIInventorySlotOffset::BEACON_PAYMENT => BeaconInventory::SLOT_PAYMENT],
 			$inventory instanceof EnchantInventory => UIInventorySlotOffset::ENCHANTING_TABLE,
 			$inventory instanceof LoomInventory => UIInventorySlotOffset::LOOM,
 			$inventory instanceof StonecutterInventory => [UIInventorySlotOffset::STONE_CUTTER_INPUT => StonecutterInventory::SLOT_INPUT],
@@ -374,6 +378,7 @@ class InventoryManager{
 				$inv instanceof DropperInventory => WindowTypes::DROPPER,
 				$inv instanceof DispenserInventory => WindowTypes::DISPENSER,
 				$inv instanceof LoomInventory => WindowTypes::LOOM,
+				$inv instanceof BeaconInventory => WindowTypes::BEACON,
 				$inv instanceof FurnaceInventory => match($inv->getFurnaceType()){
 						FurnaceType::FURNACE => WindowTypes::FURNACE,
 						FurnaceType::BLAST_FURNACE => WindowTypes::BLAST_FURNACE,

@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
-TITLE PocketMine-MP server software for Minecraft: Bedrock Edition
+TITLE BeeltyMine server software for Minecraft: Bedrock Edition
 cd /d %~dp0
 
 set PHP_BINARY=

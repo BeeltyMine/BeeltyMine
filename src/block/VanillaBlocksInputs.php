@@ -57,6 +57,7 @@ use pocketmine\block\tile\MonsterSpawner as TileMonsterSpawner;
 use pocketmine\block\tile\NormalFurnace as TileNormalFurnace;
 use pocketmine\block\tile\Note as TileNote;
 use pocketmine\block\tile\PistonArm as TilePistonArm;
+use pocketmine\block\tile\Shelf as TileShelf;
 use pocketmine\block\tile\ShulkerBox as TileShulkerBox;
 use pocketmine\block\tile\Sign as TileSign;
 use pocketmine\block\tile\Smoker as TileSmoker;
@@ -717,6 +718,7 @@ final class VanillaBlocksInputs extends RegistrySource{
 			}
 
 			self::register($idName("planks"), fn(BID $id) => new Planks($id, $name . " Planks", $planksBreakInfo, $woodType));
+			self::register($idName("shelf"), fn(BID $id) => new Shelf($id, $name . " Shelf", $planksBreakInfo, $woodType), TileShelf::class);
 			self::register($idName("fence"), fn(BID $id) => new WoodenFence($id, $name . " Fence", $planksBreakInfo, $woodType));
 			self::register($idName("slab"), fn(BID $id) => new WoodenSlab($id, $name, $planksBreakInfo, $woodType));
 

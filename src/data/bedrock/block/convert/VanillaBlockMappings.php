@@ -90,6 +90,7 @@ use pocketmine\block\RedstoneRepeater;
 use pocketmine\block\RedstoneTorch;
 use pocketmine\block\RespawnAnchor;
 use pocketmine\block\Sapling;
+use pocketmine\block\Shelf;
 use pocketmine\block\SeaPickle;
 use pocketmine\block\SmallDripleaf;
 use pocketmine\block\SnowLayer;
@@ -114,7 +115,9 @@ use pocketmine\block\utils\HorizontalFacing;
 use pocketmine\block\utils\LeverFacing;
 use pocketmine\block\utils\MobHeadType;
 use pocketmine\block\utils\MushroomBlockType;
+use pocketmine\block\utils\PointedDripstoneThickness;
 use pocketmine\block\utils\PoweredByRedstone;
+use pocketmine\block\utils\PoweredShelfType;
 use pocketmine\block\VanillaBlocks as Blocks;
 use pocketmine\block\Vine;
 use pocketmine\data\bedrock\block\BlockLegacyMetadata;
@@ -1194,6 +1197,32 @@ final class VanillaBlockMappings{
 			$reg->mapSimple($block, $id);
 		}
 
+		foreach([
+			[Blocks::ACACIA_SHELF(), Ids::ACACIA_SHELF],
+			[Blocks::BAMBOO_SHELF(), Ids::BAMBOO_SHELF],
+			[Blocks::BIRCH_SHELF(), Ids::BIRCH_SHELF],
+			[Blocks::CHERRY_SHELF(), Ids::CHERRY_SHELF],
+			[Blocks::CRIMSON_SHELF(), Ids::CRIMSON_SHELF],
+			[Blocks::DARK_OAK_SHELF(), Ids::DARK_OAK_SHELF],
+			[Blocks::JUNGLE_SHELF(), Ids::JUNGLE_SHELF],
+			[Blocks::MANGROVE_SHELF(), Ids::MANGROVE_SHELF],
+			[Blocks::OAK_SHELF(), Ids::OAK_SHELF],
+			[Blocks::PALE_OAK_SHELF(), Ids::PALE_OAK_SHELF],
+			[Blocks::SPRUCE_SHELF(), Ids::SPRUCE_SHELF],
+			[Blocks::WARPED_SHELF(), Ids::WARPED_SHELF]
+		] as [$block, $id]){
+			$reg->mapModel(Model::create($block, $id)->properties([
+				$commonProperties->horizontalFacingCardinal,
+				new BoolProperty(StateNames::POWERED_BIT, fn(Shelf $b) => $b->isPowered(), fn(Shelf $b, bool $v) => $b->setPowered($v)),
+				new ValueFromIntProperty(
+					StateNames::POWERED_SHELF_TYPE,
+					EnumFromRawStateMap::int(PoweredShelfType::class, fn(PoweredShelfType $case) => $case->value),
+					fn(Shelf $b) => $b->getShelfType(),
+					fn(Shelf $b, PoweredShelfType $v) => $b->setShelfType($v)
+				)
+			]));
+		}
+
 		//pressure plates
 		foreach([
 			[Blocks::ACACIA_PRESSURE_PLATE(), Ids::ACACIA_PRESSURE_PLATE],
@@ -1578,9 +1607,9 @@ final class VanillaBlockMappings{
 		$reg->mapModel(Model::create(Blocks::POINTED_DRIPSTONE(), Ids::POINTED_DRIPSTONE)->properties([
 			new ValueFromStringProperty(
 				StateNames::DRIPSTONE_THICKNESS,
-				EnumFromRawStateMap::string(\pocketmine\block\utils\PointedDripstoneThickness::class, fn(\pocketmine\block\utils\PointedDripstoneThickness $case) => $case->value),
+				EnumFromRawStateMap::string(PointedDripstoneThickness::class, fn(PointedDripstoneThickness $case) => $case->value),
 				fn(PointedDripstone $b) => $b->getThickness(),
-				fn(PointedDripstone $b, \pocketmine\block\utils\PointedDripstoneThickness $v) => $b->setThickness($v)
+				fn(PointedDripstone $b, PointedDripstoneThickness $v) => $b->setThickness($v)
 			),
 			new BoolProperty(StateNames::HANGING, fn(PointedDripstone $b) => $b->isHanging(), fn(PointedDripstone $b, bool $v) => $b->setHanging($v))
 		]));

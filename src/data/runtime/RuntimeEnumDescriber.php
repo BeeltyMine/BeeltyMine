@@ -21,7 +21,24 @@
 
 declare(strict_types=1);
 
+
+
 namespace pocketmine\data\runtime;
+
+use pocketmine\block\utils\BellAttachmentType;
+use pocketmine\block\utils\CopperOxidation;
+use pocketmine\block\utils\CoralType;
+use pocketmine\block\utils\DirtType;
+use pocketmine\block\utils\DripleafState;
+use pocketmine\block\utils\DyeColor;
+use pocketmine\block\utils\FroglightType;
+use pocketmine\block\utils\LeverFacing;
+use pocketmine\block\utils\MobHeadType;
+use pocketmine\block\utils\MushroomBlockType;
+use pocketmine\block\utils\SlabType;
+use pocketmine\item\MedicineType;
+use pocketmine\item\PotionType;
+use pocketmine\item\SuspiciousStewType;
 
 /**
  * Provides backwards-compatible shims for the old codegen'd enum describer methods.
@@ -30,32 +47,32 @@ namespace pocketmine\data\runtime;
  */
 interface RuntimeEnumDescriber{
 
-	public function bellAttachmentType(\pocketmine\block\utils\BellAttachmentType &$value) : void;
+	public function bellAttachmentType(BellAttachmentType &$value) : void;
 
-	public function copperOxidation(\pocketmine\block\utils\CopperOxidation &$value) : void;
+	public function copperOxidation(CopperOxidation &$value) : void;
 
-	public function coralType(\pocketmine\block\utils\CoralType &$value) : void;
+	public function coralType(CoralType &$value) : void;
 
-	public function dirtType(\pocketmine\block\utils\DirtType &$value) : void;
+	public function dirtType(DirtType &$value) : void;
 
-	public function dripleafState(\pocketmine\block\utils\DripleafState &$value) : void;
+	public function dripleafState(DripleafState &$value) : void;
 
-	public function dyeColor(\pocketmine\block\utils\DyeColor &$value) : void;
+	public function dyeColor(DyeColor &$value) : void;
 
-	public function froglightType(\pocketmine\block\utils\FroglightType &$value) : void;
+	public function froglightType(FroglightType &$value) : void;
 
-	public function leverFacing(\pocketmine\block\utils\LeverFacing &$value) : void;
+	public function leverFacing(LeverFacing &$value) : void;
 
-	public function medicineType(\pocketmine\item\MedicineType &$value) : void;
+	public function medicineType(MedicineType &$value) : void;
 
-	public function mobHeadType(\pocketmine\block\utils\MobHeadType &$value) : void;
+	public function mobHeadType(MobHeadType &$value) : void;
 
-	public function mushroomBlockType(\pocketmine\block\utils\MushroomBlockType &$value) : void;
+	public function mushroomBlockType(MushroomBlockType &$value) : void;
 
-	public function potionType(\pocketmine\item\PotionType &$value) : void;
+	public function potionType(PotionType &$value) : void;
 
-	public function slabType(\pocketmine\block\utils\SlabType &$value) : void;
+	public function slabType(SlabType &$value) : void;
 
-	public function suspiciousStewType(\pocketmine\item\SuspiciousStewType &$value) : void;
+	public function suspiciousStewType(SuspiciousStewType &$value) : void;
 
 }

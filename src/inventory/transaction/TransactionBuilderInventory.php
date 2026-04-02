@@ -65,7 +65,9 @@ final class TransactionBuilderInventory extends BaseInventory{
 	}
 
 	protected function internalSetItem(int $index, Item $item) : void{
-		if(!$item->equalsExact($this->actualInventory->getItem($index))){
+		if($item->equalsExact($this->actualInventory->getItem($index))){
+			$this->changedSlots[$index] = null;
+		}else{
 			$this->changedSlots[$index] = $item->isNull() ? VanillaItems::AIR() : clone $item;
 		}
 	}

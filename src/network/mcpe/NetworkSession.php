@@ -60,6 +60,7 @@ use pocketmine\network\mcpe\handler\ResourcePacksPacketHandler;
 use pocketmine\network\mcpe\handler\SessionStartPacketHandler;
 use pocketmine\network\mcpe\handler\SpawnResponsePacketHandler;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\ChangeDimensionPacket;
 use pocketmine\network\mcpe\protocol\ChunkRadiusUpdatedPacket;
 use pocketmine\network\mcpe\protocol\ClientboundCloseFormPacket;
 use pocketmine\network\mcpe\protocol\ClientboundPacket;
@@ -161,6 +162,7 @@ class NetworkSession{
 	private ?Player $player = null;
 	private ?PlayerInfo $info = null;
 	private ?int $ping = null;
+	private ?int $currentDimensionId = null;
 
 	private ?PacketHandler $handler = null;
 	/**
@@ -1035,6 +1037,7 @@ class NetworkSession{
 		$this->logger->debug("Received spawn response, entering in-game phase");
 		$this->player->setNoClientPredictions(false); //TODO: HACK: we set this during the spawn sequence to prevent the client sending junk movements
 		$this->player->doFirstSpawn();
+		$this->currentDimensionId = $this->player->getWorld()->getDimensionId();
 		$this->forceAsyncCompression = false;
 		$this->setHandler(new InGamePacketHandler($this->player, $this, $this->invManager));
 	}
@@ -1312,6 +1315,16 @@ class NetworkSession{
 	public function onEnterWorld() : void{
 		if($this->player !== null){
 			$world = $this->player->getWorld();
+			$dimensionId = $world->getDimensionId();
+			if($this->player->spawned && $this->currentDimensionId !== null && $this->currentDimensionId !== $dimensionId){
+				$this->sendDataPacket(ChangeDimensionPacket::create(
+					$dimensionId,
+					$this->player->getOffsetPosition($this->player->getLocation()),
+					false,
+					null
+				));
+			}
+			$this->currentDimensionId = $dimensionId;
 			$this->syncWorldTime($world->getTime());
 			$this->syncWorldDifficulty($world->getDifficulty());
 			$this->syncWorldSpawnPoint($world->getSpawnLocation());

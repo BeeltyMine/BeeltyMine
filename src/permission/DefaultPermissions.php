@@ -135,6 +135,7 @@ abstract class DefaultPermissions{
 		}
 
 		self::registerPermission(new Permission(Names::COMMAND_WORLD, "Allows the user to manage and travel between worlds"), [$operatorRoot]);
+		self::registerPermission(new Permission(Names::COMMAND_LOCATE, "Allows the user to locate generated structures"), [$operatorRoot]);
 
 		foreach([
 			Names::COMMAND_KILL_SELF,

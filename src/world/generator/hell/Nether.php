@@ -27,6 +27,7 @@ use pocketmine\block\Block;
 use pocketmine\block\NetherVines;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\BiomeIds;
+use pocketmine\network\mcpe\protocol\types\DimensionIds;
 use pocketmine\world\ChunkManager;
 use pocketmine\world\format\Chunk;
 use pocketmine\world\generator\Generator;
@@ -37,6 +38,7 @@ use pocketmine\world\generator\object\TreeFactory;
 use pocketmine\world\generator\object\TreeType;
 use pocketmine\world\generator\populator\Ore;
 use pocketmine\world\generator\populator\Populator;
+use pocketmine\world\generator\structure\StructureRegistry;
 use pocketmine\world\World;
 use function abs;
 use function min;
@@ -159,6 +161,8 @@ class Nether extends Generator{
 				}
 			}
 		}
+
+		StructureRegistry::populateChunk($world, $chunkX, $chunkZ, DimensionIds::NETHER, $this->seed);
 	}
 
 	private function pickBiomeId(int $worldX, int $worldZ) : int{

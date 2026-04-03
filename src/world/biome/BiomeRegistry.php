@@ -49,6 +49,7 @@ final class BiomeRegistry{
 		$this->register(BiomeIds::RIVER, new RiverBiome());
 
 		$this->register(BiomeIds::HELL, new HellBiome());
+		$this->register(BiomeIds::THE_END, new EndBiome());
 		$this->register(BiomeIds::SOULSAND_VALLEY, new SoulsandValleyBiome());
 		$this->register(BiomeIds::CRIMSON_FOREST, new CrimsonForestBiome());
 		$this->register(BiomeIds::WARPED_FOREST, new WarpedForestBiome());

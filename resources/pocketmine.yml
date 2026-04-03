@@ -208,6 +208,9 @@ worlds:
   #nether:
   # generator: nether
   # dimension: nether
+  #the_end:
+  # generator: end
+  # dimension: end
   #void_lobby:
   # generator: void
   # dimension: overworld

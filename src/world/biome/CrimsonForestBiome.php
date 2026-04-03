@@ -22,14 +22,9 @@ declare(strict_types=1);
 
 namespace pocketmine\world\biome;
 
-class HellBiome extends Biome{
-	public function __construct(){
-		$this->temperature = 2.0;
-		$this->rainfall = 0.0;
-		$this->setElevation(0, 128);
-	}
+class CrimsonForestBiome extends HellBiome{
 
 	public function getName() : string{
-		return "Nether Wastes";
+		return "Crimson Forest";
 	}
 }

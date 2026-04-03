@@ -2596,7 +2596,6 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 
 		$this->removeCurrentWindow();
 		$this->removePermanentInventories();
-
 		$this->perm->getPermissionRecalculationCallbacks()->clear();
 
 		$this->flagForDespawn();

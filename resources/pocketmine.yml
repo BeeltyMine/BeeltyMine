@@ -205,6 +205,13 @@ worlds:
   # seed: 404
   # generator: FLAT
   # preset: 2;bedrock,59xstone,3xdirt,grass;1
+  #nether:
+  # generator: nether
+  # dimension: nether
+  #void_lobby:
+  # generator: void
+  # dimension: overworld
+  #Valid dimension values: overworld, nether, end
 
 plugins:
   #Setting this to true will cause the legacy structure to be used where plugin data is placed inside the --plugins dir.

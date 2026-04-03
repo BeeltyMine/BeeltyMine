@@ -68,6 +68,11 @@ final class ServerConfigGroup{
 		return (string) $this->getProperty($variable, $defaultValue);
 	}
 
+	public function setProperty(string $variable, mixed $value) : void{
+		$this->propertyCache[$variable] = $value;
+		$this->pocketmineYml->setNested($variable, $value);
+	}
+
 	public function getConfigString(string $variable, string $defaultValue = "") : string{
 		$v = getopt("", ["$variable::"]);
 		if(isset($v[$variable])){

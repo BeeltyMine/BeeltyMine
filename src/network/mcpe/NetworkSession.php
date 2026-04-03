@@ -1089,11 +1089,11 @@ class NetworkSession{
 	public function syncPlayerSpawnPoint(Position $newSpawn) : void{
 		$newSpawnBlockPosition = BlockPosition::fromVector3($newSpawn);
 		//TODO: respawn causing block position (bed, respawn anchor)
-		$this->sendDataPacket(SetSpawnPositionPacket::playerSpawn($newSpawnBlockPosition, DimensionIds::OVERWORLD, $newSpawnBlockPosition));
+		$this->sendDataPacket(SetSpawnPositionPacket::playerSpawn($newSpawnBlockPosition, $newSpawn->getWorld()->getDimensionId(), $newSpawnBlockPosition));
 	}
 
 	public function syncWorldSpawnPoint(Position $newSpawn) : void{
-		$this->sendDataPacket(SetSpawnPositionPacket::worldSpawn(BlockPosition::fromVector3($newSpawn), DimensionIds::OVERWORLD));
+		$this->sendDataPacket(SetSpawnPositionPacket::worldSpawn(BlockPosition::fromVector3($newSpawn), $newSpawn->getWorld()->getDimensionId()));
 	}
 
 	public function syncGameMode(GameMode $mode, bool $isRollback = false) : void{

@@ -216,6 +216,8 @@ class World implements ChunkManager{
 	 * @phpstan-var array<ChunkPosHash, array<ChunkBlockPosHash, list<AxisAlignedBB>>>
 	 */
 	private array $blockCollisionBoxCache = [];
+	/**
+	 * @var int[] column hash => safe Y coordinate
 
 	private int $sendTimeTicker = 0;
 

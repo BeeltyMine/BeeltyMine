@@ -75,6 +75,7 @@ use pocketmine\network\mcpe\protocol\Packet;
 use pocketmine\network\mcpe\protocol\PacketDecodeException;
 use pocketmine\network\mcpe\protocol\PacketViolationWarningPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
+use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\PlayerListPacket;
 use pocketmine\network\mcpe\protocol\PlayerStartItemCooldownPacket;
 use pocketmine\network\mcpe\protocol\PlayStatusPacket;
@@ -101,6 +102,7 @@ use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
 use pocketmine\network\mcpe\protocol\types\command\CommandPermissions;
 use pocketmine\network\mcpe\protocol\types\CompressionAlgorithm;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
+use pocketmine\network\mcpe\protocol\types\PlayerAction;
 use pocketmine\network\mcpe\protocol\types\PlayerListEntry;
 use pocketmine\network\mcpe\protocol\types\PlayerPermissions;
 use pocketmine\network\mcpe\protocol\UpdateAbilitiesPacket;
@@ -163,6 +165,7 @@ class NetworkSession{
 	private ?PlayerInfo $info = null;
 	private ?int $ping = null;
 	private ?int $currentDimensionId = null;
+	private bool $pendingDimensionChangeAck = false;
 
 	private ?PacketHandler $handler = null;
 	/**
@@ -1268,6 +1271,17 @@ class NetworkSession{
 		try{
 			$this->queueCompressed($chunkPacket);
 			$onCompletion();
+			if($this->pendingDimensionChangeAck && $this->player !== null){
+				$this->pendingDimensionChangeAck = false;
+				$origin = new BlockPosition(0, 0, 0);
+				$this->sendDataPacket(PlayerActionPacket::create(
+					$this->player->getId(),
+					PlayerAction::DIMENSION_CHANGE_ACK,
+					$origin,
+					$origin,
+					0
+				));
+			}
 		}finally{
 			$world->timings->syncChunkSend->stopTiming();
 		}
@@ -1323,11 +1337,14 @@ class NetworkSession{
 					false,
 					null
 				));
+				$this->pendingDimensionChangeAck = true;
 			}
 			$this->currentDimensionId = $dimensionId;
 			$this->syncWorldTime($world->getTime());
 			$this->syncWorldDifficulty($world->getDifficulty());
 			$this->syncWorldSpawnPoint($world->getSpawnLocation());
+			$this->syncViewAreaRadius($this->player->getViewDistance());
+			$this->syncViewAreaCenterPoint($this->player->getLocation(), $this->player->getViewDistance());
 			//TODO: weather needs to be synced here (when implemented)
 		}
 	}

@@ -174,6 +174,8 @@ class World implements ChunkManager{
 
 	//TODO: this could probably do with being a lot bigger
 	private const BLOCK_CACHE_SIZE_CAP = 2048;
+	private const SAFE_SPAWN_SEARCH_RADIUS = 8;
+	private const SAFE_SPAWN_CHUNK_RADIUS = 1;
 
 	/**
 	 * @var Player[] entity runtime ID => Player
@@ -218,6 +220,9 @@ class World implements ChunkManager{
 	private array $blockCollisionBoxCache = [];
 	/**
 	 * @var int[] column hash => safe Y coordinate
+	 * @phpstan-var array<int, int>
+	 */
+	private array $safeSpawnColumnCache = [];
 
 	private int $sendTimeTicker = 0;
 
@@ -349,6 +354,9 @@ class World implements ChunkManager{
 	private array $chunkPopulationRequestQueueIndex = [];
 
 	private readonly GeneratorExecutor $generatorExecutor;
+	/** @phpstan-var \pocketmine\network\mcpe\protocol\types\DimensionIds::* */
+	private int $dimensionId;
+	private int $generatorType;
 
 	private bool $autoSave = true;
 
@@ -389,6 +397,10 @@ class World implements ChunkManager{
 		return morton2d_encode($x, $z);
 	}
 
+	private static function columnHash(int $x, int $z) : int{
+		return self::chunkHash($x, $z);
+	}
+
 	private const MORTON3D_BIT_SIZE = 21;
 	private const BLOCKHASH_Y_BITS = 9;
 	private const BLOCKHASH_Y_PADDING = 64; //size (in blocks) of padding after both boundaries of the Y axis
@@ -426,6 +438,71 @@ class World implements ChunkManager{
 	 */
 	public static function chunkBlockHash(int $x, int $y, int $z) : int{
 		return morton3d_encode($x, $y, $z);
+	}
+
+	private function invalidateSafeSpawnCacheAroundColumn(int $x, int $z) : void{
+		for($dx = -1; $dx <= 1; ++$dx){
+			for($dz = -1; $dz <= 1; ++$dz){
+				unset($this->safeSpawnColumnCache[self::columnHash($x + $dx, $z + $dz)]);
+			}
+		}
+	}
+
+	private function invalidateSafeSpawnCacheForChunk(int $chunkX, int $chunkZ) : void{
+		$baseX = $chunkX << Chunk::COORD_BIT_SIZE;
+		$baseZ = $chunkZ << Chunk::COORD_BIT_SIZE;
+		for($x = $baseX; $x < $baseX + Chunk::EDGE_LENGTH; ++$x){
+			for($z = $baseZ; $z < $baseZ + Chunk::EDGE_LENGTH; ++$z){
+				unset($this->safeSpawnColumnCache[self::columnHash($x, $z)]);
+			}
+		}
+	}
+
+	private function isDangerousSpawnBlock(Block $block) : bool{
+		return match($block->getTypeId()){
+			BlockTypeIds::WATER,
+			BlockTypeIds::LAVA,
+			BlockTypeIds::FIRE,
+			BlockTypeIds::SOUL_FIRE,
+			BlockTypeIds::MAGMA,
+			BlockTypeIds::CACTUS,
+			BlockTypeIds::CAMPFIRE,
+			BlockTypeIds::SOUL_CAMPFIRE,
+			BlockTypeIds::SWEET_BERRY_BUSH,
+			BlockTypeIds::WITHER_ROSE => true,
+			default => false,
+		};
+	}
+
+	private function isSafeSpawnFloorBlock(Block $block) : bool{
+		return $block->isFullCube() && !$this->isDangerousSpawnBlock($block);
+	}
+
+	private function isSafeSpawnOpenBlock(Block $block) : bool{
+		return count($block->getCollisionBoxes()) === 0 && !$this->isDangerousSpawnBlock($block);
+	}
+
+	private function findSafeSpawnYInColumn(int $x, int $z) : ?int{
+		$columnHash = self::columnHash($x, $z);
+		if(isset($this->safeSpawnColumnCache[$columnHash])){
+			return $this->safeSpawnColumnCache[$columnHash];
+		}
+
+		if($this->loadChunk($x >> Chunk::COORD_BIT_SIZE, $z >> Chunk::COORD_BIT_SIZE) === null){
+			return null;
+		}
+
+		for($y = $this->maxY - 2; $y > $this->minY; --$y){
+			$feet = $this->getBlockAt($x, $y, $z);
+			$head = $this->getBlockAt($x, $y + 1, $z);
+			$floor = $this->getBlockAt($x, $y - 1, $z);
+			if($this->isSafeSpawnOpenBlock($feet) && $this->isSafeSpawnOpenBlock($head) && $this->isSafeSpawnFloorBlock($floor)){
+				$this->safeSpawnColumnCache[$columnHash] = $y;
+				return $y;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -498,9 +575,12 @@ class World implements ChunkManager{
 		$this->blockStateRegistry = RuntimeBlockStateRegistry::getInstance();
 		$this->minY = $this->provider->getWorldMinY();
 		$this->maxY = $this->provider->getWorldMaxY();
+		$generatorName = $this->provider->getWorldData()->getGenerator();
+		$this->dimensionId = WorldDimension::resolveDimensionId($generatorName, $this->resolveConfiguredDimensionName());
+		$this->generatorType = WorldDimension::resolveGeneratorType($generatorName, $this->dimensionId);
 
 		$this->server->getLogger()->info($this->server->getLanguage()->translate(KnownTranslationFactory::pocketmine_level_preparing($this->displayName)));
-		$generator = GeneratorManager::getInstance()->getGenerator($this->provider->getWorldData()->getGenerator()) ??
+		$generator = GeneratorManager::getInstance()->getGenerator($generatorName) ??
 			throw new AssumptionFailedError("WorldManager should already have checked that the generator exists");
 		$generator->validateGeneratorOptions($this->provider->getWorldData()->getGeneratorOptions());
 
@@ -555,6 +635,16 @@ class World implements ChunkManager{
 		$this->initRandomTickBlocksFromConfig($cfg);
 
 		$this->timings = new WorldTimings($this);
+	}
+
+	private function resolveConfiguredDimensionName() : ?string{
+		$worlds = $this->server->getConfigGroup()->getProperty(YmlServerProperties::WORLDS, []);
+		if(!isset($worlds[$this->folderName]) || !is_array($worlds[$this->folderName])){
+			return null;
+		}
+
+		$dimension = $worlds[$this->folderName]["dimension"] ?? null;
+		return is_string($dimension) ? $dimension : null;
 	}
 
 	private function initRandomTickBlocksFromConfig(ServerConfigGroup $cfg) : void{
@@ -2069,6 +2159,7 @@ class World implements ChunkManager{
 		unset($this->blockCache[$chunkHash][$relativeBlockHash]);
 		$this->blockCacheSize--;
 		unset($this->blockCollisionBoxCache[$chunkHash][$relativeBlockHash]);
+		$this->invalidateSafeSpawnCacheAroundColumn($x, $z);
 		//blocks like fences have collision boxes that reach into neighbouring blocks, so we need to invalidate the
 		//caches for those blocks as well
 		foreach(Facing::OFFSET as [$offsetX, $offsetY, $offsetZ]){
@@ -2698,6 +2789,7 @@ class World implements ChunkManager{
 		unset($this->blockCache[$chunkHash]);
 		unset($this->blockCollisionBoxCache[$chunkHash]);
 		unset($this->changedBlocks[$chunkHash]);
+		$this->invalidateSafeSpawnCacheForChunk($chunkX, $chunkZ);
 		$chunk->setTerrainDirty();
 		$this->markTickingChunkForRecheck($chunkX, $chunkZ); //this replacement chunk may not meet the conditions for ticking
 
@@ -2995,6 +3087,7 @@ class World implements ChunkManager{
 		$this->blockCacheSize -= count($this->blockCache[$chunkHash] ?? []);
 		unset($this->blockCache[$chunkHash]);
 		unset($this->blockCollisionBoxCache[$chunkHash]);
+		$this->invalidateSafeSpawnCacheForChunk($x, $z);
 
 		$this->initChunk($x, $z, $chunkData, $chunk);
 
@@ -3178,6 +3271,7 @@ class World implements ChunkManager{
 		unset($this->blockCache[$chunkHash]);
 		unset($this->blockCollisionBoxCache[$chunkHash]);
 		unset($this->changedBlocks[$chunkHash]);
+		$this->invalidateSafeSpawnCacheForChunk($x, $z);
 		unset($this->registeredTickingChunks[$chunkHash]);
 		$this->markTickingChunkForRecheck($x, $z);
 
@@ -3218,19 +3312,41 @@ class World implements ChunkManager{
 		/** @phpstan-var PromiseResolver<Position> $resolver */
 		$resolver = new PromiseResolver();
 		$spawn ??= $this->getSpawnLocation();
-		/*
-		 * TODO: this relies on the assumption that getSafeSpawn() will only alter the Y coordinate of the provided
-		 * position, which is currently OK, but might be a problem in the future.
-		 */
-		$this->requestChunkPopulation($spawn->getFloorX() >> Chunk::COORD_BIT_SIZE, $spawn->getFloorZ() >> Chunk::COORD_BIT_SIZE, null)->onCompletion(
-			function() use ($spawn, $resolver) : void{
-				$spawn = $this->getSafeSpawn($spawn);
-				$resolver->resolve($spawn);
-			},
-			function() use ($resolver) : void{
-				$resolver->reject();
+		$centerChunkX = $spawn->getFloorX() >> Chunk::COORD_BIT_SIZE;
+		$centerChunkZ = $spawn->getFloorZ() >> Chunk::COORD_BIT_SIZE;
+		$pending = ((self::SAFE_SPAWN_CHUNK_RADIUS * 2) + 1) ** 2;
+		$finished = false;
+
+		for($chunkX = $centerChunkX - self::SAFE_SPAWN_CHUNK_RADIUS; $chunkX <= $centerChunkX + self::SAFE_SPAWN_CHUNK_RADIUS; ++$chunkX){
+			for($chunkZ = $centerChunkZ - self::SAFE_SPAWN_CHUNK_RADIUS; $chunkZ <= $centerChunkZ + self::SAFE_SPAWN_CHUNK_RADIUS; ++$chunkZ){
+				++$pending;
+				$this->requestChunkPopulation($chunkX, $chunkZ, null)->onCompletion(
+					function() use (&$pending, &$finished, $spawn, $resolver) : void{
+						if($finished){
+							return;
+						}
+						if(--$pending > 0){
+							return;
+						}
+
+						try{
+							$resolver->resolve($this->getSafeSpawn($spawn));
+						}catch(WorldException){
+							$resolver->reject();
+						}
+						$finished = true;
+					},
+					function() use (&$finished, $resolver) : void{
+						if($finished){
+							return;
+						}
+
+						$finished = true;
+						$resolver->reject();
+					}
+				);
 			}
-		);
+		}
 
 		return $resolver->getPromise();
 	}
@@ -3246,38 +3362,35 @@ class World implements ChunkManager{
 			$spawn = $this->getSpawnLocation();
 		}
 
-		$max = $this->maxY;
 		$v = $spawn->floor();
-		$chunk = $this->getOrLoadChunkAtPosition($v);
-		if($chunk === null){
-			throw new WorldException("Cannot find a safe spawn point in non-generated terrain");
-		}
 		$x = (int) $v->x;
 		$z = (int) $v->z;
-		$y = (int) min($max - 2, $v->y);
-		$wasAir = $this->getBlockAt($x, $y - 1, $z)->getTypeId() === BlockTypeIds::AIR; //TODO: bad hack, clean up
-		for(; $y > $this->minY; --$y){
-			if($this->getBlockAt($x, $y, $z)->isFullCube()){
-				if($wasAir){
-					$y++;
+		if($this->loadChunk($x >> Chunk::COORD_BIT_SIZE, $z >> Chunk::COORD_BIT_SIZE) === null){
+			throw new WorldException("Cannot find a safe spawn point in non-generated terrain");
+		}
+
+		for($radius = 0; $radius <= self::SAFE_SPAWN_SEARCH_RADIUS; ++$radius){
+			for($dx = -$radius; $dx <= $radius; ++$dx){
+				for($dz = -$radius; $dz <= $radius; ++$dz){
+					if($radius !== 0 && abs($dx) !== $radius && abs($dz) !== $radius){
+						continue;
+					}
+
+					$safeX = $x + $dx;
+					$safeZ = $z + $dz;
+					$safeY = $this->findSafeSpawnYInColumn($safeX, $safeZ);
+					if($safeY === null){
+						continue;
+					}
+
+					$resultX = $safeX === $x ? $spawn->x : $safeX + 0.5;
+					$resultZ = $safeZ === $z ? $spawn->z : $safeZ + 0.5;
+					return new Position($resultX, $safeY, $resultZ, $this);
 				}
-				break;
-			}else{
-				$wasAir = true;
 			}
 		}
 
-		for(; $y >= $this->minY && $y < $max; ++$y){
-			if(!$this->getBlockAt($x, $y + 1, $z)->isFullCube()){
-				if(!$this->getBlockAt($x, $y, $z)->isFullCube()){
-					return new Position($spawn->x, $y === (int) $spawn->y ? $spawn->y : $y, $spawn->z, $this);
-				}
-			}else{
-				++$y;
-			}
-		}
-
-		return new Position($spawn->x, $y, $spawn->z, $this);
+		throw new WorldException("Cannot find a safe spawn point in generated terrain");
 	}
 
 	/**
@@ -3360,6 +3473,25 @@ class World implements ChunkManager{
 
 	public function getDifficulty() : int{
 		return $this->provider->getWorldData()->getDifficulty();
+	}
+
+	/**
+	 * @phpstan-return \pocketmine\network\mcpe\protocol\types\DimensionIds::*
+	 */
+	public function getDimensionId() : int{
+		return $this->dimensionId;
+	}
+
+	public function getGeneratorType() : int{
+		return $this->generatorType;
+	}
+
+	public function getRainLevel() : float{
+		return WorldDimension::hasWeather($this->dimensionId) ? $this->provider->getWorldData()->getRainLevel() : 0.0;
+	}
+
+	public function getLightningLevel() : float{
+		return WorldDimension::hasWeather($this->dimensionId) ? $this->provider->getWorldData()->getLightningLevel() : 0.0;
 	}
 
 	public function setDifficulty(int $difficulty) : void{

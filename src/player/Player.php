@@ -952,7 +952,9 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 
 							$this->spawnEntitiesOnAllChunks();
 
-							$this->getNetworkSession()->notifyTerrainReady();
+							if(!$this->spawned){
+								$this->getNetworkSession()->notifyTerrainReady();
+							}
 						}
 						(new PlayerPostChunkSendEvent($this, $X, $Z))->call();
 					});

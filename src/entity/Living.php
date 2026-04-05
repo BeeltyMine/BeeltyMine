@@ -540,8 +540,19 @@ abstract class Living extends Entity{
 	private function damageItem(Durable $item, int $durabilityRemoved) : void{
 		$item->applyDamage($durabilityRemoved);
 		if($item->isBroken()){
-			$this->broadcastSound(new ItemBreakSound());
+			$this->broadcastItemBreakSound();
 		}
+	}
+
+	protected function broadcastItemBreakSound() : void{
+		if($this instanceof Player){
+			$targets = $this->getViewers();
+			$targets[] = $this;
+			$this->broadcastSound(new ItemBreakSound(), $targets);
+			return;
+		}
+
+		$this->broadcastSound(new ItemBreakSound());
 	}
 
 	public function attack(EntityDamageEvent $source) : void{

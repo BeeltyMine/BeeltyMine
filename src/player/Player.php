@@ -145,7 +145,6 @@ use pocketmine\world\Position;
 use pocketmine\world\sound\EntityAttackNoDamageSound;
 use pocketmine\world\sound\EntityAttackSound;
 use pocketmine\world\sound\FireExtinguishSound;
-use pocketmine\world\sound\ItemBreakSound;
 use pocketmine\world\sound\RespawnAnchorDepleteSound;
 use pocketmine\world\sound\Sound;
 use pocketmine\world\World;
@@ -1784,7 +1783,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 
 			if(!$damagedOrDeducted || $this->hasFiniteResources()){
 				if($newHeldItem instanceof Durable && $newHeldItem->isBroken()){
-					$this->broadcastSound(new ItemBreakSound());
+					$this->broadcastItemBreakSound();
 				}
 				$this->inventory->setItemInHand($newHeldItem);
 				$heldItemChanged = true;
@@ -1920,7 +1919,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			$this->getArmorInventory()->setChestplate($chestplate);
 		}
 		if($chestplate->isBroken()){
-			$this->broadcastSound(new ItemBreakSound());
+			$this->broadcastItemBreakSound();
 			$this->toggleGlide(false);
 		}
 	}
@@ -2245,7 +2244,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			if($item->onInteractEntity($this, $entity, $clickPos)){
 				if($this->hasFiniteResources() && !$item->equalsExact($oldItem) && $oldItem->equalsExact($this->inventory->getItemInHand())){
 					if($item instanceof Durable && $item->isBroken()){
-						$this->broadcastSound(new ItemBreakSound());
+						$this->broadcastItemBreakSound();
 					}
 					$this->inventory->setItemInHand($item);
 				}

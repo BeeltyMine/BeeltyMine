@@ -2,21 +2,22 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
+ *     ____            ____        __  ____
+ *    / __ )___  ___  / / /___  __/  |/  (_)___  ___
+ *   / __  / _ \/ _ \/ / __/ / / / /|_/ / / __ \/ _ \
+ *  / /_/ /  __/  __/ / /_/ /_/ / /  / / / / / /  __/
+ * /_____/\___/\___/_/\__/\__, /_/  /_/_/_/ /_/\___/
+ *                       /____/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
- *
- *
+ * @author Ayrz
+ * @team BeeltyMine
+ * 
+ * 
  */
 
 declare(strict_types=1);
@@ -82,6 +83,7 @@ use pocketmine\network\mcpe\protocol\SpawnExperienceOrbPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
+use pocketmine\network\mcpe\protocol\types\inventory\ContainerUIIds;
 use pocketmine\network\mcpe\protocol\types\inventory\MismatchTransactionData;
 use pocketmine\network\mcpe\protocol\types\inventory\NetworkInventoryAction;
 use pocketmine\network\mcpe\protocol\types\inventory\NormalTransactionData;
@@ -101,6 +103,9 @@ use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
+use pocketmine\world\sound\BundleInsertFailSound;
+use pocketmine\world\sound\BundleInsertSound;
+use pocketmine\world\sound\BundleRemoveOneSound;
 use pocketmine\world\beacon\BeaconEffects;
 use pocketmine\world\beacon\BeaconStructure;
 use pocketmine\world\format\Chunk;
@@ -341,6 +346,9 @@ class InGamePacketHandler extends PacketHandler{
 		//a legacy prediction action for the destination armor slot.
 		foreach($packet->requestChangedSlots as $containerInfo){
 			foreach($containerInfo->getChangedSlotIndexes() as $netSlot){
+				if($containerInfo->getContainerId() === ContainerUIIds::DYNAMIC){
+					continue;
+				}
 				[$windowId, $slot] = ItemStackContainerIdTranslator::translate($containerInfo->getContainerId(), $this->inventoryManager->getCurrentWindowId(), $netSlot);
 				$inventoryAndSlot = $this->inventoryManager->locateWindowAndSlot($windowId, $slot);
 				if($inventoryAndSlot !== null){ //trigger the normal slot sync logic
@@ -717,6 +725,17 @@ class InGamePacketHandler extends PacketHandler{
 			$this->session->getLogger()->debug("ItemStackRequest #" . $request->getRequestId() . " failed: " . $e->getMessage());
 			$this->session->getLogger()->debug(implode("\n", Utils::printableExceptionInfo($e)));
 			$this->inventoryManager->requestSyncAll();
+		}
+
+		if($result){
+			if($executor->shouldPlayBundleInsertSound()){
+				$this->player->broadcastSound(new BundleInsertSound());
+			}
+			if($executor->shouldPlayBundleRemoveSound()){
+				$this->player->broadcastSound(new BundleRemoveOneSound());
+			}
+		}elseif($executor->hasBundleInsertRequest()){
+			$this->player->broadcastSound(new BundleInsertFailSound());
 		}
 
 		return $result ? $executor->getItemStackResponseBuilder() : null;

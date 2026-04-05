@@ -1401,6 +1401,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("copper_leggings", fn() => Items::COPPER_LEGGINGS());
 		$result->register("copper_nugget", fn() => Items::COPPER_NUGGET());
 		$result->register("copper_pickaxe", fn() => Items::COPPER_PICKAXE());
+		$result->register("copper_spear", fn() => Items::COPPER_SPEAR());
 		$result->register("copper_shovel", fn() => Items::COPPER_SHOVEL());
 		$result->register("copper_sword", fn() => Items::COPPER_SWORD());
 		$result->register("crimson_hanging_sign", fn() => Items::CRIMSON_HANGING_SIGN());
@@ -1414,6 +1415,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("diamond_hoe", fn() => Items::DIAMOND_HOE());
 		$result->register("diamond_leggings", fn() => Items::DIAMOND_LEGGINGS());
 		$result->register("diamond_pickaxe", fn() => Items::DIAMOND_PICKAXE());
+		$result->register("diamond_spear", fn() => Items::DIAMOND_SPEAR());
 		$result->register("diamond_shovel", fn() => Items::DIAMOND_SHOVEL());
 		$result->register("diamond_sword", fn() => Items::DIAMOND_SWORD());
 		$result->register("disc_fragment_5", fn() => Items::DISC_FRAGMENT_5());
@@ -1473,6 +1475,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("golden_leggings", fn() => Items::GOLDEN_LEGGINGS());
 		$result->register("golden_nugget", fn() => Items::GOLD_NUGGET());
 		$result->register("golden_pickaxe", fn() => Items::GOLDEN_PICKAXE());
+		$result->register("golden_spear", fn() => Items::GOLDEN_SPEAR());
 		$result->register("golden_shovel", fn() => Items::GOLDEN_SHOVEL());
 		$result->register("golden_sword", fn() => Items::GOLDEN_SWORD());
 		$result->register("gunpowder", fn() => Items::GUNPOWDER());
@@ -1491,6 +1494,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("iron_leggings", fn() => Items::IRON_LEGGINGS());
 		$result->register("iron_nugget", fn() => Items::IRON_NUGGET());
 		$result->register("iron_pickaxe", fn() => Items::IRON_PICKAXE());
+		$result->register("iron_spear", fn() => Items::IRON_SPEAR());
 		$result->register("iron_shovel", fn() => Items::IRON_SHOVEL());
 		$result->register("iron_sword", fn() => Items::IRON_SWORD());
 		$result->register("jungle_boat", fn() => Items::JUNGLE_BOAT());
@@ -1533,6 +1537,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("netherite_leggings", fn() => Items::NETHERITE_LEGGINGS());
 		$result->register("netherite_pickaxe", fn() => Items::NETHERITE_PICKAXE());
 		$result->register("netherite_scrap", fn() => Items::NETHERITE_SCRAP());
+		$result->register("netherite_spear", fn() => Items::NETHERITE_SPEAR());
 		$result->register("netherite_shovel", fn() => Items::NETHERITE_SHOVEL());
 		$result->register("netherite_sword", fn() => Items::NETHERITE_SWORD());
 		$result->register("netherstar", fn() => Items::NETHER_STAR());
@@ -1626,6 +1631,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("stone_hoe", fn() => Items::STONE_HOE());
 		$result->register("stone_pickaxe", fn() => Items::STONE_PICKAXE());
 		$result->register("stone_shovel", fn() => Items::STONE_SHOVEL());
+		$result->register("stone_spear", fn() => Items::STONE_SPEAR());
 		$result->register("stone_sword", fn() => Items::STONE_SWORD());
 		$result->register("string", fn() => Items::STRING());
 		$result->register("sugar", fn() => Items::SUGAR());
@@ -1651,6 +1657,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("wooden_hoe", fn() => Items::WOODEN_HOE());
 		$result->register("wooden_pickaxe", fn() => Items::WOODEN_PICKAXE());
 		$result->register("wooden_shovel", fn() => Items::WOODEN_SHOVEL());
+		$result->register("wooden_spear", fn() => Items::WOODEN_SPEAR());
 		$result->register("wooden_sword", fn() => Items::WOODEN_SWORD());
 		$result->register("writable_book", fn() => Items::WRITABLE_BOOK());
 		$result->register("written_book", fn() => Items::WRITTEN_BOOK());

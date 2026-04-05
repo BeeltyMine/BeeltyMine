@@ -297,6 +297,18 @@ class Bee extends Living implements Ageable{
 		return $block instanceof Flower || $block instanceof DoublePlant;
 	}
 
+	private static function isPlayerHoldingBreedingFlower(Player $player) : bool{
+		if(!$player->isConnected() || !$player->isAlive() || $player->isSpectator()){
+			return false;
+		}
+		try{
+			$item = $player->getInventory()->getItemInHand();
+		}catch(\Error){
+			return false;
+		}
+		return self::isBreedingFlower($item);
+	}
+
 	public function onInteract(Player $player, Vector3 $clickPos) : bool{
 		$item = $player->getInventory()->getItemInHand();
 
@@ -876,10 +888,18 @@ class Bee extends Living implements Ageable{
 		}
 
 		$hSpeed = sqrt(($this->motion->x ** 2) + ($this->motion->z ** 2));
-		$this->setRotation(
-			-atan2($this->motion->x, $this->motion->z) * 180.0 / M_PI,
-			-atan2($hSpeed, $this->motion->y) * 180.0 / M_PI
-		);
+		$yaw = -atan2($this->motion->x, $this->motion->z) * 180.0 / M_PI;
+		$pitch = -atan2($hSpeed, $this->motion->y) * 180.0 / M_PI;
+
+		if(!$this->angry && !$this->hasStung && $this->cachedFlowerHolder !== null){
+			$lookDx = $this->cachedFlowerHolder->location->x - $this->location->x;
+			$lookDz = $this->cachedFlowerHolder->location->z - $this->location->z;
+			if(($lookDx * $lookDx + $lookDz * $lookDz) > 0.0001){
+				$yaw = -atan2($lookDx, $lookDz) * 180.0 / M_PI;
+			}
+		}
+
+		$this->setRotation($yaw, $pitch);
 	}
 
 	private function findNearbyFlowerHolder() : ?Player{
@@ -888,11 +908,7 @@ class Bee extends Living implements Ageable{
 		$bestDist = self::FOLLOW_FLOWER_RANGE * self::FOLLOW_FLOWER_RANGE;
 
 		foreach($world->getPlayers() as $player){
-			if(!$player->isAlive() || $player->isSpectator()){
-				continue;
-			}
-			$item = $player->getInventory()->getItemInHand();
-			if(!self::isBreedingFlower($item)){
+			if(!self::isPlayerHoldingBreedingFlower($player)){
 				continue;
 			}
 			$d = $this->distanceSqTo($player->location);
@@ -911,10 +927,11 @@ class Bee extends Living implements Ageable{
 		$this->followScanCooldown = max(0, $this->followScanCooldown - $tickDiff);
 		if(
 			$this->cachedFlowerHolder === null ||
+			!$this->cachedFlowerHolder->isConnected() ||
 			!$this->cachedFlowerHolder->isAlive() ||
 			$this->cachedFlowerHolder->isSpectator() ||
 			$this->cachedFlowerHolder->getWorld() !== $this->getWorld() ||
-			!self::isBreedingFlower($this->cachedFlowerHolder->getInventory()->getItemInHand()) ||
+			!self::isPlayerHoldingBreedingFlower($this->cachedFlowerHolder) ||
 			$this->distanceSqTo($this->cachedFlowerHolder->location) > self::FOLLOW_FLOWER_RANGE * self::FOLLOW_FLOWER_RANGE
 		){
 			$this->cachedFlowerHolder = null;
@@ -959,8 +976,20 @@ class Bee extends Living implements Ageable{
 			return true;
 		}
 
+		if($distSq <= self::FOLLOW_HOLD_DISTANCE_SQ){
+			$this->hasActiveTarget = true;
+			$this->activeTargetY = $holderCenter->y;
+			$this->currentSpeed = 0.0;
+			$this->motion = new Vector3(
+				$this->motion->x * 0.6,
+				$this->motion->y,
+				$this->motion->z * 0.6
+			);
+			return true;
+		}
+
 		$this->steerTowards($followTarget);
-		$this->currentSpeed = $distSq <= self::FOLLOW_HOLD_DISTANCE_SQ ? self::FOLLOW_SPEED * 0.85 : self::FOLLOW_SPEED;
+		$this->currentSpeed = self::FOLLOW_SPEED;
 		return true;
 	}
 

@@ -180,9 +180,18 @@ class Beehive extends Spawnable{
 			return true;
 		}
 
-		$hadNectar = $beeNbt->getByte("HasNectar", 0) !== 0;
+		$hadNectar = false;
+		$properties = $beeNbt->getCompoundTag("properties");
+		if($properties !== null && $properties->getTag("minecraft:has_nectar") !== null){
+			$hadNectar = $properties->getByte("minecraft:has_nectar", 0) !== 0;
+		}else{
+			$hadNectar = $beeNbt->getByte("HasNectar", 0) !== 0;
+		}
 		$beeNbt->setByte("HasNectar", 0);
 		$beeNbt->setInt("AngerTime", 0);
+		if($properties !== null){
+			$properties->setByte("minecraft:has_nectar", 0);
+		}
 
 		$location = Location::fromObject(
 			$spawnPos,

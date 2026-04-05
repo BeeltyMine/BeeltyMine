@@ -90,6 +90,8 @@ class Bee extends Living implements Ageable{
 	}
 
 	private const TAG_HAS_NECTAR = "HasNectar";
+	private const TAG_PROPERTIES = "properties";
+	private const TAG_PROPERTY_HAS_NECTAR = "minecraft:has_nectar";
 	private const TAG_HOME_X = "HomeX";
 	private const TAG_HOME_Y = "HomeY";
 	private const TAG_HOME_Z = "HomeZ";
@@ -100,12 +102,12 @@ class Bee extends Living implements Ageable{
 	private const TAG_LOVE_COOLDOWN = "LoveCooldown";
 
 	private const FLOWER_SEARCH_INTERVAL = 80;
-	private const HIVE_SEARCH_INTERVAL = 100;
+	private const HIVE_SEARCH_INTERVAL = 80;
 	private const FLOWER_SEARCH_RADIUS = 8;
-	private const HIVE_SEARCH_RADIUS = 16;
-	private const SEARCH_VERTICAL_RANGE = 6;
-	private const FLOWER_SEARCH_SAMPLES = 40;
-	private const HIVE_SEARCH_SAMPLES = 56;
+	private const HIVE_SEARCH_RADIUS = 20;
+	private const SEARCH_VERTICAL_RANGE = 10;
+	private const FLOWER_SEARCH_SAMPLES = 72;
+	private const HIVE_SEARCH_SAMPLES = 96;
 	private const POLLINATE_TICKS_REQUIRED = 400;
 	private const FLOWER_REACH_SQ = 2.25;
 	private const HIVE_REACH_SQ = 3.24;
@@ -145,6 +147,8 @@ class Bee extends Living implements Ageable{
 	private const LOVE_MODE_DURATION = 600;
 	private const BREED_COOLDOWN = 6000;
 	private const BREED_RANGE_SQ = 3.0;
+	private const BREED_KISS_TICKS = 40;
+	private const BREED_KISS_HEART_INTERVAL = 8;
 	private const BREED_XP_MIN = 1;
 	private const BREED_XP_MAX = 7;
 	private const BABY_GROW_TICKS = 24000;
@@ -174,11 +178,15 @@ class Bee extends Living implements Ageable{
 	private int $loveCooldown = 0;
 	private bool $inLove = false;
 	private int $heartParticleTicker = 0;
+	private int $breedKissTicks = 0;
 
-	private Vector3 $desiredDirection;
+	private float $dirX = 0.0;
+	private float $dirY = 0.0;
+	private float $dirZ = 0.0;
 	private float $currentSpeed = self::FLY_SPEED;
 	private float $hoverTargetY;
 
+	private bool $isPollinating = false;
 	private bool $hasActiveTarget = false;
 	private float $activeTargetY = 0.0;
 	private int $groundCheckTicker = 0;
@@ -195,6 +203,10 @@ class Bee extends Living implements Ageable{
 
 	private ?Vector3 $flowerTarget = null;
 	private ?Vector3 $homeHive = null;
+	private int $hiveEntryCooldown = 0;
+	private int $blockValidateTicker = 0;
+	private bool $cachedIsNight = false;
+	private int $nightCheckTicker = 0;
 
 	protected function getInitialSizeInfo() : EntitySizeInfo{
 		return new EntitySizeInfo(0.5, 0.55);
@@ -216,7 +228,9 @@ class Bee extends Living implements Ageable{
 		$this->setMaxHealth(10);
 		parent::initEntity($nbt);
 
-		$this->desiredDirection = $this->generateRandomDirection();
+		$this->dirX = mt_rand(-1000, 1000) / 1000.0;
+		$this->dirY = mt_rand(-50, 50) / 1000.0;
+		$this->dirZ = mt_rand(-1000, 1000) / 1000.0;
 		$this->hoverTargetY = self::FLY_HOVER_MIN_Y + (mt_rand(0, 3000) / 1000.0) * (self::FLY_HOVER_MAX_Y - self::FLY_HOVER_MIN_Y);
 		$this->activeTargetY = $this->location->y;
 		$this->cachedGroundY = $this->location->y;
@@ -226,7 +240,14 @@ class Bee extends Living implements Ageable{
 		$this->followScanCooldown = mt_rand(0, self::FOLLOW_SCAN_INTERVAL);
 		$this->breedScanCooldown = mt_rand(0, self::BREED_SCAN_INTERVAL);
 		$this->babyFollowScanCooldown = mt_rand(0, self::BABY_FOLLOW_SCAN_INTERVAL);
-		$this->hasNectar = $nbt->getByte(self::TAG_HAS_NECTAR, 0) !== 0;
+		$this->blockValidateTicker = mt_rand(0, 3);
+		$this->nightCheckTicker = mt_rand(0, 19);
+		$properties = $nbt->getCompoundTag(self::TAG_PROPERTIES);
+		if($properties !== null && $properties->getTag(self::TAG_PROPERTY_HAS_NECTAR) !== null){
+			$this->hasNectar = $properties->getByte(self::TAG_PROPERTY_HAS_NECTAR, 0) !== 0;
+		}else{
+			$this->hasNectar = $nbt->getByte(self::TAG_HAS_NECTAR, 0) !== 0;
+		}
 		$this->hasStung = $nbt->getByte(self::TAG_HAS_STUNG, 0) !== 0;
 		$this->angerTicks = $nbt->getInt(self::TAG_ANGER_TIME, 0);
 		$this->angry = $this->angerTicks > 0 && !$this->hasStung;
@@ -249,6 +270,9 @@ class Bee extends Living implements Ageable{
 				$nbt->getInt(self::TAG_HOME_Y),
 				$nbt->getInt(self::TAG_HOME_Z)
 			);
+			if(!$this->hasNectar){
+				$this->hiveEntryCooldown = 200;
+			}
 		}
 	}
 
@@ -260,6 +284,10 @@ class Bee extends Living implements Ageable{
 		$nbt->setByte(self::TAG_BABY, $this->baby ? 1 : 0);
 		$nbt->setInt(self::TAG_AGE, $this->ageTicks);
 		$nbt->setInt(self::TAG_LOVE_COOLDOWN, $this->loveCooldown);
+		$nbt->setTag(
+			self::TAG_PROPERTIES,
+			CompoundTag::create()->setByte(self::TAG_PROPERTY_HAS_NECTAR, $this->hasNectar ? 1 : 0)
+		);
 
 		if($this->homeHive !== null){
 			$nbt->setInt(self::TAG_HOME_X, (int) $this->homeHive->x);
@@ -359,51 +387,50 @@ class Bee extends Living implements Ageable{
 		return parent::onInteract($player, $clickPos);
 	}
 
-	private function generateRandomDirection() : Vector3{
+	private function randomizeDirection() : void{
 		if($this->homeHive !== null){
 			$dx = $this->homeHive->x + 0.5 - $this->location->x;
 			$dz = $this->homeHive->z + 0.5 - $this->location->z;
 			$distSq = $dx * $dx + $dz * $dz;
 			if($distSq > self::MAX_WANDER_DISTANCE_SQ * 0.6){
-				return (new Vector3($dx, mt_rand(-50, 50) / 1000, $dz))->normalize();
+				$dy = mt_rand(-50, 50) / 1000.0;
+				$len = $dx * $dx + $dy * $dy + $dz * $dz;
+				if($len > 0.0001){
+					$inv = 1.0 / sqrt($len);
+					$this->dirX = $dx * $inv;
+					$this->dirY = $dy * $inv;
+					$this->dirZ = $dz * $inv;
+				}
+				return;
 			}
 		}
-		return new Vector3(
-			mt_rand(-1000, 1000) / 1000,
-			mt_rand(-50, 50) / 1000,
-			mt_rand(-1000, 1000) / 1000
-		);
+		$this->dirX = mt_rand(-1000, 1000) / 1000.0;
+		$this->dirY = mt_rand(-50, 50) / 1000.0;
+		$this->dirZ = mt_rand(-1000, 1000) / 1000.0;
 	}
 
-	private function distanceSqTo(Vector3 $pos) : float{
-		return (($this->location->x - $pos->x) ** 2) + (($this->location->y - $pos->y) ** 2) + (($this->location->z - $pos->z) ** 2);
-	}
-
-	private function blockCenter(Vector3 $pos) : Vector3{
-		return new Vector3($pos->x + 0.5, $pos->y + 0.5, $pos->z + 0.5);
-	}
-
-	private function blendDirection(Vector3 $desired) : void{
-		$len = $desired->lengthSquared();
+	private function blendDirection(float $dx, float $dy, float $dz) : void{
+		$len = $dx * $dx + $dy * $dy + $dz * $dz;
 		if($len <= 0.0001){
 			return;
 		}
-		$target = $desired->normalize();
-		$this->desiredDirection = new Vector3(
-			$this->desiredDirection->x + ($target->x - $this->desiredDirection->x) * self::FLY_DIRECTION_BLEND,
-			$this->desiredDirection->y + ($target->y - $this->desiredDirection->y) * self::FLY_DIRECTION_BLEND,
-			$this->desiredDirection->z + ($target->z - $this->desiredDirection->z) * self::FLY_DIRECTION_BLEND
-		);
-		$nLen = $this->desiredDirection->lengthSquared();
+		$inv = 1.0 / sqrt($len);
+		$tx = $dx * $inv;
+		$ty = $dy * $inv;
+		$tz = $dz * $inv;
+		$ddx = $this->dirX + ($tx - $this->dirX) * self::FLY_DIRECTION_BLEND;
+		$ddy = $this->dirY + ($ty - $this->dirY) * self::FLY_DIRECTION_BLEND;
+		$ddz = $this->dirZ + ($tz - $this->dirZ) * self::FLY_DIRECTION_BLEND;
+		$nLen = $ddx * $ddx + $ddy * $ddy + $ddz * $ddz;
 		if($nLen > 0.0001){
-			$this->desiredDirection = $this->desiredDirection->normalize();
+			$nInv = 1.0 / sqrt($nLen);
+			$ddx *= $nInv;
+			$ddy *= $nInv;
+			$ddz *= $nInv;
 		}
-	}
-
-	private function steerTowards(Vector3 $target) : void{
-		$this->hasActiveTarget = true;
-		$this->activeTargetY = $target->y;
-		$this->blendDirection($target->subtractVector($this->location));
+		$this->dirX = $ddx;
+		$this->dirY = $ddy;
+		$this->dirZ = $ddz;
 	}
 
 	private function isPollinableFlower(Vector3 $pos) : bool{
@@ -416,12 +443,42 @@ class Bee extends Living implements Ageable{
 		$bx = (int) $this->location->x;
 		$by = (int) $this->location->y;
 		$bz = (int) $this->location->z;
-		$yMin = max($world->getMinY(), $by - self::SEARCH_VERTICAL_RANGE);
-		$yMax = min($world->getMaxY() - 1, $by + self::SEARCH_VERTICAL_RANGE);
+		$locX = $this->location->x;
+		$locY = $this->location->y;
+		$locZ = $this->location->z;
 
 		$best = null;
 		$bestDist = PHP_INT_MAX;
 
+		$scanYLow = max($world->getMinY(), $by - 2);
+		$scanYHigh = min($world->getMaxY() - 1, $by + 2);
+		for($scanY = $scanYLow; $scanY <= $scanYHigh; ++$scanY){
+			for($x = $bx - self::FLOWER_SEARCH_RADIUS; $x <= $bx + self::FLOWER_SEARCH_RADIUS; ++$x){
+				for($z = $bz - self::FLOWER_SEARCH_RADIUS; $z <= $bz + self::FLOWER_SEARCH_RADIUS; ++$z){
+					$block = $world->getBlockAt($x, $scanY, $z);
+					if(!($block instanceof Flower) && !($block instanceof DoublePlant && !$block->isTop())){
+						continue;
+					}
+					if(self::isFlowerOccupied($x, $scanY, $z)){
+						continue;
+					}
+					$dx = $locX - ($x + 0.5);
+					$dy = $locY - ($scanY + 0.5);
+					$dz = $locZ - ($z + 0.5);
+					$d = $dx * $dx + $dy * $dy + $dz * $dz;
+					if($d < $bestDist){
+						$bestDist = $d;
+						$best = new Vector3($x, $scanY, $z);
+					}
+				}
+			}
+		}
+		if($best !== null){
+			return $best;
+		}
+
+		$yMin = max($world->getMinY(), $by - self::SEARCH_VERTICAL_RANGE);
+		$yMax = min($world->getMaxY() - 1, $by + self::SEARCH_VERTICAL_RANGE);
 		for($i = 0; $i < self::FLOWER_SEARCH_SAMPLES; ++$i){
 			$x = $bx + mt_rand(-self::FLOWER_SEARCH_RADIUS, self::FLOWER_SEARCH_RADIUS);
 			$z = $bz + mt_rand(-self::FLOWER_SEARCH_RADIUS, self::FLOWER_SEARCH_RADIUS);
@@ -434,8 +491,10 @@ class Bee extends Living implements Ageable{
 			if(self::isFlowerOccupied($x, $y, $z)){
 				continue;
 			}
-			$c = $this->blockCenter(new Vector3($x, $y, $z));
-			$d = $this->distanceSqTo($c);
+			$dx = $locX - ($x + 0.5);
+			$dy = $locY - ($y + 0.5);
+			$dz = $locZ - ($z + 0.5);
+			$d = $dx * $dx + $dy * $dy + $dz * $dz;
 			if($d < $bestDist){
 				$bestDist = $d;
 				$best = new Vector3($x, $y, $z);
@@ -460,6 +519,37 @@ class Bee extends Living implements Ageable{
 		$best = null;
 		$bestDist = PHP_INT_MAX;
 
+		// Small precise scan (6 block radius, ±3 Y)
+		$nearRadius = 6;
+		$scanYLow = max($yMin, $by - 3);
+		$scanYHigh = min($yMax, $by + 3);
+		for($scanY = $scanYLow; $scanY <= $scanYHigh; ++$scanY){
+			for($x = $bx - $nearRadius; $x <= $bx + $nearRadius; ++$x){
+				for($z = $bz - $nearRadius; $z <= $bz + $nearRadius; ++$z){
+					$block = $world->getBlockAt($x, $scanY, $z);
+					if(!($block instanceof Beehive) && !($block instanceof BeeNest)){
+						continue;
+					}
+					$tile = $world->getTile(new Vector3($x, $scanY, $z));
+					if($tile instanceof TileBeehive && $tile->isFull()){
+						continue;
+					}
+					$dx = $this->location->x - ($x + 0.5);
+					$dy = $this->location->y - ($scanY + 0.5);
+					$dz = $this->location->z - ($z + 0.5);
+					$d = $dx * $dx + $dy * $dy + $dz * $dz;
+					if($d < $bestDist){
+						$bestDist = $d;
+						$best = new Vector3($x, $scanY, $z);
+					}
+				}
+			}
+		}
+		if($best !== null){
+			return $best;
+		}
+
+		// Random sample for wider area
 		for($i = 0; $i < self::HIVE_SEARCH_SAMPLES; ++$i){
 			$x = $bx + mt_rand(-self::HIVE_SEARCH_RADIUS, self::HIVE_SEARCH_RADIUS);
 			$z = $bz + mt_rand(-self::HIVE_SEARCH_RADIUS, self::HIVE_SEARCH_RADIUS);
@@ -473,8 +563,10 @@ class Bee extends Living implements Ageable{
 			if($tile instanceof TileBeehive && $tile->isFull()){
 				continue;
 			}
-			$c = $this->blockCenter(new Vector3($x, $y, $z));
-			$d = $this->distanceSqTo($c);
+			$dx = $this->location->x - ($x + 0.5);
+			$dy = $this->location->y - ($y + 0.5);
+			$dz = $this->location->z - ($z + 0.5);
+			$d = $dx * $dx + $dy * $dy + $dz * $dz;
 			if($d < $bestDist){
 				$bestDist = $d;
 				$best = new Vector3($x, $y, $z);
@@ -485,80 +577,96 @@ class Bee extends Living implements Ageable{
 
 	private function tryPollinate(int $tickDiff) : void{
 		if($this->flowerTarget === null){
-			return;
-		}
-		if(!$this->isPollinableFlower($this->flowerTarget)){
-			self::releaseFlower((int) $this->flowerTarget->x, (int) $this->flowerTarget->y, (int) $this->flowerTarget->z, $this->getId());
-			$this->flowerTarget = null;
-			$this->pollinateTicks = 0;
+			$this->isPollinating = false;
 			return;
 		}
 
 		if(!self::claimFlower((int) $this->flowerTarget->x, (int) $this->flowerTarget->y, (int) $this->flowerTarget->z, $this->getId())){
 			$this->flowerTarget = null;
 			$this->pollinateTicks = 0;
+			$this->isPollinating = false;
 			return;
 		}
 
-		$hoverPos = new Vector3($this->flowerTarget->x + 0.5, $this->flowerTarget->y + 0.4, $this->flowerTarget->z + 0.5);
-		$distSq = $this->distanceSqTo($hoverPos);
+		$hx = $this->flowerTarget->x + 0.5;
+		$hy = $this->flowerTarget->y + 0.8;
+		$hz = $this->flowerTarget->z + 0.5;
+		$dx = $this->location->x - $hx;
+		$dy = $this->location->y - $hy;
+		$dz = $this->location->z - $hz;
+		$distSq = $dx * $dx + $dy * $dy + $dz * $dz;
 
 		if($distSq > self::FLOWER_REACH_SQ){
-			$this->steerTowards($hoverPos);
+			$this->hasActiveTarget = true;
+			$this->activeTargetY = $hy;
+			$this->blendDirection(-$dx, -$dy, -$dz);
 			$this->currentSpeed = self::FLY_SPEED;
 			$this->pollinateTicks = 0;
+			$this->isPollinating = false;
 			return;
 		}
 
-		$this->desiredDirection = new Vector3(0.0, 0.0, 0.0);
+		$this->isPollinating = true;
+		$this->hasActiveTarget = false;
 		$this->currentSpeed = 0.0;
-		$this->motion = new Vector3(
-			($hoverPos->x - $this->location->x) * 0.1,
-			($hoverPos->y - $this->location->y) * 0.1,
-			($hoverPos->z - $this->location->z) * 0.1
-		);
+		$this->motion = new Vector3(-$dx * 0.2, -$dy * 0.2, -$dz * 0.2);
 
 		$this->pollinateTicks += $tickDiff;
 		if($this->pollinateTicks >= self::POLLINATE_TICKS_REQUIRED){
-			$this->hasNectar = true;
-			$this->entityPropertiesDirty = true;
+			$this->setHasNectar(true);
 			$this->pollinateTicks = 0;
 			self::releaseFlower((int) $this->flowerTarget->x, (int) $this->flowerTarget->y, (int) $this->flowerTarget->z, $this->getId());
 			$this->flowerTarget = null;
+			$this->isPollinating = false;
 			$this->targetSearchCooldown = 0;
 			$this->currentSpeed = self::FLY_SPEED_NECTAR;
+			$this->hoverTargetY = self::FLY_HOVER_MIN_Y + (mt_rand(0, 1500) / 1000.0) * (self::FLY_HOVER_MAX_Y - self::FLY_HOVER_MIN_Y);
+			$this->activeTargetY = $this->location->y;
+			$this->hasActiveTarget = false;
+			$this->randomizeDirection();
 		}
+	}
+
+	private function setHasNectar(bool $nectar) : void{
+		if($this->hasNectar === $nectar){
+			return;
+		}
+		$this->hasNectar = $nectar;
+		$this->entityPropertiesDirty = true;
+		$this->networkPropertiesDirty = true;
 	}
 
 	private function tryDepositNectar() : void{
 		if($this->homeHive === null){
 			return;
 		}
-		if(!$this->isHiveBlock($this->homeHive)){
-			$this->homeHive = null;
-			return;
-		}
 
-		$center = $this->blockCenter($this->homeHive);
-		$this->steerTowards($center);
+		$cx = $this->homeHive->x + 0.5;
+		$cy = $this->homeHive->y + 0.5;
+		$cz = $this->homeHive->z + 0.5;
+		$this->hasActiveTarget = true;
+		$this->activeTargetY = $cy;
+		$this->blendDirection($cx - $this->location->x, $cy - $this->location->y, $cz - $this->location->z);
 		$this->currentSpeed = self::FLY_SPEED_NECTAR;
 
-		if($this->distanceSqTo($center) > self::HIVE_REACH_SQ){
+		$dx = $this->location->x - $cx;
+		$dy = $this->location->y - $cy;
+		$dz = $this->location->z - $cz;
+		if($dx * $dx + $dy * $dy + $dz * $dz > self::HIVE_REACH_SQ){
 			return;
 		}
 
 		$world = $this->getWorld();
-
 		$tile = $world->getTile($this->homeHive);
 		if($tile instanceof TileBeehive && !$tile->isFull()){
 			$tile->addBee($this->saveNBT(), $this->hasNectar);
-			$world->addSound($center, new BeehiveEnterSound());
+			$world->addSound(new Vector3($cx, $cy, $cz), new BeehiveEnterSound());
 			$this->flagForDespawn();
 			return;
 		}
 
 		$this->homeHive = null;
-		$this->desiredDirection = $this->generateRandomDirection();
+		$this->randomizeDirection();
 		$this->targetSearchCooldown = self::HIVE_SEARCH_INTERVAL;
 	}
 
@@ -571,20 +679,48 @@ class Bee extends Living implements Ageable{
 		if($this->targetSearchCooldown > 0){
 			$this->targetSearchCooldown = max(0, $this->targetSearchCooldown - $tickDiff);
 		}
+		if($this->hiveEntryCooldown > 0){
+			$this->hiveEntryCooldown = max(0, $this->hiveEntryCooldown - $tickDiff);
+		}
 
-		$isNight = $this->isNightTime();
+		// Throttle night check (every 20 ticks)
+		$this->nightCheckTicker += $tickDiff;
+		if($this->nightCheckTicker >= 20){
+			$this->nightCheckTicker = 0;
+			$this->cachedIsNight = $this->isNightTime();
+		}
 
-		if($this->hasNectar || $isNight){
-			if($isNight && $this->flowerTarget !== null){
+		// Throttle block validation (every 4 ticks)
+		$this->blockValidateTicker += $tickDiff;
+		$shouldValidate = $this->blockValidateTicker >= 4;
+		if($shouldValidate){
+			$this->blockValidateTicker = 0;
+		}
+
+		$shouldSearchHive = $this->hasNectar || $this->cachedIsNight;
+
+		if($shouldSearchHive && $this->hiveEntryCooldown <= 0){
+			if($this->cachedIsNight && $this->flowerTarget !== null){
 				self::releaseFlower((int) $this->flowerTarget->x, (int) $this->flowerTarget->y, (int) $this->flowerTarget->z, $this->getId());
 				$this->flowerTarget = null;
 				$this->pollinateTicks = 0;
+				$this->isPollinating = false;
 			}
 			$this->currentSpeed = self::FLY_SPEED_NECTAR;
-			if($this->homeHive === null || !$this->isHiveBlock($this->homeHive)){
-				if($this->targetSearchCooldown === 0){
-					$this->homeHive = $this->findNearestHive();
-					$this->targetSearchCooldown = self::HIVE_SEARCH_INTERVAL;
+			if($this->homeHive === null || ($shouldValidate && !$this->isHiveBlock($this->homeHive))){
+				if($this->homeHive !== null && $shouldValidate){
+					$this->homeHive = null;
+				}
+				if($this->homeHive === null && $this->targetSearchCooldown === 0){
+					$found = $this->findNearestHive();
+					$this->homeHive = $found;
+					$this->targetSearchCooldown = $found !== null ? self::HIVE_SEARCH_INTERVAL : (int) (self::HIVE_SEARCH_INTERVAL * 0.25);
+				}
+			}elseif($shouldValidate && $this->homeHive !== null){
+				$tile = $this->getWorld()->getTile($this->homeHive);
+				if($tile instanceof TileBeehive && $tile->isFull()){
+					$this->homeHive = null;
+					$this->targetSearchCooldown = 0;
 				}
 			}
 			$this->tryDepositNectar();
@@ -592,10 +728,16 @@ class Bee extends Living implements Ageable{
 		}
 
 		$this->currentSpeed = self::FLY_SPEED;
-		if($this->flowerTarget === null || !$this->isPollinableFlower($this->flowerTarget)){
+		if($this->flowerTarget !== null && $shouldValidate && !$this->isPollinableFlower($this->flowerTarget)){
+			self::releaseFlower((int) $this->flowerTarget->x, (int) $this->flowerTarget->y, (int) $this->flowerTarget->z, $this->getId());
+			$this->flowerTarget = null;
+			$this->isPollinating = false;
+		}
+		if($this->flowerTarget === null){
 			if($this->targetSearchCooldown === 0){
-				$this->flowerTarget = $this->findNearestFlower();
-				$this->targetSearchCooldown = self::FLOWER_SEARCH_INTERVAL;
+				$found = $this->findNearestFlower();
+				$this->flowerTarget = $found;
+				$this->targetSearchCooldown = $found !== null ? self::FLOWER_SEARCH_INTERVAL : (int) (self::FLOWER_SEARCH_INTERVAL * 0.4);
 			}
 		}
 		$this->tryPollinate($tickDiff);
@@ -650,14 +792,13 @@ class Bee extends Living implements Ageable{
 		$target->getEffects()->add(new EffectInstance(VanillaEffects::POISON(), self::STING_POISON_DURATION, 0, true));
 
 		$this->hasStung = true;
-		$this->hasNectar = false;
+		$this->setHasNectar(false);
 		$this->networkPropertiesDirty = true;
-		$this->entityPropertiesDirty = true;
 		$this->pollinateTicks = 0;
 		$this->flowerTarget = null;
 		$this->stingDeathTicks = self::STING_DEATH_DELAY;
 		$this->clearAnger();
-		$this->desiredDirection = $this->generateRandomDirection();
+		$this->randomizeDirection();
 	}
 
 	private function tickCombat(int $tickDiff) : bool{
@@ -691,9 +832,14 @@ class Bee extends Living implements Ageable{
 		}
 
 		$this->currentSpeed = self::FLY_SPEED_ANGRY;
-		$targetCenter = $target->location->add(0, $target->getSize()->getHeight() * 0.5, 0);
-		$distSq = $this->distanceSqTo($targetCenter);
-		$this->steerTowards($targetCenter);
+		$tY = $target->location->y + $target->getSize()->getHeight() * 0.5;
+		$dx = $target->location->x - $this->location->x;
+		$dy = $tY - $this->location->y;
+		$dz = $target->location->z - $this->location->z;
+		$distSq = $dx * $dx + $dy * $dy + $dz * $dz;
+		$this->hasActiveTarget = true;
+		$this->activeTargetY = $tY;
+		$this->blendDirection($dx, $dy, $dz);
 		if($distSq <= self::STING_RANGE_SQ){
 			$this->performSting($target);
 		}
@@ -734,26 +880,30 @@ class Bee extends Living implements Ageable{
 		$world = $this->getWorld();
 		$minY = $world->getMinY() + 2;
 		$maxY = $world->getMaxY() - 3;
+		$locY = $this->location->y;
 
 		if($this->isCollidedHorizontally){
-			$this->desiredDirection = new Vector3(
-				-$this->desiredDirection->x + (mt_rand(-200, 200) / 1000),
-				0.0,
-				-$this->desiredDirection->z + (mt_rand(-200, 200) / 1000)
-			);
-			$len = $this->desiredDirection->lengthSquared();
+			$ndx = -$this->dirX + (mt_rand(-200, 200) / 1000);
+			$ndz = -$this->dirZ + (mt_rand(-200, 200) / 1000);
+			$len = $ndx * $ndx + $ndz * $ndz;
 			if($len > 0.0001){
-				$this->desiredDirection = $this->desiredDirection->normalize();
+				$inv = 1.0 / sqrt($len);
+				$ndx *= $inv;
+				$ndz *= $inv;
 			}
+			$this->dirX = $ndx;
+			$this->dirY = 0.0;
+			$this->dirZ = $ndz;
 			$this->wanderTicker = 0;
 		}
 
 		if($this->homeHive !== null && !$this->angry){
 			$dx = $this->location->x - ($this->homeHive->x + 0.5);
 			$dz = $this->location->z - ($this->homeHive->z + 0.5);
-			$distFromHiveSq = $dx * $dx + $dz * $dz;
-			if($distFromHiveSq > self::MAX_WANDER_DISTANCE_SQ){
-				$this->steerTowards(new Vector3($this->homeHive->x + 0.5, $this->location->y, $this->homeHive->z + 0.5));
+			if($dx * $dx + $dz * $dz > self::MAX_WANDER_DISTANCE_SQ){
+				$this->hasActiveTarget = true;
+				$this->activeTargetY = $locY;
+				$this->blendDirection(-$dx, 0.0, -$dz);
 			}
 		}
 
@@ -764,45 +914,50 @@ class Bee extends Living implements Ageable{
 		}
 		$groundY = $this->cachedGroundY;
 		$yCorrection = 0.0;
-		$isAttacking = $this->angry && !$this->hasStung && $this->getTargetEntity() !== null;
+		$cachedTarget = $this->getTargetEntity();
+		$isAttacking = $this->angry && !$this->hasStung && $cachedTarget !== null;
 		$hasTask = $this->hasActiveTarget;
 		$maxYSpeed = $isAttacking ? self::FLY_MAX_Y_SPEED_ANGRY : self::FLY_MAX_Y_SPEED;
 		if($hasTask && !$isAttacking){
-			$maxYSpeed = max($maxYSpeed, 0.09);
+			$maxYSpeed = 0.09;
 		}
 
-		if($hasTask && !$isAttacking){
-			$yDiff = $this->activeTargetY - $this->location->y;
+		$hasPreciseVerticalTask = !$isAttacking && $hasTask && ($this->flowerTarget !== null || ($this->hasNectar && $this->homeHive !== null));
+		if($hasPreciseVerticalTask){
+			$yDiff = $this->activeTargetY - $locY;
+			if(abs($yDiff) > 0.05){
+				$yCorrection = $yDiff > 0
+					? min($yDiff * 0.12, 0.18)
+					: max($yDiff * 0.12, -0.18);
+			}
+		}elseif($hasTask && !$isAttacking){
+			$yDiff = $this->activeTargetY - $locY;
 			if(abs($yDiff) > 0.2){
 				$yCorrection = $yDiff > 0
 					? min($yDiff * 0.10, 0.14)
 					: max($yDiff * 0.10, -0.14);
 			}else{
-				$targetY = $groundY + $this->hoverTargetY;
-				$yDiff = $targetY - $this->location->y;
-				if($this->location->y > $maxY){
+				$yDiff = $groundY + $this->hoverTargetY - $locY;
+				if($locY > $maxY){
 					$yCorrection = -0.3;
-				}elseif($this->location->y < $minY){
+				}elseif($locY < $minY){
 					$yCorrection = 0.3;
 				}elseif(abs($yDiff) > 0.25){
 					$yCorrection = $yDiff > 0 ? min($yDiff * 0.08, 0.12) : max($yDiff * 0.12, -0.15);
 				}
 			}
 		}elseif($isAttacking){
-			$target = $this->getTargetEntity();
-			if($target !== null){
-				$attackTargetY = $target->location->y + $target->getSize()->getHeight() * 0.5;
-				$yDiff = $attackTargetY - $this->location->y;
+			if($cachedTarget !== null){
+				$yDiff = ($cachedTarget->location->y + $cachedTarget->getSize()->getHeight() * 0.5) - $locY;
 				if(abs($yDiff) > 0.3){
 					$yCorrection = $yDiff > 0 ? min($yDiff * 0.13, 0.22) : max($yDiff * 0.13, -0.22);
 				}
 			}
 		}else{
-			$targetY = $groundY + $this->hoverTargetY;
-			$yDiff = $targetY - $this->location->y;
-			if($this->location->y > $maxY){
+			$yDiff = $groundY + $this->hoverTargetY - $locY;
+			if($locY > $maxY){
 				$yCorrection = -0.3;
-			}elseif($this->location->y < $minY){
+			}elseif($locY < $minY){
 				$yCorrection = 0.3;
 			}elseif(abs($yDiff) > 0.25){
 				$yCorrection = $yDiff > 0 ? min($yDiff * 0.08, 0.12) : max($yDiff * 0.12, -0.15);
@@ -812,83 +967,88 @@ class Bee extends Living implements Ageable{
 		$this->wanderTicker += $tickDiff;
 		if($this->wanderTicker >= self::FLY_WANDER_INTERVAL){
 			$this->wanderTicker = 0;
-			if($this->flowerTarget === null && !$this->hasNectar && !$this->angry && $this->getTargetEntity() === null){
-				$this->desiredDirection = $this->generateRandomDirection();
+			if($this->flowerTarget === null && !$this->hasNectar && !$this->angry && $cachedTarget === null){
+				$this->randomizeDirection();
 				$this->hoverTargetY = self::FLY_HOVER_MIN_Y + (mt_rand(0, 3000) / 1000.0) * (self::FLY_HOVER_MAX_Y - self::FLY_HOVER_MIN_Y);
 			}
 		}
 
-		$hover = (float) (mt_rand(-100, 100) / 10000) * self::FLY_HOVER_Y_VARIANCE;
-		$flyX = $this->desiredDirection->x * $this->currentSpeed;
-		$flyZ = $this->desiredDirection->z * $this->currentSpeed;
-		$dirY = ($isAttacking || $hasTask) ? $this->desiredDirection->y * $this->currentSpeed : 0.0;
-		$flyY = $yCorrection + self::FLY_GRAVITY_OFFSET + $hover + $dirY;
-
-		if($isAttacking){
-			$this->separationTicker += $tickDiff;
-			if($this->separationTicker >= self::SEPARATION_UPDATE_INTERVAL){
-				$this->separationTicker = 0;
-				$sepX = 0.0;
-				$sepZ = 0.0;
-				$nearbyCount = 0;
-				$sepRadiusSq = self::SEPARATION_RADIUS * self::SEPARATION_RADIUS;
-				foreach($world->getNearbyEntities(
-					$this->getBoundingBox()->expandedCopy(self::SEPARATION_RADIUS, self::SEPARATION_RADIUS, self::SEPARATION_RADIUS),
-					$this
-				) as $nearby){
-					if(!($nearby instanceof self)){
-						continue;
-					}
-					$ndx = $this->location->x - $nearby->location->x;
-					$ndz = $this->location->z - $nearby->location->z;
-					$nDistSq = $ndx * $ndx + $ndz * $ndz;
-					if($nDistSq < 0.001 || $nDistSq > $sepRadiusSq){
-						continue;
-					}
-					$nDist = sqrt($nDistSq);
-					$factor = (1.0 - $nDist / self::SEPARATION_RADIUS) * self::SEPARATION_STRENGTH;
-					$sepX += ($ndx / $nDist) * $factor;
-					$sepZ += ($ndz / $nDist) * $factor;
-					if(++$nearbyCount >= self::SEPARATION_MAX_NEIGHBORS){
-						break;
-					}
-				}
-				$this->cachedSepX = $sepX;
-				$this->cachedSepZ = $sepZ;
-			}
-			$flyX += $this->cachedSepX;
-			$flyZ += $this->cachedSepZ;
+		if($this->isPollinating){
+			// tryPollinate already set motion directly; skip all motion calc
 		}else{
-			$this->cachedSepX = 0.0;
-			$this->cachedSepZ = 0.0;
+			$flyX = $this->dirX * $this->currentSpeed;
+			$flyZ = $this->dirZ * $this->currentSpeed;
+			$dirY = ($isAttacking || $hasTask) ? $this->dirY * $this->currentSpeed : 0.0;
+			$flyY = $yCorrection + self::FLY_GRAVITY_OFFSET + (mt_rand(-100, 100) * 0.0001) * self::FLY_HOVER_Y_VARIANCE + $dirY;
+
+			if($isAttacking){
+				$this->separationTicker += $tickDiff;
+				if($this->separationTicker >= self::SEPARATION_UPDATE_INTERVAL){
+					$this->separationTicker = 0;
+					$sepX = 0.0;
+					$sepZ = 0.0;
+					$nearbyCount = 0;
+					$sepRadiusSq = self::SEPARATION_RADIUS * self::SEPARATION_RADIUS;
+					foreach($world->getNearbyEntities(
+						$this->getBoundingBox()->expandedCopy(self::SEPARATION_RADIUS, self::SEPARATION_RADIUS, self::SEPARATION_RADIUS),
+						$this
+					) as $nearby){
+						if(!($nearby instanceof self)){
+							continue;
+						}
+						$ndx = $this->location->x - $nearby->location->x;
+						$ndz = $this->location->z - $nearby->location->z;
+						$nDistSq = $ndx * $ndx + $ndz * $ndz;
+						if($nDistSq < 0.001 || $nDistSq > $sepRadiusSq){
+							continue;
+						}
+						$nDist = sqrt($nDistSq);
+						$factor = (1.0 - $nDist / self::SEPARATION_RADIUS) * self::SEPARATION_STRENGTH;
+						$sepX += ($ndx / $nDist) * $factor;
+						$sepZ += ($ndz / $nDist) * $factor;
+						if(++$nearbyCount >= self::SEPARATION_MAX_NEIGHBORS){
+							break;
+						}
+					}
+					$this->cachedSepX = $sepX;
+					$this->cachedSepZ = $sepZ;
+				}
+				$flyX += $this->cachedSepX;
+				$flyZ += $this->cachedSepZ;
+			}else{
+				$this->cachedSepX = 0.0;
+				$this->cachedSepZ = 0.0;
+			}
+
+			// Blend motion - compute final values in locals, single Vector3 at end
+			$mx = $this->motion->x * 0.2 + $flyX * 0.8;
+			$my = $this->motion->y * 0.5 + $flyY * 0.5;
+			$mz = $this->motion->z * 0.2 + $flyZ * 0.8;
+
+			if($my > $maxYSpeed){
+				$my = $maxYSpeed;
+			}elseif($my < -$maxYSpeed){
+				$my = -$maxYSpeed;
+			}
+
+			$hSq = $mx * $mx + $mz * $mz;
+			$maxSpd = $isAttacking
+				? self::FLY_SPEED_ANGRY
+				: max(self::FLY_MAX_SPEED, $this->currentSpeed + 0.02);
+			$maxSpdSq = $maxSpd * $maxSpd;
+			if($hSq > $maxSpdSq){
+				$scale = $maxSpd / sqrt($hSq);
+				$mx *= $scale;
+				$mz *= $scale;
+			}
+
+			$this->motion = new Vector3($mx, $my, $mz);
 		}
 
-		$this->motion = new Vector3(
-			$this->motion->x * 0.2 + $flyX * 0.8,
-			$this->motion->y * 0.5 + $flyY * 0.5,
-			$this->motion->z * 0.2 + $flyZ * 0.8
-		);
-
-		if(abs($this->motion->y) > $maxYSpeed){
-			$clampedY = $this->motion->y > 0 ? $maxYSpeed : -$maxYSpeed;
-			$this->motion = new Vector3($this->motion->x, $clampedY, $this->motion->z);
-		}
-
-		$hSq = ($this->motion->x ** 2) + ($this->motion->z ** 2);
-		$maxSpd = $isAttacking
-			? (float) self::FLY_SPEED_ANGRY
-			: (float) max(self::FLY_MAX_SPEED, $this->currentSpeed + 0.02);
-		if($hSq > $maxSpd * $maxSpd){
-			$scale = $maxSpd / sqrt($hSq);
-			$this->motion = new Vector3(
-				$this->motion->x * $scale,
-				$this->motion->y,
-				$this->motion->z * $scale
-			);
-		}
-
-		$hSpeed = sqrt(($this->motion->x ** 2) + ($this->motion->z ** 2));
-		$yaw = -atan2($this->motion->x, $this->motion->z) * 180.0 / M_PI;
+		$mx = $this->motion->x;
+		$mz = $this->motion->z;
+		$hSpeed = sqrt($mx * $mx + $mz * $mz);
+		$yaw = -atan2($mx, $mz) * 180.0 / M_PI;
 		$pitch = -atan2($hSpeed, $this->motion->y) * 180.0 / M_PI;
 
 		if(!$this->angry && !$this->hasStung && $this->cachedFlowerHolder !== null){
@@ -906,12 +1066,18 @@ class Bee extends Living implements Ageable{
 		$world = $this->getWorld();
 		$best = null;
 		$bestDist = self::FOLLOW_FLOWER_RANGE * self::FOLLOW_FLOWER_RANGE;
+		$sx = $this->location->x;
+		$sy = $this->location->y;
+		$sz = $this->location->z;
 
 		foreach($world->getPlayers() as $player){
 			if(!self::isPlayerHoldingBreedingFlower($player)){
 				continue;
 			}
-			$d = $this->distanceSqTo($player->location);
+			$dx = $sx - $player->location->x;
+			$dy = $sy - $player->location->y;
+			$dz = $sz - $player->location->z;
+			$d = $dx * $dx + $dy * $dy + $dz * $dz;
 			if($d < $bestDist){
 				$bestDist = $d;
 				$best = $player;
@@ -925,16 +1091,24 @@ class Bee extends Living implements Ageable{
 			return false;
 		}
 		$this->followScanCooldown = max(0, $this->followScanCooldown - $tickDiff);
-		if(
-			$this->cachedFlowerHolder === null ||
-			!$this->cachedFlowerHolder->isConnected() ||
-			!$this->cachedFlowerHolder->isAlive() ||
-			$this->cachedFlowerHolder->isSpectator() ||
-			$this->cachedFlowerHolder->getWorld() !== $this->getWorld() ||
-			!self::isPlayerHoldingBreedingFlower($this->cachedFlowerHolder) ||
-			$this->distanceSqTo($this->cachedFlowerHolder->location) > self::FOLLOW_FLOWER_RANGE * self::FOLLOW_FLOWER_RANGE
-		){
-			$this->cachedFlowerHolder = null;
+		if($this->cachedFlowerHolder !== null){
+			$h = $this->cachedFlowerHolder;
+			if(
+				!$h->isConnected() ||
+				!$h->isAlive() ||
+				$h->isSpectator() ||
+				$h->getWorld() !== $this->getWorld() ||
+				!self::isPlayerHoldingBreedingFlower($h)
+			){
+				$this->cachedFlowerHolder = null;
+			}else{
+				$hdx = $this->location->x - $h->location->x;
+				$hdy = $this->location->y - $h->location->y;
+				$hdz = $this->location->z - $h->location->z;
+				if(($hdx * $hdx + $hdy * $hdy + $hdz * $hdz) > self::FOLLOW_FLOWER_RANGE * self::FOLLOW_FLOWER_RANGE){
+					$this->cachedFlowerHolder = null;
+				}
+			}
 		}
 		if($this->followScanCooldown === 0){
 			$this->followScanCooldown = self::FOLLOW_SCAN_INTERVAL;
@@ -947,9 +1121,11 @@ class Bee extends Living implements Ageable{
 			return false;
 		}
 
-		$holderCenter = $holder->location->add(0, $holder->getSize()->getHeight() * 0.6, 0);
-		$dx = $this->location->x - $holderCenter->x;
-		$dz = $this->location->z - $holderCenter->z;
+		$hcx = $holder->location->x;
+		$hcy = $holder->location->y + $holder->getSize()->getHeight() * 0.6;
+		$hcz = $holder->location->z;
+		$dx = $this->location->x - $hcx;
+		$dz = $this->location->z - $hcz;
 		$distSq = $dx * $dx + $dz * $dz;
 		if($distSq < 0.0001){
 			$dx = ($this->getId() % 2 === 0) ? 1.0 : -1.0;
@@ -959,26 +1135,18 @@ class Bee extends Living implements Ageable{
 		$dist = sqrt($distSq);
 		$nx = $dx / $dist;
 		$nz = $dz / $dist;
-		$followTarget = new Vector3(
-			$holderCenter->x + $nx * self::FOLLOW_TARGET_OFFSET,
-			$holderCenter->y,
-			$holderCenter->z + $nz * self::FOLLOW_TARGET_OFFSET
-		);
 
 		if($distSq <= self::FOLLOW_MIN_DISTANCE_SQ){
-			$escapeTarget = new Vector3(
-				$holderCenter->x + $nx * (self::FOLLOW_MIN_DISTANCE + 0.5),
-				$holderCenter->y,
-				$holderCenter->z + $nz * (self::FOLLOW_MIN_DISTANCE + 0.5)
-			);
-			$this->steerTowards($escapeTarget);
+			$etx = $hcx + $nx * (self::FOLLOW_MIN_DISTANCE + 0.5);
+			$etz = $hcz + $nz * (self::FOLLOW_MIN_DISTANCE + 0.5);
+			$this->blendDirection($etx - $this->location->x, $hcy - $this->location->y, $etz - $this->location->z);
 			$this->currentSpeed = self::FOLLOW_SPEED * 0.75;
 			return true;
 		}
 
 		if($distSq <= self::FOLLOW_HOLD_DISTANCE_SQ){
 			$this->hasActiveTarget = true;
-			$this->activeTargetY = $holderCenter->y;
+			$this->activeTargetY = $hcy;
 			$this->currentSpeed = 0.0;
 			$this->motion = new Vector3(
 				$this->motion->x * 0.6,
@@ -988,7 +1156,9 @@ class Bee extends Living implements Ageable{
 			return true;
 		}
 
-		$this->steerTowards($followTarget);
+		$ftx = $hcx + $nx * self::FOLLOW_TARGET_OFFSET;
+		$ftz = $hcz + $nz * self::FOLLOW_TARGET_OFFSET;
+		$this->blendDirection($ftx - $this->location->x, $hcy - $this->location->y, $ftz - $this->location->z);
 		$this->currentSpeed = self::FOLLOW_SPEED;
 		return true;
 	}
@@ -1000,6 +1170,7 @@ class Bee extends Living implements Ageable{
 		$this->loveTicks = max(0, $this->loveTicks - $tickDiff);
 		if($this->loveTicks <= 0){
 			$this->inLove = false;
+			$this->breedKissTicks = 0;
 			$this->networkPropertiesDirty = true;
 			return;
 		}
@@ -1008,10 +1179,10 @@ class Bee extends Living implements Ageable{
 		if($this->heartParticleTicker >= self::HEART_PARTICLE_INTERVAL){
 			$this->heartParticleTicker = 0;
 			$this->getWorld()->addParticle(
-				$this->location->add(
-					(mt_rand(-30, 30) / 100.0),
-					$this->getSize()->getHeight() + 0.2,
-					(mt_rand(-30, 30) / 100.0)
+				new Vector3(
+					$this->location->x + (mt_rand(-30, 30) / 100.0),
+					$this->location->y + $this->getSize()->getHeight() + 0.2,
+					$this->location->z + (mt_rand(-30, 30) / 100.0)
 				),
 				new HeartParticle()
 			);
@@ -1029,12 +1200,16 @@ class Bee extends Living implements Ageable{
 			)
 		){
 			$this->cachedBreedMate = null;
+			$this->breedKissTicks = 0;
 		}
 
 		if($this->breedScanCooldown === 0){
 			$this->breedScanCooldown = self::BREED_SCAN_INTERVAL;
 			$nearest = null;
 			$nearestDist = 64.0;
+			$bsx = $this->location->x;
+			$bsy = $this->location->y;
+			$bsz = $this->location->z;
 			foreach($world->getNearbyEntities(
 				$this->getBoundingBox()->expandedCopy(8, 4, 8),
 				$this
@@ -1042,7 +1217,10 @@ class Bee extends Living implements Ageable{
 				if(!($entity instanceof self) || $entity->baby || !$entity->inLove || $entity->getId() <= $this->getId()){
 					continue;
 				}
-				$d = $this->distanceSqTo($entity->location);
+				$bdx = $bsx - $entity->location->x;
+				$bdy = $bsy - $entity->location->y;
+				$bdz = $bsz - $entity->location->z;
+				$d = $bdx * $bdx + $bdy * $bdy + $bdz * $bdz;
 				if($d < $nearestDist){
 					$nearestDist = $d;
 					$nearest = $entity;
@@ -1052,20 +1230,67 @@ class Bee extends Living implements Ageable{
 		}
 
 		$nearest = $this->cachedBreedMate;
-		$nearestDist = $nearest !== null ? $this->distanceSqTo($nearest->location) : 64.0;
-
 		if($nearest === null){
 			return;
 		}
+		$brdx = $this->location->x - $nearest->location->x;
+		$brdy = $this->location->y - $nearest->location->y;
+		$brdz = $this->location->z - $nearest->location->z;
+		$nearestDist = $brdx * $brdx + $brdy * $brdy + $brdz * $brdz;
 
-		$this->steerTowards($nearest->location);
-		$nearest->steerTowards($this->location);
+		$this->blendDirection($nearest->location->x - $this->location->x, $nearest->location->y - $this->location->y, $nearest->location->z - $this->location->z);
+		$nearest->blendDirection($this->location->x - $nearest->location->x, $this->location->y - $nearest->location->y, $this->location->z - $nearest->location->z);
 		$this->currentSpeed = self::FOLLOW_SPEED;
 		$nearest->currentSpeed = self::FOLLOW_SPEED;
 
 		if($nearestDist > self::BREED_RANGE_SQ){
+			$this->breedKissTicks = 0;
 			return;
 		}
+
+		$this->breedKissTicks += $tickDiff;
+		$nearest->breedKissTicks = $this->breedKissTicks;
+
+		$this->currentSpeed = 0.0;
+		$nearest->currentSpeed = 0.0;
+		$this->hasActiveTarget = true;
+		$nearest->hasActiveTarget = true;
+		$this->activeTargetY = ($this->location->y + $nearest->location->y) / 2;
+		$nearest->activeTargetY = $this->activeTargetY;
+		$this->motion = new Vector3($this->motion->x * 0.3, $this->motion->y, $this->motion->z * 0.3);
+		$nearest->motion = new Vector3($nearest->motion->x * 0.3, $nearest->motion->y, $nearest->motion->z * 0.3);
+
+		// Face each other
+		$dx = $nearest->location->x - $this->location->x;
+		$dz = $nearest->location->z - $this->location->z;
+		if(($dx * $dx + $dz * $dz) > 0.001){
+			$yawToMate = -atan2($dx, $dz) * 180.0 / M_PI;
+			$this->setRotation($yawToMate, $this->location->pitch);
+			$nearest->setRotation(-atan2(-$dx, -$dz) * 180.0 / M_PI, $nearest->location->pitch);
+		}
+
+		// Emit kiss hearts during the phase
+		if($this->breedKissTicks % self::BREED_KISS_HEART_INTERVAL === 0){
+			$kissX = ($this->location->x + $nearest->location->x) / 2;
+			$kissY = ($this->location->y + $nearest->location->y) / 2;
+			$kissZ = ($this->location->z + $nearest->location->z) / 2;
+			for($i = 0; $i < 3; ++$i){
+				$world->addParticle(
+					new Vector3(
+						$kissX + (mt_rand(-20, 20) / 100.0),
+						$kissY + 0.3 + (mt_rand(0, 30) / 100.0),
+						$kissZ + (mt_rand(-20, 20) / 100.0)
+					),
+					new HeartParticle()
+				);
+			}
+		}
+
+		if($this->breedKissTicks < self::BREED_KISS_TICKS){
+			return;
+		}
+
+		// Kiss complete - spawn baby
 
 		$midX = ($this->location->x + $nearest->location->x) / 2;
 		$midY = ($this->location->y + $nearest->location->y) / 2;
@@ -1093,6 +1318,7 @@ class Bee extends Living implements Ageable{
 		$this->loveCooldown = self::BREED_COOLDOWN;
 		$this->heartParticleTicker = 0;
 		$this->cachedBreedMate = null;
+		$this->breedKissTicks = 0;
 		$this->networkPropertiesDirty = true;
 
 		$nearest->inLove = false;
@@ -1100,6 +1326,7 @@ class Bee extends Living implements Ageable{
 		$nearest->loveCooldown = self::BREED_COOLDOWN;
 		$nearest->heartParticleTicker = 0;
 		$nearest->cachedBreedMate = null;
+		$nearest->breedKissTicks = 0;
 		$nearest->networkPropertiesDirty = true;
 	}
 
@@ -1135,6 +1362,9 @@ class Bee extends Living implements Ageable{
 			$this->babyFollowScanCooldown = self::BABY_FOLLOW_SCAN_INTERVAL;
 			$nearest = null;
 			$nearestDist = 100.0;
+			$bfsx = $this->location->x;
+			$bfsy = $this->location->y;
+			$bfsz = $this->location->z;
 			foreach($world->getNearbyEntities(
 				$this->getBoundingBox()->expandedCopy(10, 6, 10),
 				$this
@@ -1142,7 +1372,10 @@ class Bee extends Living implements Ageable{
 				if(!($entity instanceof self) || $entity->baby || !$entity->isAlive()){
 					continue;
 				}
-				$d = $this->distanceSqTo($entity->location);
+				$bfdx = $bfsx - $entity->location->x;
+				$bfdy = $bfsy - $entity->location->y;
+				$bfdz = $bfsz - $entity->location->z;
+				$d = $bfdx * $bfdx + $bfdy * $bfdy + $bfdz * $bfdz;
 				if($d < $nearestDist){
 					$nearestDist = $d;
 					$nearest = $entity;
@@ -1152,17 +1385,24 @@ class Bee extends Living implements Ageable{
 		}
 
 		$nearest = $this->cachedBabyLeader;
-		$nearestDist = $nearest !== null ? $this->distanceSqTo($nearest->location) : 100.0;
-
 		if($nearest === null){
 			return false;
 		}
+		$bflx = $this->location->x - $nearest->location->x;
+		$bfly = $this->location->y - $nearest->location->y;
+		$bflz = $this->location->z - $nearest->location->z;
+		$nearestDist = $bflx * $bflx + $bfly * $bfly + $bflz * $bflz;
 
 		if($nearestDist > 4.0){
-			$this->steerTowards($nearest->location->add(0, 0.3, 0));
+			$this->blendDirection(
+				$nearest->location->x - $this->location->x,
+				$nearest->location->y + 0.3 - $this->location->y,
+				$nearest->location->z - $this->location->z
+			);
 			$this->currentSpeed = self::FOLLOW_SPEED;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	protected function entityBaseTick(int $tickDiff = 1) : bool{
@@ -1178,6 +1418,7 @@ class Bee extends Living implements Ageable{
 			}
 
 			$this->hasActiveTarget = false;
+			$this->isPollinating = false;
 
 			$this->tickBabyGrowth($tickDiff);
 			$this->tickBreeding($tickDiff);

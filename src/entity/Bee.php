@@ -888,10 +888,18 @@ class Bee extends Living implements Ageable{
 		}
 
 		$hSpeed = sqrt(($this->motion->x ** 2) + ($this->motion->z ** 2));
-		$this->setRotation(
-			-atan2($this->motion->x, $this->motion->z) * 180.0 / M_PI,
-			-atan2($hSpeed, $this->motion->y) * 180.0 / M_PI
-		);
+		$yaw = -atan2($this->motion->x, $this->motion->z) * 180.0 / M_PI;
+		$pitch = -atan2($hSpeed, $this->motion->y) * 180.0 / M_PI;
+
+		if(!$this->angry && !$this->hasStung && $this->cachedFlowerHolder !== null){
+			$lookDx = $this->cachedFlowerHolder->location->x - $this->location->x;
+			$lookDz = $this->cachedFlowerHolder->location->z - $this->location->z;
+			if(($lookDx * $lookDx + $lookDz * $lookDz) > 0.0001){
+				$yaw = -atan2($lookDx, $lookDz) * 180.0 / M_PI;
+			}
+		}
+
+		$this->setRotation($yaw, $pitch);
 	}
 
 	private function findNearbyFlowerHolder() : ?Player{

@@ -13,7 +13,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author Ayrz
+ * @author bonbionTR
  * @team BeeltyMine
  * 
  * 
@@ -151,6 +151,10 @@ class Bee extends Living implements Ageable{
 	private const BABY_SCALE = 0.5;
 	private const FOLLOW_FLOWER_RANGE = 8.0;
 	private const FOLLOW_SPEED = 0.10;
+	private const FOLLOW_MIN_DISTANCE = 1.25;
+	private const FOLLOW_MIN_DISTANCE_SQ = 1.5625;
+	private const FOLLOW_HOLD_DISTANCE_SQ = 3.24;
+	private const FOLLOW_TARGET_OFFSET = 1.4;
 
 	public static function getNetworkTypeId() : string{ return EntityIds::BEE; }
 
@@ -925,8 +929,38 @@ class Bee extends Living implements Ageable{
 		if($holder === null){
 			return false;
 		}
-		$this->steerTowards($holder->location->add(0, $holder->getSize()->getHeight() * 0.5, 0));
-		$this->currentSpeed = self::FOLLOW_SPEED;
+
+		$holderCenter = $holder->location->add(0, $holder->getSize()->getHeight() * 0.6, 0);
+		$dx = $this->location->x - $holderCenter->x;
+		$dz = $this->location->z - $holderCenter->z;
+		$distSq = $dx * $dx + $dz * $dz;
+		if($distSq < 0.0001){
+			$dx = ($this->getId() % 2 === 0) ? 1.0 : -1.0;
+			$dz = (($this->getId() / 2) % 2 === 0) ? 1.0 : -1.0;
+			$distSq = $dx * $dx + $dz * $dz;
+		}
+		$dist = sqrt($distSq);
+		$nx = $dx / $dist;
+		$nz = $dz / $dist;
+		$followTarget = new Vector3(
+			$holderCenter->x + $nx * self::FOLLOW_TARGET_OFFSET,
+			$holderCenter->y,
+			$holderCenter->z + $nz * self::FOLLOW_TARGET_OFFSET
+		);
+
+		if($distSq <= self::FOLLOW_MIN_DISTANCE_SQ){
+			$escapeTarget = new Vector3(
+				$holderCenter->x + $nx * (self::FOLLOW_MIN_DISTANCE + 0.5),
+				$holderCenter->y,
+				$holderCenter->z + $nz * (self::FOLLOW_MIN_DISTANCE + 0.5)
+			);
+			$this->steerTowards($escapeTarget);
+			$this->currentSpeed = self::FOLLOW_SPEED * 0.75;
+			return true;
+		}
+
+		$this->steerTowards($followTarget);
+		$this->currentSpeed = $distSq <= self::FOLLOW_HOLD_DISTANCE_SQ ? self::FOLLOW_SPEED * 0.85 : self::FOLLOW_SPEED;
 		return true;
 	}
 

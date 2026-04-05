@@ -44,6 +44,7 @@ final class ItemTypeIds{
 	public const BAKED_POTATO = 20004;
 	public const BAMBOO = 20005;
 	public const BANNER = 20006;
+	public const BEE_SPAWN_EGG = 20007;
 
 	public const BEETROOT = 20008;
 	public const BEETROOT_SEEDS = 20009;
@@ -364,25 +365,33 @@ final class ItemTypeIds{
 	public const BAMBOO_HANGING_SIGN = 20324;
 	public const BAMBOO_SIGN = 20325;
 	public const ELYTRA = 20326;
-	public const BUNDLE = 20327;
-	public const WHITE_BUNDLE = 20328;
-	public const LIGHT_GRAY_BUNDLE = 20329;
-	public const GRAY_BUNDLE = 20330;
-	public const BLACK_BUNDLE = 20331;
-	public const BROWN_BUNDLE = 20332;
-	public const RED_BUNDLE = 20333;
-	public const ORANGE_BUNDLE = 20334;
-	public const YELLOW_BUNDLE = 20335;
-	public const LIME_BUNDLE = 20336;
-	public const GREEN_BUNDLE = 20337;
-	public const CYAN_BUNDLE = 20338;
-	public const LIGHT_BLUE_BUNDLE = 20339;
-	public const BLUE_BUNDLE = 20340;
-	public const PURPLE_BUNDLE = 20341;
-	public const MAGENTA_BUNDLE = 20342;
-	public const PINK_BUNDLE = 20343;
+	public const WOODEN_SPEAR = 20327;
+	public const STONE_SPEAR = 20328;
+	public const COPPER_SPEAR = 20329;
+	public const IRON_SPEAR = 20330;
+	public const GOLDEN_SPEAR = 20331;
+	public const DIAMOND_SPEAR = 20332;
+	public const NETHERITE_SPEAR = 20333;
 
-	public const FIRST_UNUSED_ITEM_ID = 20344;
+	public const BUNDLE = 20334;
+	public const WHITE_BUNDLE = 20335;
+	public const LIGHT_GRAY_BUNDLE = 20336;
+	public const GRAY_BUNDLE = 20337;
+	public const BLACK_BUNDLE = 20338;
+	public const BROWN_BUNDLE = 20339;
+	public const RED_BUNDLE = 20340;
+	public const ORANGE_BUNDLE = 20341;
+	public const YELLOW_BUNDLE = 20342;
+	public const LIME_BUNDLE = 20343;
+	public const GREEN_BUNDLE = 20344;
+	public const CYAN_BUNDLE = 20345;
+	public const LIGHT_BLUE_BUNDLE = 20346;
+	public const BLUE_BUNDLE = 20347;
+	public const PURPLE_BUNDLE = 20348;
+	public const MAGENTA_BUNDLE = 20349;
+	public const PINK_BUNDLE = 20350;
+
+	public const FIRST_UNUSED_ITEM_ID = 20900;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_ITEM_ID;
 

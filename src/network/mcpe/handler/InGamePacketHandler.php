@@ -1,7 +1,6 @@
 <?php
 
 /*
- *
  *     ____            ____        __  ____
  *    / __ )___  ___  / / /___  __/  |/  (_)___  ___
  *   / __  / _ \/ _ \/ / __/ / / / /|_/ / / __ \/ _ \
@@ -32,6 +31,7 @@ use pocketmine\block\tile\Beacon as BeaconTile;
 use pocketmine\block\tile\Sign;
 use pocketmine\block\utils\SignText;
 use pocketmine\entity\Attribute;
+use pocketmine\entity\Entity;
 use pocketmine\entity\InvalidSkinException;
 use pocketmine\event\player\PlayerEditBookEvent;
 use pocketmine\inventory\transaction\action\DropItemAction;
@@ -40,6 +40,7 @@ use pocketmine\inventory\transaction\TransactionBuilder;
 use pocketmine\inventory\transaction\TransactionCancelledException;
 use pocketmine\inventory\transaction\TransactionValidationException;
 use pocketmine\item\VanillaItems;
+use pocketmine\item\Spear;
 use pocketmine\item\WritableBook;
 use pocketmine\item\WritableBookPage;
 use pocketmine\item\WrittenBook;
@@ -140,6 +141,7 @@ use const JSON_THROW_ON_ERROR;
 class InGamePacketHandler extends PacketHandler{
 	private const MAX_FORM_RESPONSE_SIZE = 10 * 1024; //10 KiB should be more than enough
 	private const MAX_FORM_RESPONSE_DEPTH = 2; //modal/simple will be 1, custom forms 2 - they will never contain anything other than string|int|float|bool|null
+	private const SPEAR_TRACE_FALLBACK_MIN_DOT = 0.55;
 
 	//TODO: The client-side per-page character limit is inconsistent for non-ASCII text,
 	//allowing input beyond 256 chars. Use a slightly higher bounded soft limit to
@@ -631,9 +633,114 @@ class InGamePacketHandler extends PacketHandler{
 				}
 				$this->player->useHeldItem();
 				return true;
+			case UseItemTransactionData::ACTION_USE_AS_ATTACK:
+				$heldItem = $this->player->getInventory()->getItemInHand();
+				if($heldItem instanceof Spear){
+					return $this->executeSpearJab();
+				}
+				return $this->player->useHeldItem();
 		}
 
 		return false;
+	}
+
+	private function executeSpearJab(?Entity $prioritizedTarget = null) : bool{
+		$heldItem = $this->player->getInventory()->getItemInHand();
+		if(!($heldItem instanceof Spear)){
+			return false;
+		}
+
+		if($this->player->hasItemCooldown($heldItem)){
+			$this->player->missSwing();
+			return true;
+		}
+
+		$lungeActivated = $heldItem->activateLunge($this->player);
+
+		$targets = $this->findSpearJabTargets($heldItem, $prioritizedTarget);
+		$this->player->resetItemCooldown($heldItem, $heldItem->getJabCooldownTicks());
+
+		if(count($targets) === 0){
+			if($lungeActivated){
+				$currentHeldItem = $this->player->getInventory()->getItemInHand();
+				if($currentHeldItem instanceof Spear){
+					$currentHeldItem->applyDamage(1);
+					$this->player->getInventory()->setItemInHand($currentHeldItem);
+				}
+			}
+			$this->player->missSwing();
+			return true;
+		}
+
+		$damaged = false;
+		foreach($targets as $target){
+			$damaged = $this->player->attackEntity($target) || $damaged;
+		}
+
+		if($lungeActivated){
+			$currentHeldItem = $this->player->getInventory()->getItemInHand();
+			if($currentHeldItem instanceof Spear){
+				$currentHeldItem->applyDamage(1);
+				$this->player->getInventory()->setItemInHand($currentHeldItem);
+			}
+		}
+
+		if(!$damaged){
+			$this->player->missSwing();
+		}
+
+		return true;
+	}
+
+	/**
+	 * @return Entity[]
+	 */
+	private function findSpearJabTargets(Spear $spear, ?Entity $prioritizedTarget = null) : array{
+		$eyePos = $this->player->getEyePos();
+		$direction = $this->player->getDirectionVector()->normalize();
+		$traceEnd = $eyePos->addVector($direction->multiply($spear->getJabMaxDistance()));
+		$searchRadius = $spear->getJabMaxDistance() + $spear->getJabHitboxMargin();
+		$searchBox = $this->player->getBoundingBox()->expandedCopy($searchRadius, $searchRadius, $searchRadius);
+
+		$candidates = [];
+		foreach($this->player->getWorld()->getNearbyEntities($searchBox, $this->player) as $entity){
+			if(!$entity->isAlive() || $entity->isFlaggedForDespawn()){
+				continue;
+			}
+
+			$targetPos = $entity->getPosition()->add(0, $entity->size->getHeight() / 2, 0);
+			$distance = $eyePos->distance($targetPos);
+			if($distance > $spear->getJabMaxDistance() || $distance < $spear->getJabMinDistance()){
+				continue;
+			}
+
+			$expandedHitBox = $entity->getBoundingBox()->expandedCopy($spear->getJabHitboxMargin(), $spear->getJabHitboxMargin(), $spear->getJabHitboxMargin());
+			if($expandedHitBox->calculateIntercept($eyePos, $traceEnd) === null){
+				if($prioritizedTarget !== $entity){
+					continue;
+				}
+
+				$toEntity = $targetPos->subtractVector($eyePos)->normalize();
+				if($direction->dot($toEntity) < self::SPEAR_TRACE_FALLBACK_MIN_DOT){
+					continue;
+				}
+			}
+
+			$candidates[] = [
+				"entity" => $entity,
+				"distance" => $distance,
+				"priority" => $prioritizedTarget === $entity ? -1 : 0,
+			];
+		}
+
+		usort($candidates, static fn(array $a, array $b) : int => ($a["priority"] <=> $b["priority"]) ?: ($a["distance"] <=> $b["distance"]));
+
+		$targets = [];
+		foreach($candidates as $candidate){
+			$targets[] = $candidate["entity"];
+		}
+
+		return $targets;
 	}
 
 	/**
@@ -677,9 +784,21 @@ class InGamePacketHandler extends PacketHandler{
 
 		switch($data->getActionType()){
 			case UseItemOnEntityTransactionData::ACTION_INTERACT:
+				$heldItem = $this->player->getInventory()->getItemInHand();
+				if($heldItem instanceof Spear){
+					if(!$this->player->isUsingItem()){
+						$this->player->useHeldItem();
+					}
+					return true;
+				}
 				$this->player->interactEntity($target, $data->getClickPosition());
 				return true;
 			case UseItemOnEntityTransactionData::ACTION_ATTACK:
+				$heldItem = $this->player->getInventory()->getItemInHand();
+				if($heldItem instanceof Spear){
+					return $this->executeSpearJab($target);
+				}
+
 				$this->player->attackEntity($target);
 				return true;
 		}

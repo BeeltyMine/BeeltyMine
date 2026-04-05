@@ -31,7 +31,7 @@ use function str_repeat;
 
 final class VersionInfo{
 	public const NAME = "beeltymine-mp";
-	public const BASE_VERSION = "5.41.2";
+	public const BASE_VERSION = "5.41.3";
 	public const IS_DEVELOPMENT_BUILD = false;
 	public const BUILD_CHANNEL = "stable";
 	public const GITHUB_URL = "https://github.com/BeeltyMine/BeeltyMine-MP";

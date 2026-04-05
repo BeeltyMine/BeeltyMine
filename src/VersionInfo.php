@@ -31,20 +31,12 @@ use function str_repeat;
 
 final class VersionInfo{
 	public const NAME = "beeltymine-mp";
-	public const BASE_VERSION = "5.41.1";
+	public const BASE_VERSION = "5.41.2";
 	public const IS_DEVELOPMENT_BUILD = false;
 	public const BUILD_CHANNEL = "stable";
 	public const GITHUB_URL = "https://github.com/BeeltyMine/BeeltyMine-MP";
 
-	/**
-	 * PocketMine-MP-specific version ID for world data. Used to determine what fixes need to be applied to old world
-	 * data (e.g. stuff saved wrongly by past versions).
-	 * This version supplements the Minecraft vanilla world version.
-	 *
-	 * This should be bumped if any **non-Mojang** BC-breaking change or bug fix is made to world save data of any kind
-	 * (entities, tiles, blocks, biomes etc.). For example, if PM accidentally saved a block with its facing value
-	 * swapped, we would bump this, but not if Mojang did the same change.
-	 */
+	
 	public const WORLD_DATA_VERSION = 1;
 	/**
 	 * Name of the NBT tag used to store the world data version.

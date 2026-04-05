@@ -2,21 +2,22 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
+ *     ____            ____        __  ____
+ *    / __ )___  ___  / / /___  __/  |/  (_)___  ___
+ *   / __  / _ \/ _ \/ / __/ / / / /|_/ / / __ \/ _ \
+ *  / /_/ /  __/  __/ / /_/ /_/ / /  / / / / / /  __/
+ * /_____/\___/\___/_/\__/\__, /_/  /_/_/_/ /_/\___/
+ *                       /____/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
- *
- *
+ * @author Ayrz
+ * @team BeeltyMine
+ * 
+ * 
  */
 
 declare(strict_types=1);
@@ -371,7 +372,25 @@ final class ItemTypeIds{
 	public const DIAMOND_SPEAR = 20332;
 	public const NETHERITE_SPEAR = 20333;
 
-	public const FIRST_UNUSED_ITEM_ID = 20334;
+	public const BUNDLE = 20334;
+	public const WHITE_BUNDLE = 20335;
+	public const LIGHT_GRAY_BUNDLE = 20336;
+	public const GRAY_BUNDLE = 20337;
+	public const BLACK_BUNDLE = 20338;
+	public const BROWN_BUNDLE = 20339;
+	public const RED_BUNDLE = 20340;
+	public const ORANGE_BUNDLE = 20341;
+	public const YELLOW_BUNDLE = 20342;
+	public const LIME_BUNDLE = 20343;
+	public const GREEN_BUNDLE = 20344;
+	public const CYAN_BUNDLE = 20345;
+	public const LIGHT_BLUE_BUNDLE = 20346;
+	public const BLUE_BUNDLE = 20347;
+	public const PURPLE_BUNDLE = 20348;
+	public const MAGENTA_BUNDLE = 20349;
+	public const PINK_BUNDLE = 20350;
+
+	public const FIRST_UNUSED_ITEM_ID = 20900;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_ITEM_ID;
 

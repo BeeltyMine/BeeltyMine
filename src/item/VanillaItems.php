@@ -76,6 +76,23 @@ use function strtolower;
  * @method static Bread BREAD()
  * @method static Item BRICK()
  * @method static Bucket BUCKET()
+ * @method static Bundle BUNDLE()
+ * @method static Bundle WHITE_BUNDLE()
+ * @method static Bundle LIGHT_GRAY_BUNDLE()
+ * @method static Bundle GRAY_BUNDLE()
+ * @method static Bundle BLACK_BUNDLE()
+ * @method static Bundle BROWN_BUNDLE()
+ * @method static Bundle RED_BUNDLE()
+ * @method static Bundle ORANGE_BUNDLE()
+ * @method static Bundle YELLOW_BUNDLE()
+ * @method static Bundle LIME_BUNDLE()
+ * @method static Bundle GREEN_BUNDLE()
+ * @method static Bundle CYAN_BUNDLE()
+ * @method static Bundle LIGHT_BLUE_BUNDLE()
+ * @method static Bundle BLUE_BUNDLE()
+ * @method static Bundle PURPLE_BUNDLE()
+ * @method static Bundle MAGENTA_BUNDLE()
+ * @method static Bundle PINK_BUNDLE()
  * @method static Carrot CARROT()
  * @method static Armor CHAINMAIL_BOOTS()
  * @method static Armor CHAINMAIL_CHESTPLATE()
@@ -459,6 +476,23 @@ final class VanillaItems{
 		self::register("bread", fn(IID $id) => new Bread($id, "Bread"));
 		self::register("brick", fn(IID $id) => new Item($id, "Brick"));
 		self::register("bucket", fn(IID $id) => new Bucket($id, "Bucket"));
+		self::register("bundle", fn(IID $id) => new Bundle($id, "Bundle"));
+		self::register("white_bundle", fn(IID $id) => new Bundle($id, "White Bundle"));
+		self::register("light_gray_bundle", fn(IID $id) => new Bundle($id, "Light Gray Bundle"));
+		self::register("gray_bundle", fn(IID $id) => new Bundle($id, "Gray Bundle"));
+		self::register("black_bundle", fn(IID $id) => new Bundle($id, "Black Bundle"));
+		self::register("brown_bundle", fn(IID $id) => new Bundle($id, "Brown Bundle"));
+		self::register("red_bundle", fn(IID $id) => new Bundle($id, "Red Bundle"));
+		self::register("orange_bundle", fn(IID $id) => new Bundle($id, "Orange Bundle"));
+		self::register("yellow_bundle", fn(IID $id) => new Bundle($id, "Yellow Bundle"));
+		self::register("lime_bundle", fn(IID $id) => new Bundle($id, "Lime Bundle"));
+		self::register("green_bundle", fn(IID $id) => new Bundle($id, "Green Bundle"));
+		self::register("cyan_bundle", fn(IID $id) => new Bundle($id, "Cyan Bundle"));
+		self::register("light_blue_bundle", fn(IID $id) => new Bundle($id, "Light Blue Bundle"));
+		self::register("blue_bundle", fn(IID $id) => new Bundle($id, "Blue Bundle"));
+		self::register("purple_bundle", fn(IID $id) => new Bundle($id, "Purple Bundle"));
+		self::register("magenta_bundle", fn(IID $id) => new Bundle($id, "Magenta Bundle"));
+		self::register("pink_bundle", fn(IID $id) => new Bundle($id, "Pink Bundle"));
 		self::register("carrot", fn(IID $id) => new Carrot($id, "Carrot"));
 		self::register("charcoal", fn(IID $id) => new Coal($id, "Charcoal"));
 		self::register("cherry_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::CHERRY_SIGN(), Blocks::CHERRY_WALL_SIGN()));

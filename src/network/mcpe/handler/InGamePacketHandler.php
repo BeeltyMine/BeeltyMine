@@ -84,6 +84,7 @@ use pocketmine\network\mcpe\protocol\SpawnExperienceOrbPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
+use pocketmine\network\mcpe\protocol\types\inventory\ContainerUIIds;
 use pocketmine\network\mcpe\protocol\types\inventory\MismatchTransactionData;
 use pocketmine\network\mcpe\protocol\types\inventory\NetworkInventoryAction;
 use pocketmine\network\mcpe\protocol\types\inventory\NormalTransactionData;
@@ -103,6 +104,9 @@ use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
+use pocketmine\world\sound\BundleInsertFailSound;
+use pocketmine\world\sound\BundleInsertSound;
+use pocketmine\world\sound\BundleRemoveOneSound;
 use pocketmine\world\beacon\BeaconEffects;
 use pocketmine\world\beacon\BeaconStructure;
 use pocketmine\world\format\Chunk;
@@ -344,6 +348,9 @@ class InGamePacketHandler extends PacketHandler{
 		//a legacy prediction action for the destination armor slot.
 		foreach($packet->requestChangedSlots as $containerInfo){
 			foreach($containerInfo->getChangedSlotIndexes() as $netSlot){
+				if($containerInfo->getContainerId() === ContainerUIIds::DYNAMIC){
+					continue;
+				}
 				[$windowId, $slot] = ItemStackContainerIdTranslator::translate($containerInfo->getContainerId(), $this->inventoryManager->getCurrentWindowId(), $netSlot);
 				$inventoryAndSlot = $this->inventoryManager->locateWindowAndSlot($windowId, $slot);
 				if($inventoryAndSlot !== null){ //trigger the normal slot sync logic
@@ -837,6 +844,17 @@ class InGamePacketHandler extends PacketHandler{
 			$this->session->getLogger()->debug("ItemStackRequest #" . $request->getRequestId() . " failed: " . $e->getMessage());
 			$this->session->getLogger()->debug(implode("\n", Utils::printableExceptionInfo($e)));
 			$this->inventoryManager->requestSyncAll();
+		}
+
+		if($result){
+			if($executor->shouldPlayBundleInsertSound()){
+				$this->player->broadcastSound(new BundleInsertSound());
+			}
+			if($executor->shouldPlayBundleRemoveSound()){
+				$this->player->broadcastSound(new BundleRemoveOneSound());
+			}
+		}elseif($executor->hasBundleInsertRequest()){
+			$this->player->broadcastSound(new BundleInsertFailSound());
 		}
 
 		return $result ? $executor->getItemStackResponseBuilder() : null;

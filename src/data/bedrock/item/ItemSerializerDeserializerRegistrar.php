@@ -2,21 +2,22 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
+ *     ____            ____        __  ____
+ *    / __ )___  ___  / / /___  __/  |/  (_)___  ___
+ *   / __  / _ \/ _ \/ / __/ / / / /|_/ / / __ \/ _ \
+ *  / /_/ /  __/  __/ / /_/ /_/ / /  / / / / / /  __/
+ * /_____/\___/\___/_/\__/\__, /_/  /_/_/_/ /_/\___/
+ *                       /____/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
- *
- *
+ * @author Ayrz
+ * @team BeeltyMine
+ * 
+ * 
  */
 
 declare(strict_types=1);
@@ -194,6 +195,23 @@ final class ItemSerializerDeserializerRegistrar{
 		$this->map1to1Item(Ids::BREAD, Items::BREAD());
 		$this->map1to1Item(Ids::BRICK, Items::BRICK());
 		$this->map1to1Item(Ids::BUCKET, Items::BUCKET());
+		$this->map1to1Item(Ids::BUNDLE, Items::BUNDLE());
+		$this->map1to1Item(Ids::WHITE_BUNDLE, Items::WHITE_BUNDLE());
+		$this->map1to1Item(Ids::LIGHT_GRAY_BUNDLE, Items::LIGHT_GRAY_BUNDLE());
+		$this->map1to1Item(Ids::GRAY_BUNDLE, Items::GRAY_BUNDLE());
+		$this->map1to1Item(Ids::BLACK_BUNDLE, Items::BLACK_BUNDLE());
+		$this->map1to1Item(Ids::BROWN_BUNDLE, Items::BROWN_BUNDLE());
+		$this->map1to1Item(Ids::RED_BUNDLE, Items::RED_BUNDLE());
+		$this->map1to1Item(Ids::ORANGE_BUNDLE, Items::ORANGE_BUNDLE());
+		$this->map1to1Item(Ids::YELLOW_BUNDLE, Items::YELLOW_BUNDLE());
+		$this->map1to1Item(Ids::LIME_BUNDLE, Items::LIME_BUNDLE());
+		$this->map1to1Item(Ids::GREEN_BUNDLE, Items::GREEN_BUNDLE());
+		$this->map1to1Item(Ids::CYAN_BUNDLE, Items::CYAN_BUNDLE());
+		$this->map1to1Item(Ids::LIGHT_BLUE_BUNDLE, Items::LIGHT_BLUE_BUNDLE());
+		$this->map1to1Item(Ids::BLUE_BUNDLE, Items::BLUE_BUNDLE());
+		$this->map1to1Item(Ids::PURPLE_BUNDLE, Items::PURPLE_BUNDLE());
+		$this->map1to1Item(Ids::MAGENTA_BUNDLE, Items::MAGENTA_BUNDLE());
+		$this->map1to1Item(Ids::PINK_BUNDLE, Items::PINK_BUNDLE());
 		$this->map1to1Item(Ids::CARROT, Items::CARROT());
 		$this->map1to1Item(Ids::CHAINMAIL_BOOTS, Items::CHAINMAIL_BOOTS());
 		$this->map1to1Item(Ids::CHAINMAIL_CHESTPLATE, Items::CHAINMAIL_CHESTPLATE());

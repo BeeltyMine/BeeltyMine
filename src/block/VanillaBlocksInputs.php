@@ -377,6 +377,7 @@ final class VanillaBlocksInputs extends RegistrySource{
 		self::register("slime", fn(BID $id) => new Slime($id, "Slime Block", new Info(BreakInfo::instant())));
 		self::register("snow", fn(BID $id) => new Snow($id, "Snow Block", new Info(BreakInfo::shovel(0.2, ToolTier::WOOD))));
 		self::register("snow_layer", fn(BID $id) => new SnowLayer($id, "Snow Layer", new Info(BreakInfo::shovel(0.1, ToolTier::WOOD))));
+		self::register("powder_snow", fn(BID $id) => new PowderSnow($id, "Powder Snow", new Info(BreakInfo::shovel(0.25, ToolTier::WOOD))));
 		self::register("soul_sand", fn(BID $id) => new SoulSand($id, "Soul Sand", new Info(BreakInfo::shovel(0.5))));
 		self::register("sponge", fn(BID $id) => new Sponge($id, "Sponge", new Info(new BreakInfo(0.6, ToolType::HOE))));
 		$shulkerBoxBreakInfo = new Info(BreakInfo::pickaxe(2));
@@ -1149,6 +1150,7 @@ final class VanillaBlocksInputs extends RegistrySource{
 
 		self::register("cauldron", fn(BID $id) => new Cauldron($id, "Cauldron", $cauldronBreakInfo), TileCauldron::class);
 		self::register("water_cauldron", fn(BID $id) => new WaterCauldron($id, "Water Cauldron", $cauldronBreakInfo), TileCauldron::class);
+		self::register("powder_snow_cauldron", fn(BID $id) => new PowderSnowCauldron($id, "Powder Snow Cauldron", $cauldronBreakInfo), TileCauldron::class);
 		self::register("lava_cauldron", fn(BID $id) => new LavaCauldron($id, "Lava Cauldron", $cauldronBreakInfo), TileCauldron::class);
 		self::register("potion_cauldron", fn(BID $id) => new PotionCauldron($id, "Potion Cauldron", $cauldronBreakInfo), TileCauldron::class);
 	}

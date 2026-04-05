@@ -46,10 +46,12 @@ use function strtolower;
  *
  * @phpstan-extends StringToTParser<Item>
  */
-final class StringToItemParser extends StringToTParser{
+final class StringToItemParser extends StringToTParser
+{
 	use SingletonTrait;
 
-	private static function make() : self{
+	private static function make(): self
+	{
 		$result = new self();
 
 		self::registerDynamicBlocks($result);
@@ -60,8 +62,9 @@ final class StringToItemParser extends StringToTParser{
 		return $result;
 	}
 
-	private static function registerDynamicBlocks(self $result) : void{
-		foreach(DyeColor::cases() as $color){
+	private static function registerDynamicBlocks(self $result): void
+	{
+		foreach (DyeColor::cases() as $color) {
 			$register = fn(string $name, \Closure $callback) => $result->registerBlock(strtolower($color->name) . "_" . $name, $callback);
 			//wall and floor banner are the same item
 			$register("banner", fn() => Blocks::BANNER()->setColor($color));
@@ -80,23 +83,23 @@ final class StringToItemParser extends StringToTParser{
 			$register("shulker_box", fn() => Blocks::DYED_SHULKER_BOX()->setColor($color));
 		}
 
-		foreach(CoralType::cases() as $coralType){
+		foreach (CoralType::cases() as $coralType) {
 			$register = fn(string $name, \Closure $callback) => $result->registerBlock(strtolower($coralType->name) . "_" . $name, $callback);
 			$register("coral", fn() => Blocks::CORAL()->setCoralType($coralType));
 			$register("coral_block", fn() => Blocks::CORAL_BLOCK()->setCoralType($coralType));
 			//wall and floor coral fans are the same item
 			$register("coral_fan", fn() => Blocks::CORAL_FAN()->setCoralType($coralType));
 		}
-		for($i = Light::MIN_LIGHT_LEVEL; $i <= Light::MAX_LIGHT_LEVEL; $i++){
+		for ($i = Light::MIN_LIGHT_LEVEL; $i <= Light::MAX_LIGHT_LEVEL; $i++) {
 			//helper aliases, since we don't support passing data values in /give
 			$result->registerBlock("light_$i", fn() => Blocks::LIGHT()->setLightLevel($i));
 			$result->registerBlock("light_block_$i", fn() => Blocks::LIGHT()->setLightLevel($i));
 		}
 
-		foreach(CopperOxidation::cases() as $oxidation){
+		foreach (CopperOxidation::cases() as $oxidation) {
 			$oxPrefix = $oxidation === CopperOxidation::NONE ? "" : strtolower($oxidation->name) . "_";
 
-			foreach(["" => false, "waxed_" => true] as $waxedPrefix => $waxed){
+			foreach (["" => false, "waxed_" => true] as $waxedPrefix => $waxed) {
 				$register = fn(string $name, \Closure $callback) => $result->registerBlock($waxedPrefix . $oxPrefix . $name, $callback);
 				$register("copper_block", fn() => Blocks::COPPER()->setOxidation($oxidation)->setWaxed($waxed));
 				$register("chiseled_copper", fn() => Blocks::CHISELED_COPPER()->setOxidation($oxidation)->setWaxed($waxed));
@@ -114,12 +117,13 @@ final class StringToItemParser extends StringToTParser{
 			}
 		}
 
-		foreach(FroglightType::cases() as $froglightType){
+		foreach (FroglightType::cases() as $froglightType) {
 			$result->registerBlock(strtolower($froglightType->name) . "_froglight", fn() => Blocks::FROGLIGHT()->setFroglightType($froglightType));
 		}
 	}
 
-	private static function registerBlocks(self $result) : void{
+	private static function registerBlocks(self $result): void
+	{
 		$result->registerBlock("acacia_button", fn() => Blocks::ACACIA_BUTTON());
 		$result->registerBlock("acacia_door", fn() => Blocks::ACACIA_DOOR());
 		$result->registerBlock("acacia_door_block", fn() => Blocks::ACACIA_DOOR());
@@ -1259,26 +1263,27 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("zombie_head", fn() => Blocks::MOB_HEAD()->setMobHeadType(MobHeadType::ZOMBIE));
 	}
 
-	private static function registerDynamicItems(self $result) : void{
-		foreach(DyeColor::cases() as $color){
+	private static function registerDynamicItems(self $result): void
+	{
+		foreach (DyeColor::cases() as $color) {
 			$prefix = fn(string $name) => strtolower($color->name) . "_" . $name;
 
 			$result->register($prefix("dye"), fn() => Items::DYE()->setColor($color));
 		}
 
-		foreach(GoatHornType::cases() as $goatHornType){
+		foreach (GoatHornType::cases() as $goatHornType) {
 			$prefix = fn(string $name) => strtolower($goatHornType->name) . "_" . $name;
 
 			$result->register($prefix("goat_horn"), fn() => Items::GOAT_HORN()->setHornType($goatHornType));
 		}
 
-		foreach(SuspiciousStewType::cases() as $suspiciousStewType){
+		foreach (SuspiciousStewType::cases() as $suspiciousStewType) {
 			$prefix = fn(string $name) => strtolower($suspiciousStewType->name) . "_" . $name;
 
 			$result->register($prefix("suspicious_stew"), fn() => Items::SUSPICIOUS_STEW()->setType($suspiciousStewType));
 		}
 
-		foreach(PotionType::cases() as $potionType){
+		foreach (PotionType::cases() as $potionType) {
 			$prefix = fn(string $name) => strtolower($potionType->name) . "_" . $name;
 
 			$result->register($prefix("potion"), fn() => Items::POTION()->setType($potionType));
@@ -1287,7 +1292,8 @@ final class StringToItemParser extends StringToTParser{
 		}
 	}
 
-	private static function registerItems(self $result) : void{
+	private static function registerItems(self $result): void
+	{
 
 		$result->register("acacia_boat", fn() => Items::ACACIA_BOAT());
 		$result->register("acacia_hanging_sign", fn() => Items::ACACIA_HANGING_SIGN());
@@ -1501,6 +1507,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("jungle_hanging_sign", fn() => Items::JUNGLE_HANGING_SIGN());
 		$result->register("lapis_lazuli", fn() => Items::LAPIS_LAZULI());
 		$result->register("lava_bucket", fn() => Items::LAVA_BUCKET());
+		$result->register("powder_snow_bucket", fn() => Items::POWDER_SNOW_BUCKET());
 		$result->register("leather", fn() => Items::LEATHER());
 		$result->register("leather_boots", fn() => Items::LEATHER_BOOTS());
 		$result->register("leather_cap", fn() => Items::LEATHER_CAP());
@@ -1670,18 +1677,20 @@ final class StringToItemParser extends StringToTParser{
 	 */
 	private array $reverseMap = [];
 
-	public function register(string $alias, \Closure $callback) : void{
+	public function register(string $alias, \Closure $callback): void
+	{
 		parent::register($alias, $callback);
 		$item = $callback($alias);
 		$this->reverseMap[$item->getStateId()][$alias] = true;
 	}
 
-	public function override(string $alias, \Closure $callback) : void{
+	public function override(string $alias, \Closure $callback): void
+	{
 		$oldItem = $this->parse($alias);
-		if($oldItem !== null){
+		if ($oldItem !== null) {
 			$oldStateId = $oldItem->getStateId();
 			unset($this->reverseMap[$oldStateId][$alias]);
-			if(count($this->reverseMap[$oldStateId]) === 0){
+			if (count($this->reverseMap[$oldStateId]) === 0) {
 				unset($this->reverseMap[$oldStateId]);
 			}
 		}
@@ -1691,11 +1700,13 @@ final class StringToItemParser extends StringToTParser{
 	}
 
 	/** @phpstan-param \Closure(string $input) : Block $callback */
-	public function registerBlock(string $alias, \Closure $callback) : void{
+	public function registerBlock(string $alias, \Closure $callback): void
+	{
 		$this->register($alias, fn(string $input) => $callback($input)->asItem());
 	}
 
-	public function parse(string $input) : ?Item{
+	public function parse(string $input): ?Item
+	{
 		return parent::parse($input);
 	}
 
@@ -1705,7 +1716,8 @@ final class StringToItemParser extends StringToTParser{
 	 * @return string[]
 	 * @phpstan-return list<string>
 	 */
-	public function lookupAliases(Item $item) : array{
+	public function lookupAliases(Item $item): array
+	{
 		$aliases = $this->reverseMap[$item->getStateId()] ?? [];
 		return array_keys($aliases);
 	}
@@ -1716,7 +1728,8 @@ final class StringToItemParser extends StringToTParser{
 	 * @return string[]
 	 * @phpstan-return list<string>
 	 */
-	public function lookupBlockAliases(Block $block) : array{
+	public function lookupBlockAliases(Block $block): array
+	{
 		return $this->lookupAliases($block->asItem());
 	}
 }

@@ -1,22 +1,22 @@
 <?php
 
 /*
- *
- *  ____            _        _   __  __ _                  __  __ ____
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
+ *     ____            ____        __  ____
+ *    / __ )___  ___  / / /___  __/  |/  (_)___  ___
+ *   / __  / _ \/ _ \/ / __/ / / / /|_/ / / __ \/ _ \
+ *  / /_/ /  __/  __/ / /_/ /_/ / /  / / / / / /  __/
+ * /_____/\___/\___/_/\__/\__, /_/  /_/_/_/ /_/\___/
+ *                       /____/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
- *
- *
+ * @author Ayrz
+ * @team BeeltyMine
+ * 
+ * 
  */
 
 declare(strict_types=1);
@@ -146,6 +146,7 @@ use function strtolower;
  * @method static Armor COPPER_LEGGINGS()
  * @method static Item COPPER_NUGGET()
  * @method static Pickaxe COPPER_PICKAXE()
+ * @method static Spear COPPER_SPEAR()
  * @method static Shovel COPPER_SHOVEL()
  * @method static Sword COPPER_SWORD()
  * @method static CoralFan CORAL_FAN()
@@ -162,6 +163,7 @@ use function strtolower;
  * @method static Hoe DIAMOND_HOE()
  * @method static Armor DIAMOND_LEGGINGS()
  * @method static Pickaxe DIAMOND_PICKAXE()
+ * @method static Spear DIAMOND_SPEAR()
  * @method static Shovel DIAMOND_SHOVEL()
  * @method static Sword DIAMOND_SWORD()
  * @method static Item DISC_FRAGMENT_5()
@@ -203,6 +205,7 @@ use function strtolower;
  * @method static Hoe GOLDEN_HOE()
  * @method static Armor GOLDEN_LEGGINGS()
  * @method static Pickaxe GOLDEN_PICKAXE()
+ * @method static Spear GOLDEN_SPEAR()
  * @method static Shovel GOLDEN_SHOVEL()
  * @method static Sword GOLDEN_SWORD()
  * @method static Item GOLD_INGOT()
@@ -223,6 +226,7 @@ use function strtolower;
  * @method static Armor IRON_LEGGINGS()
  * @method static Item IRON_NUGGET()
  * @method static Pickaxe IRON_PICKAXE()
+ * @method static Spear IRON_SPEAR()
  * @method static Shovel IRON_SHOVEL()
  * @method static Sword IRON_SWORD()
  * @method static Boat JUNGLE_BOAT()
@@ -256,6 +260,7 @@ use function strtolower;
  * @method static Item NETHERITE_INGOT()
  * @method static Armor NETHERITE_LEGGINGS()
  * @method static Pickaxe NETHERITE_PICKAXE()
+ * @method static Spear NETHERITE_SPEAR()
  * @method static Item NETHERITE_SCRAP()
  * @method static Shovel NETHERITE_SHOVEL()
  * @method static Sword NETHERITE_SWORD()
@@ -343,6 +348,7 @@ use function strtolower;
  * @method static Axe STONE_AXE()
  * @method static Hoe STONE_HOE()
  * @method static Pickaxe STONE_PICKAXE()
+ * @method static Spear STONE_SPEAR()
  * @method static Shovel STONE_SHOVEL()
  * @method static Sword STONE_SWORD()
  * @method static StringItem STRING()
@@ -367,6 +373,7 @@ use function strtolower;
  * @method static Axe WOODEN_AXE()
  * @method static Hoe WOODEN_HOE()
  * @method static Pickaxe WOODEN_PICKAXE()
+ * @method static Spear WOODEN_SPEAR()
  * @method static Shovel WOODEN_SHOVEL()
  * @method static Sword WOODEN_SWORD()
  * @method static WritableBook WRITABLE_BOOK()
@@ -703,6 +710,7 @@ final class VanillaItems{
 			self::register($idPrefix . "_pickaxe", fn(IID $id) => new Pickaxe($id, $namePrefix . " Pickaxe", $tier, [EnchantmentTags::PICKAXE]));
 			self::register($idPrefix . "_shovel", fn(IID $id) => new Shovel($id, $namePrefix . " Shovel", $tier, [EnchantmentTags::SHOVEL]));
 			self::register($idPrefix . "_sword", fn(IID $id) => new Sword($id, $namePrefix . " Sword", $tier, [EnchantmentTags::SWORD]));
+			self::register($idPrefix . "_spear", fn(IID $id) => new Spear($id, $namePrefix . " Spear", $tier, [EnchantmentTags::SPEAR]));
 		}
 	}
 

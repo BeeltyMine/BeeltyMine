@@ -803,6 +803,20 @@ abstract class Living extends Entity{
 	}
 
 	/**
+	 * Returns whether this entity is considered undead for enchantment interactions (e.g. Smite).
+	 */
+	public function isUndead() : bool{
+		return false;
+	}
+
+	/**
+	 * Returns whether this entity is considered an arthropod for enchantment interactions (e.g. Bane of Arthropods).
+	 */
+	public function isArthropod() : bool{
+		return false;
+	}
+
+	/**
 	 * Returns whether the entity is currently breathing or not. If this is false, the entity's air supply will be used.
 	 */
 	public function isBreathing() : bool{
@@ -863,6 +877,23 @@ abstract class Living extends Entity{
 	 */
 	public function getDrops() : array{
 		return [];
+	}
+
+	/**
+	 * Returns the looting level on the weapon used by the player that most recently damaged this entity.
+	 */
+	protected function getLootingLevelForDrops() : int{
+		$lastDamageCause = $this->getLastDamageCause();
+		if(!$lastDamageCause instanceof EntityDamageByEntityEvent){
+			return 0;
+		}
+
+		$damager = $lastDamageCause->getDamager();
+		if(!$damager instanceof Player){
+			return 0;
+		}
+
+		return $damager->getInventory()->getItemInHand()->getEnchantmentLevel(VanillaEnchantments::LOOTING());
 	}
 
 	/**

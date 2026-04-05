@@ -53,6 +53,7 @@ final class TileFactory{
 		$this->register(Barrel::class, ["Barrel", "minecraft:barrel"]);
 		$this->register(Banner::class, ["Banner", "minecraft:banner"]);
 		$this->register(Beacon::class, ["Beacon", "minecraft:beacon"]);
+		$this->register(Beehive::class, ["Beehive", "minecraft:beehive", "minecraft:bee_nest"]);
 		$this->register(Bed::class, ["Bed", "minecraft:bed"]);
 		$this->register(Bell::class, ["Bell", "minecraft:bell"]);
 		$this->register(BlastFurnace::class, ["BlastFurnace", "minecraft:blast_furnace"]);

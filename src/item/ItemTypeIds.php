@@ -43,6 +43,7 @@ final class ItemTypeIds{
 	public const BAKED_POTATO = 20004;
 	public const BAMBOO = 20005;
 	public const BANNER = 20006;
+	public const BEE_SPAWN_EGG = 20007;
 
 	public const BEETROOT = 20008;
 	public const BEETROOT_SEEDS = 20009;

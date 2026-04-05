@@ -739,6 +739,11 @@ final class VanillaBlockMappings
 				->properties($commonProperties->stairProperties)
 		);
 		$reg->mapFlattenedId(
+			FlattenedIdModel::create(Blocks::COPPER_GOLEM_STATUE())
+				->idComponents([...$commonProperties->copperIdPrefixes, "copper_golem_statue"])
+				->properties([$commonProperties->horizontalFacingCardinal])
+		);
+		$reg->mapFlattenedId(
 			FlattenedIdModel::create(Blocks::COPPER_TRAPDOOR())
 				->idComponents([...$commonProperties->copperIdPrefixes, "copper_trapdoor"])
 				->properties($commonProperties->trapdoorProperties)

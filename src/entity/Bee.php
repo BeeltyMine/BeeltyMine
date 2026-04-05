@@ -968,8 +968,20 @@ class Bee extends Living implements Ageable{
 			return true;
 		}
 
+		if($distSq <= self::FOLLOW_HOLD_DISTANCE_SQ){
+			$this->hasActiveTarget = true;
+			$this->activeTargetY = $holderCenter->y;
+			$this->currentSpeed = 0.0;
+			$this->motion = new Vector3(
+				$this->motion->x * 0.6,
+				$this->motion->y,
+				$this->motion->z * 0.6
+			);
+			return true;
+		}
+
 		$this->steerTowards($followTarget);
-		$this->currentSpeed = $distSq <= self::FOLLOW_HOLD_DISTANCE_SQ ? self::FOLLOW_SPEED * 0.85 : self::FOLLOW_SPEED;
+		$this->currentSpeed = self::FOLLOW_SPEED;
 		return true;
 	}
 

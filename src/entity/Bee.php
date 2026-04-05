@@ -297,6 +297,18 @@ class Bee extends Living implements Ageable{
 		return $block instanceof Flower || $block instanceof DoublePlant;
 	}
 
+	private static function isPlayerHoldingBreedingFlower(Player $player) : bool{
+		if(!$player->isConnected() || !$player->isAlive() || $player->isSpectator()){
+			return false;
+		}
+		try{
+			$item = $player->getInventory()->getItemInHand();
+		}catch(\Error){
+			return false;
+		}
+		return self::isBreedingFlower($item);
+	}
+
 	public function onInteract(Player $player, Vector3 $clickPos) : bool{
 		$item = $player->getInventory()->getItemInHand();
 
@@ -888,11 +900,7 @@ class Bee extends Living implements Ageable{
 		$bestDist = self::FOLLOW_FLOWER_RANGE * self::FOLLOW_FLOWER_RANGE;
 
 		foreach($world->getPlayers() as $player){
-			if(!$player->isAlive() || $player->isSpectator()){
-				continue;
-			}
-			$item = $player->getInventory()->getItemInHand();
-			if(!self::isBreedingFlower($item)){
+			if(!self::isPlayerHoldingBreedingFlower($player)){
 				continue;
 			}
 			$d = $this->distanceSqTo($player->location);
@@ -911,10 +919,11 @@ class Bee extends Living implements Ageable{
 		$this->followScanCooldown = max(0, $this->followScanCooldown - $tickDiff);
 		if(
 			$this->cachedFlowerHolder === null ||
+			!$this->cachedFlowerHolder->isConnected() ||
 			!$this->cachedFlowerHolder->isAlive() ||
 			$this->cachedFlowerHolder->isSpectator() ||
 			$this->cachedFlowerHolder->getWorld() !== $this->getWorld() ||
-			!self::isBreedingFlower($this->cachedFlowerHolder->getInventory()->getItemInHand()) ||
+			!self::isPlayerHoldingBreedingFlower($this->cachedFlowerHolder) ||
 			$this->distanceSqTo($this->cachedFlowerHolder->location) > self::FOLLOW_FLOWER_RANGE * self::FOLLOW_FLOWER_RANGE
 		){
 			$this->cachedFlowerHolder = null;

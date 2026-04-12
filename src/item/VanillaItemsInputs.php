@@ -27,8 +27,12 @@ namespace pocketmine\item;
 use pocketmine\block\utils\RecordType;
 use pocketmine\block\VanillaBlocks as Blocks;
 use pocketmine\entity\Bee;
+use pocketmine\entity\Chicken;
 use pocketmine\entity\Entity;
+use pocketmine\entity\Ghast;
+use pocketmine\entity\HappyGhast;
 use pocketmine\entity\Location;
+use pocketmine\entity\Sniffer;
 use pocketmine\entity\Squid;
 use pocketmine\entity\Villager;
 use pocketmine\entity\Zombie;
@@ -367,9 +371,29 @@ final class VanillaItemsInputs extends RegistrySource{
 				return new Zombie(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
+		self::register("chicken_spawn_egg", fn(IID $id) => new class($id, "Chicken Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
+				return new Chicken(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
 		self::register("bee_spawn_egg", fn(IID $id) => new class($id, "Bee Spawn Egg") extends SpawnEgg{
 			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
 				return new Bee(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
+		self::register("ghast_spawn_egg", fn(IID $id) => new class($id, "Ghast Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
+				return new Ghast(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
+		self::register("happy_ghast_spawn_egg", fn(IID $id) => new class($id, "Happy Ghast Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
+				return new HappyGhast(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
+		self::register("sniffer_spawn_egg", fn(IID $id) => new class($id, "Sniffer Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
+				return new Sniffer(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
 		self::register("squid_spawn_egg", fn(IID $id) => new class($id, "Squid Spawn Egg") extends SpawnEgg{

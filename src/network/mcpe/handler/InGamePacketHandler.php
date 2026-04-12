@@ -32,6 +32,7 @@ use pocketmine\block\tile\Sign;
 use pocketmine\block\utils\SignText;
 use pocketmine\entity\Attribute;
 use pocketmine\entity\Entity;
+use pocketmine\entity\HappyGhast;
 use pocketmine\entity\InvalidSkinException;
 use pocketmine\event\player\PlayerEditBookEvent;
 use pocketmine\inventory\transaction\action\DropItemAction;
@@ -144,6 +145,7 @@ class InGamePacketHandler extends PacketHandler{
 	private const MAX_FORM_RESPONSE_SIZE = 10 * 1024; //10 KiB should be more than enough
 	private const MAX_FORM_RESPONSE_DEPTH = 2; //modal/simple will be 1, custom forms 2 - they will never contain anything other than string|int|float|bool|null
 	private const SPEAR_TRACE_FALLBACK_MIN_DOT = 0.55;
+	private const SNOWBALL_AIR_SUPPRESSION_WINDOW = 0.2;
 
 	//TODO: The client-side per-page character limit is inconsistent for non-ASCII text,
 	//allowing input beyond 256 chars. Use a slightly higher bounded soft limit to
@@ -152,6 +154,7 @@ class InGamePacketHandler extends PacketHandler{
 
 	protected float $lastRightClickTime = 0.0;
 	protected ?UseItemTransactionData $lastRightClickData = null;
+	protected float $suppressSnowballClickAirUntil = 0.0;
 
 	protected ?Vector3 $lastPlayerAuthInputPosition = null;
 	protected ?float $lastPlayerAuthInputYaw = null;
@@ -622,7 +625,13 @@ class InGamePacketHandler extends PacketHandler{
 				}
 				return true;
 			case UseItemTransactionData::ACTION_CLICK_AIR:
+				if($this->shouldSuppressSnowballClickAirAfterEntityFeed()){
+					return true;
+				}
 				if($this->player->shouldIgnoreChargeableClickAir()){
+					return true;
+				}
+				if($this->shouldSuppressSnowballThrowForBabyHappyGhastFeed()){
 					return true;
 				}
 				if($this->player->isUsingItem()){
@@ -642,6 +651,49 @@ class InGamePacketHandler extends PacketHandler{
 					return $this->executeSpearJab();
 				}
 				return $this->player->useHeldItem();
+		}
+
+		return false;
+	}
+
+	private function shouldSuppressSnowballClickAirAfterEntityFeed() : bool{
+		if(microtime(true) > $this->suppressSnowballClickAirUntil){
+			return false;
+		}
+
+		return $this->player->getInventory()->getItemInHand()->getTypeId() === VanillaItems::SNOWBALL()->getTypeId();
+	}
+
+	private function shouldSuppressSnowballThrowForBabyHappyGhastFeed() : bool{
+		$itemInHand = $this->player->getInventory()->getItemInHand();
+		if($itemInHand->getTypeId() !== VanillaItems::SNOWBALL()->getTypeId()){
+			return false;
+		}
+
+		$maxDistance = 10.0;
+		$eyePos = $this->player->getEyePos();
+		$direction = $this->player->getDirectionVector()->normalize();
+		$traceEnd = $eyePos->addVector($direction->multiply($maxDistance));
+		$searchBox = $this->player->getBoundingBox()->expandedCopy($maxDistance, $maxDistance, $maxDistance);
+
+		foreach($this->player->getWorld()->getNearbyEntities($searchBox, $this->player) as $entity){
+			if(!($entity instanceof HappyGhast) || !$entity->isBaby() || !$entity->isAlive() || $entity->isFlaggedForDespawn()){
+				continue;
+			}
+			if(!$this->player->canInteract($entity->getLocation(), $maxDistance)){
+				continue;
+			}
+
+			$targetPos = $entity->getPosition()->add(0, $entity->size->getHeight() / 2, 0);
+			$toEntity = $targetPos->subtractVector($eyePos);
+			if($toEntity->lengthSquared() <= 0.0001){
+				return true;
+			}
+			if($entity->getBoundingBox()->expandedCopy(0.5, 0.5, 0.5)->calculateIntercept($eyePos, $traceEnd) === null){
+				continue;
+			}
+
+			return true;
 		}
 
 		return false;
@@ -797,7 +849,16 @@ class InGamePacketHandler extends PacketHandler{
 				if($heldItem instanceof Releasable && $this->player->isUsingItem()){
 					return true;
 				}
-				if(!$this->player->interactEntity($target, $data->getClickPosition()) && $heldItem instanceof Releasable){
+				$interacted = $this->player->interactEntity($target, $data->getClickPosition());
+				if(
+					$interacted &&
+					$heldItem->getTypeId() === VanillaItems::SNOWBALL()->getTypeId() &&
+					$target instanceof HappyGhast &&
+					$target->isBaby()
+				){
+					$this->suppressSnowballClickAirUntil = microtime(true) + self::SNOWBALL_AIR_SUPPRESSION_WINDOW;
+				}
+				if(!$interacted && $heldItem instanceof Releasable){
 					return $this->player->useHeldItem();
 				}
 				return true;

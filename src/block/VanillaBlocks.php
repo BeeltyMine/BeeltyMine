@@ -768,6 +768,7 @@ use function strtolower;
  * @method static SmallDripleaf SMALL_DRIPLEAF()
  * @method static SmithingTable SMITHING_TABLE()
  * @method static Furnace SMOKER()
+ * @method static SnifferEgg SNIFFER_EGG()
  * @method static Opaque SMOOTH_BASALT()
  * @method static Opaque SMOOTH_QUARTZ()
  * @method static Slab SMOOTH_QUARTZ_SLAB()
@@ -983,7 +984,9 @@ final class VanillaBlocks
 		self::register("carrots", fn(BID $id) => new Carrot($id, "Carrot Block", new Info(BreakInfo::instant())));
 
 		$chestBreakInfo = new Info(BreakInfo::axe(2.5));
+		$copperChestBreakInfo = new Info(BreakInfo::pickaxe(2.5, ToolTier::WOOD, 12.5));
 		self::register("chest", fn(BID $id) => new Chest($id, "Chest", $chestBreakInfo), TileChest::class);
+		self::register("copper_chest", fn(BID $id) => new CopperChest($id, "Copper Chest", $copperChestBreakInfo), TileChest::class);
 		self::register("clay", fn(BID $id) => new Clay($id, "Clay Block", new Info(BreakInfo::shovel(0.6))));
 		self::register("coal", fn(BID $id) => new Coal($id, "Coal Block", new Info(BreakInfo::pickaxe(5.0, ToolTier::WOOD, 30.0))));
 
@@ -1013,6 +1016,8 @@ final class VanillaBlocks
 		self::register("pitcher_crop", fn(BID $id) => new PitcherCrop($id, "Pitcher Crop", new Info(BreakInfo::instant())));
 		self::register("double_pitcher_crop", fn(BID $id) => new DoublePitcherCrop($id, "Double Pitcher Crop", new Info(BreakInfo::instant())));
 		self::register("dragon_egg", fn(BID $id) => new DragonEgg($id, "Dragon Egg", new Info(BreakInfo::pickaxe(3.0, ToolTier::WOOD, blastResistance: 45.0))));
+		self::register("dried_ghast", fn(BID $id) => new DriedGhast($id, "Dried Ghast", new Info(new BreakInfo(0.8))));
+		self::register("sniffer_egg", fn(BID $id) => new SnifferEgg($id, "Sniffer Egg", new Info(new BreakInfo(0.5))));
 		self::register("dried_kelp", fn(BID $id) => new DriedKelp($id, "Dried Kelp Block", new Info(new BreakInfo(0.5, ToolType::NONE, 0, 12.5))));
 		self::register("emerald", fn(BID $id) => new Opaque($id, "Emerald Block", new Info(BreakInfo::pickaxe(5.0, ToolTier::IRON, 30.0))));
 		self::register("enchanting_table", fn(BID $id) => new EnchantingTable($id, "Enchanting Table", new Info(BreakInfo::pickaxe(5.0, ToolTier::WOOD, 6000.0))), TileEnchantingTable::class);

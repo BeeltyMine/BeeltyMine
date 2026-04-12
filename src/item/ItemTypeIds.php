@@ -391,6 +391,10 @@ final class ItemTypeIds{
 	public const MAGENTA_BUNDLE = 20349;
 	public const PINK_BUNDLE = 20350;
 	public const CROSSBOW = 20351;
+	public const GHAST_SPAWN_EGG = 20352;
+	public const HAPPY_GHAST_SPAWN_EGG = 20353;
+	public const SNIFFER_SPAWN_EGG = 20354;
+	public const CHICKEN_SPAWN_EGG = 20355;
 
 	public const FIRST_UNUSED_ITEM_ID = 20900;
 

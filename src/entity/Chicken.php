@@ -1,0 +1,86 @@
+<?php
+
+/*
+ *     ____            ____        __  ____
+ *    / __ )___  ___  / / /___  __/  |/  (_)___  ___
+ *   / __  / _ \/ _ \/ / __/ / / / /|_/ / / __ \/ _ \
+ *  / /_/ /  __/  __/ / /_/ /_/ / /  / / / / / /  __/
+ * /_____/\___/\___/_/\__/\__, /_/  /_/_/_/ /_/\___/
+ *                       /____/
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author Ayrz
+ * @team BeeltyMine
+ * 
+ * 
+ */
+
+declare(strict_types=1);
+
+namespace pocketmine\entity;
+
+use pocketmine\item\Item;
+use pocketmine\item\VanillaItems;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
+use function atan2;
+use function mt_rand;
+use const M_PI;
+
+class Chicken extends Living{
+	private int $wanderCooldown = 0;
+	private float $wanderX = 0.0;
+	private float $wanderZ = 0.0;
+
+	public static function getNetworkTypeId() : string{ return EntityIds::CHICKEN; }
+
+	protected function getInitialSizeInfo() : EntitySizeInfo{
+		return new EntitySizeInfo(0.7, 0.4);
+	}
+
+	public function initEntity(CompoundTag $nbt) : void{
+		$this->setMaxHealth(4);
+		parent::initEntity($nbt);
+	}
+
+	public function getName() : string{
+		return "Chicken";
+	}
+
+	protected function entityBaseTick(int $tickDiff = 1) : bool{
+		$hasUpdate = parent::entityBaseTick($tickDiff);
+
+		if(!$this->isAlive()){
+			return $hasUpdate;
+		}
+
+		$this->wanderCooldown -= $tickDiff;
+		if($this->wanderCooldown <= 0){
+			$this->wanderCooldown = mt_rand(30, 80);
+			$this->wanderX = mt_rand(-1000, 1000) / 1000;
+			$this->wanderZ = mt_rand(-1000, 1000) / 1000;
+		}
+
+		if($this->onGround){
+			$this->motion = $this->motion->withComponents($this->wanderX * 0.05, null, $this->wanderZ * 0.05);
+			if(($this->wanderX ** 2 + $this->wanderZ ** 2) > 0.0001){
+				$this->setRotation(-atan2($this->wanderX, $this->wanderZ) * 180 / M_PI, $this->location->pitch);
+			}
+			$hasUpdate = true;
+		}
+
+		return $hasUpdate;
+	}
+
+	public function getXpDropAmount() : int{
+		return 1;
+	}
+
+	public function getPickedItem() : ?Item{
+		return VanillaItems::CHICKEN_SPAWN_EGG();
+	}
+}

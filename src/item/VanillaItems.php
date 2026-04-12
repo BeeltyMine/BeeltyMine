@@ -26,6 +26,7 @@ namespace pocketmine\item;
 use pocketmine\block\utils\RecordType;
 use pocketmine\block\VanillaBlocks as Blocks;
 use pocketmine\entity\Bee;
+use pocketmine\entity\Chicken;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Ghast;
 use pocketmine\entity\HappyGhast;
@@ -82,6 +83,7 @@ use function strtolower;
  * @method static Bread BREAD()
  * @method static Item BRICK()
  * @method static Bucket BUCKET()
+ * @method static SpawnEgg CHICKEN_SPAWN_EGG()
  * @method static Bundle BUNDLE()
  * @method static Bundle WHITE_BUNDLE()
  * @method static Bundle LIGHT_GRAY_BUNDLE()
@@ -724,6 +726,11 @@ final class VanillaItems{
 		self::register("zombie_spawn_egg", fn(IID $id) => new class($id, "Zombie Spawn Egg") extends SpawnEgg{
 			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
 				return new Zombie(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
+		self::register("chicken_spawn_egg", fn(IID $id) => new class($id, "Chicken Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
+				return new Chicken(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
 		self::register("bee_spawn_egg", fn(IID $id) => new class($id, "Bee Spawn Egg") extends SpawnEgg{

@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\HorizontalFacing;
+use pocketmine\block\utils\HorizontalFacingTrait;
 use pocketmine\block\utils\SupportType;
 use pocketmine\data\runtime\RuntimeDataDescriber;
 use pocketmine\entity\HappyGhast;
@@ -36,13 +38,18 @@ use pocketmine\world\BlockTransaction;
 use pocketmine\world\sound\GhastSound;
 use function mt_rand;
 
-class DriedGhast extends Transparent{
-	private const UPDATE_INTERVAL_TICKS = 40;
+class DriedGhast extends Transparent implements HorizontalFacing{
+	use HorizontalFacingTrait {
+		describeBlockOnlyState as describeFacingState;
+	}
+
+	private const UPDATE_INTERVAL_TICKS = 1200;
 	private const MAX_REHYDRATION_LEVEL = 3;
 
 	private int $rehydrationLevel = 0;
 
 	protected function describeBlockOnlyState(RuntimeDataDescriber $w) : void{
+		$this->describeFacingState($w);
 		$w->boundedIntAuto(0, self::MAX_REHYDRATION_LEVEL, $this->rehydrationLevel);
 	}
 
@@ -74,6 +81,9 @@ class DriedGhast extends Transparent{
 
 	public function place(BlockTransaction $tx, Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
 		$this->rehydrationLevel = 0;
+		if($player !== null){
+			$this->setFacing(Facing::opposite($player->getHorizontalFacing()));
+		}
 		$placed = parent::place($tx, $item, $blockReplace, $blockClicked, $face, $clickVector, $player);
 		if($placed){
 			$this->scheduleHydrationTick();
@@ -111,6 +121,7 @@ class DriedGhast extends Transparent{
 				mt_rand(0, 359),
 				0
 			));
+			$happyGhast->setBaby();
 			$happyGhast->spawnToAll();
 			$world->addSound($this->position, new GhastSound());
 			return;

@@ -90,6 +90,7 @@ use pocketmine\block\Shelf;
 use pocketmine\block\SeaPickle;
 use pocketmine\block\SmallDripleaf;
 use pocketmine\block\SnowLayer;
+use pocketmine\block\SnifferEgg;
 use pocketmine\block\Sponge;
 use pocketmine\block\StraightOnlyRail;
 use pocketmine\block\Sugarcane;
@@ -101,6 +102,7 @@ use pocketmine\block\TripwireHook;
 use pocketmine\block\utils\BellAttachmentType;
 use pocketmine\block\utils\BrewingStandSlot;
 use pocketmine\block\utils\ChiseledBookshelfSlot;
+use pocketmine\block\utils\CrackedState;
 use pocketmine\block\utils\CopperOxidation;
 use pocketmine\block\utils\DirtType;
 use pocketmine\block\utils\DripleafState;
@@ -149,7 +151,7 @@ final class VanillaBlockMappings
 	public static function init(BlockSerializerDeserializerRegistrar $reg): void
 	{
 		$commonProperties = CommonProperties::getInstance();
-		self::registerSimpleIdOnlyMappings($reg);
+		self::registerSimpleIdOnlyMappings($reg, $commonProperties);
 		self::registerColoredMappings($reg, $commonProperties);
 		self::registerCandleMappings($reg, $commonProperties);
 		self::registerLeavesMappings($reg);
@@ -171,7 +173,7 @@ final class VanillaBlockMappings
 		self::registerSplitMappings($reg, $commonProperties);
 	}
 
-	private static function registerSimpleIdOnlyMappings(BlockSerializerDeserializerRegistrar $reg): void
+	private static function registerSimpleIdOnlyMappings(BlockSerializerDeserializerRegistrar $reg, CommonProperties $commonProperties): void
 	{
 		$reg->mapSimple(Blocks::AIR(), Ids::AIR);
 		$reg->mapSimple(Blocks::AMETHYST(), Ids::AMETHYST_BLOCK);
@@ -232,7 +234,20 @@ final class VanillaBlockMappings
 		$reg->mapSimple(Blocks::DIAMOND_ORE(), Ids::DIAMOND_ORE);
 		$reg->mapSimple(Blocks::DIORITE(), Ids::DIORITE);
 		$reg->mapSimple(Blocks::DRAGON_EGG(), Ids::DRAGON_EGG);
+		$reg->mapModel(Model::create(Blocks::SNIFFER_EGG(), Ids::SNIFFER_EGG)->properties([
+			new ValueFromStringProperty(
+				StateNames::CRACKED_STATE,
+				EnumFromRawStateMap::string(CrackedState::class, fn(CrackedState $v) => match($v){
+					CrackedState::NO_CRACKS => StringValues::CRACKED_STATE_NO_CRACKS,
+					CrackedState::CRACKED => StringValues::CRACKED_STATE_CRACKED,
+					CrackedState::MAX_CRACKED => StringValues::CRACKED_STATE_MAX_CRACKED
+				}),
+				fn(SnifferEgg $b) => $b->getCrackedState(),
+				fn(SnifferEgg $b, CrackedState $v) => $b->setCrackedState($v)
+			)
+		]));
 		$reg->mapModel(Model::create(Blocks::DRIED_GHAST(), Ids::DRIED_GHAST)->properties([
+			$commonProperties->horizontalFacingCardinal,
 			new IntProperty(StateNames::REHYDRATION_LEVEL, 0, 3, fn(DriedGhast $b) => $b->getRehydrationLevel(), fn(DriedGhast $b, int $v) => $b->setRehydrationLevel($v))
 		]));
 		$reg->mapSimple(Blocks::DRIED_KELP(), Ids::DRIED_KELP_BLOCK);

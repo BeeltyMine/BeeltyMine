@@ -890,8 +890,9 @@ final class BlockTypeIds{
 	public const WAXED_OXIDIZED_COPPER_GOLEM_STATUE = 10860;
 	public const COPPER_CHEST = 10861;
 	public const DRIED_GHAST = 10862;
+	public const SNIFFER_EGG = 10863;
 
-	public const FIRST_UNUSED_BLOCK_ID = 10863;
+	public const FIRST_UNUSED_BLOCK_ID = 10864;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_BLOCK_ID;
 

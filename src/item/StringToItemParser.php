@@ -424,6 +424,8 @@ final class StringToItemParser extends StringToTParser
 		$result->registerBlock("double_wooden_slabs", fn() => Blocks::OAK_SLAB()->setSlabType(SlabType::DOUBLE));
 		$result->registerBlock("dragon_egg", fn() => Blocks::DRAGON_EGG());
 		$result->registerBlock("dragon_head", fn() => Blocks::MOB_HEAD()->setMobHeadType(MobHeadType::DRAGON));
+		$result->registerBlock("dried_ghast", fn() => Blocks::DRIED_GHAST());
+		$result->registerBlock("sniffer_egg", fn() => Blocks::SNIFFER_EGG());
 		$result->registerBlock("dried_kelp_block", fn() => Blocks::DRIED_KELP());
 		$result->registerBlock("dripstone_block", fn() => Blocks::DRIPSTONE_BLOCK());
 		$result->registerBlock("dyed_shulker_box", fn() => Blocks::DYED_SHULKER_BOX());
@@ -1632,6 +1634,7 @@ final class StringToItemParser extends StringToTParser
 		$result->register("spruce_boat", fn() => Items::SPRUCE_BOAT());
 		$result->register("spruce_hanging_sign", fn() => Items::SPRUCE_HANGING_SIGN());
 		$result->register("spyglass", fn() => Items::SPYGLASS());
+		$result->register("chicken_spawn_egg", fn() => Items::CHICKEN_SPAWN_EGG());
 		$result->register("bee_spawn_egg", fn() => Items::BEE_SPAWN_EGG());
 		$result->register("squid_spawn_egg", fn() => Items::SQUID_SPAWN_EGG());
 		$result->register("steak", fn() => Items::STEAK());

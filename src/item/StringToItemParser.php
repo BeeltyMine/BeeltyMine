@@ -1322,6 +1322,7 @@ final class StringToItemParser extends StringToTParser
 		$result->register("book", fn() => Items::BOOK());
 		$result->register("bottle_o_enchanting", fn() => Items::EXPERIENCE_BOTTLE());
 		$result->register("bow", fn() => Items::BOW());
+		$result->register("crossbow", fn() => Items::CROSSBOW());
 		$result->register("bowl", fn() => Items::BOWL());
 		$result->register("bread", fn() => Items::BREAD());
 		$result->register("brick", fn() => Items::BRICK());

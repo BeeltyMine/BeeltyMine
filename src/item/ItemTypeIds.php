@@ -390,6 +390,7 @@ final class ItemTypeIds{
 	public const PURPLE_BUNDLE = 20348;
 	public const MAGENTA_BUNDLE = 20349;
 	public const PINK_BUNDLE = 20350;
+	public const CROSSBOW = 20351;
 
 	public const FIRST_UNUSED_ITEM_ID = 20900;
 

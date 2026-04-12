@@ -39,6 +39,8 @@ use pocketmine\inventory\transaction\InventoryTransaction;
 use pocketmine\inventory\transaction\TransactionBuilder;
 use pocketmine\inventory\transaction\TransactionCancelledException;
 use pocketmine\inventory\transaction\TransactionValidationException;
+use pocketmine\item\Chargeable;
+use pocketmine\item\Releasable;
 use pocketmine\item\VanillaItems;
 use pocketmine\item\Spear;
 use pocketmine\item\WritableBook;
@@ -620,15 +622,16 @@ class InGamePacketHandler extends PacketHandler{
 				}
 				return true;
 			case UseItemTransactionData::ACTION_CLICK_AIR:
+				if($this->player->shouldIgnoreChargeableClickAir()){
+					return true;
+				}
 				if($this->player->isUsingItem()){
-					if(!$this->player->consumeHeldItem()){
+					if($this->player->getInventory()->getItemInHand() instanceof Chargeable){
+						return true;
+					}elseif(!$this->player->consumeHeldItem()){
 						$hungerAttr = $this->player->getAttributeMap()->get(Attribute::HUNGER) ?? throw new AssumptionFailedError();
 						$hungerAttr->markSynchronized(false);
 					}
-					//TODO: workaround goat horns getting stuck in the "using item" state
-					//this timed-trigger behaviour is also used for other items apart from food
-					//in the future we'll generalise this logic and add proper hooks for it
-					$this->player->setUsingItem(false);
 					return true;
 				}
 				$this->player->useHeldItem();
@@ -791,7 +794,12 @@ class InGamePacketHandler extends PacketHandler{
 					}
 					return true;
 				}
-				$this->player->interactEntity($target, $data->getClickPosition());
+				if($heldItem instanceof Releasable && $this->player->isUsingItem()){
+					return true;
+				}
+				if(!$this->player->interactEntity($target, $data->getClickPosition()) && $heldItem instanceof Releasable){
+					return $this->player->useHeldItem();
+				}
 				return true;
 			case UseItemOnEntityTransactionData::ACTION_ATTACK:
 				$heldItem = $this->player->getInventory()->getItemInHand();

@@ -62,6 +62,8 @@ final class EnchantmentIdMap{
 		$this->register(EnchantmentIds::PUNCH, VanillaEnchantments::PUNCH());
 		$this->register(EnchantmentIds::FLAME, VanillaEnchantments::FLAME());
 		$this->register(EnchantmentIds::INFINITY, VanillaEnchantments::INFINITY());
+		$this->register(EnchantmentIds::MULTISHOT, VanillaEnchantments::MULTISHOT());
+		$this->register(EnchantmentIds::QUICK_CHARGE, VanillaEnchantments::QUICK_CHARGE());
 
 		$this->register(EnchantmentIds::MENDING, VanillaEnchantments::MENDING());
 

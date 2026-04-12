@@ -120,6 +120,7 @@ final class VanillaItemsInputs extends RegistrySource{
 		self::register("bone_meal", fn(IID $id) => new Fertilizer($id, "Bone Meal"));
 		self::register("book", fn(IID $id) => new Book($id, "Book", [EnchantmentTags::ALL]));
 		self::register("bow", fn(IID $id) => new Bow($id, "Bow", [EnchantmentTags::BOW]));
+		self::register("crossbow", fn(IID $id) => new Crossbow($id, "Crossbow", [EnchantmentTags::CROSSBOW]));
 		self::register("bowl", fn(IID $id) => new Bowl($id, "Bowl"));
 		self::register("bread", fn(IID $id) => new Bread($id, "Bread"));
 		self::register("brick", fn(IID $id) => new Item($id, "Brick"));

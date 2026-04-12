@@ -311,6 +311,9 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 	protected string $locale = "en_US";
 
 	protected int $startAction = -1;
+	private int $ignoreChargeableClickAirUntilTick = -1;
+
+	private const CHARGEABLE_USE_WALK_SPEED = 0.02;
 
 	/**
 	 * @phpstan-var array<int|string, int>
@@ -390,12 +393,14 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			function(Inventory $unused, int $slot) : void{
 				if($slot === $this->inventory->getHeldItemIndex()){
 					$this->setUsingItem(false);
+					$this->ignoreChargeableClickAirUntilTick = -1;
 
 					$this->callDummyItemHeldEvent();
 				}
 			},
 			function() : void{
 				$this->setUsingItem(false);
+				$this->ignoreChargeableClickAirUntilTick = -1;
 				$this->callDummyItemHeldEvent();
 			}
 		));
@@ -785,9 +790,25 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		return $this->startAction > -1;
 	}
 
+	public function getAbilityWalkSpeed() : float{
+		return $this->isUsingItem() && $this->inventory->getItemInHand() instanceof Chargeable ? self::CHARGEABLE_USE_WALK_SPEED : 0.1;
+	}
+
 	public function setUsingItem(bool $value) : void{
+		$wasUsingItem = $this->isUsingItem();
 		$this->startAction = $value ? $this->server->getTick() : -1;
 		$this->networkPropertiesDirty = true;
+		if($wasUsingItem !== $value){
+			$this->getNetworkSession()->syncAbilities($this);
+		}
+	}
+
+	public function shouldIgnoreChargeableClickAir() : bool{
+		return $this->server->getTick() <= $this->ignoreChargeableClickAirUntilTick;
+	}
+
+	public function ignoreChargeableClickAirForTicks(int $ticks) : void{
+		$this->ignoreChargeableClickAirUntilTick = $this->server->getTick() + $ticks;
 	}
 
 	/**
@@ -1645,6 +1666,8 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 			Timings::$entityBaseTick->startTiming();
 			$this->entityBaseTick($tickDiff);
 			Timings::$entityBaseTick->stopTiming();
+
+			
 			$this->updateElytraState($currentTick);
 
 			if($this->isCreative() && $this->fireTicks > 1){
@@ -1667,6 +1690,16 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 					$this->broadcastAnimation(new ConsumingItemAnimation($this, $item));
 				}
 				$item->whileUsing($this);
+				$oldItem = clone $item;
+				$completedUsing = $item->continueUsing($this, $this->getItemUseDuration());
+				if(!$item->equalsExact($oldItem)){
+					$this->returnItemsFromAction($oldItem, $item, []);
+				}
+				if($completedUsing){
+					$this->setUsingItem(false);
+					$this->ignoreChargeableClickAirForTicks(1);
+					$this->getNetworkSession()->onChargeItemComplete();
+				}
 			}
 		}
 
@@ -1840,7 +1873,11 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		$this->resetItemCooldown($oldItem);
 		$this->returnItemsFromAction($oldItem, $item, $returnedItems);
 
-		$this->setUsingItem($item instanceof Releasable && $item->canStartUsingItem($this));
+		$this->setUsingItem(
+			$result === ItemUseResult::NONE &&
+			$item instanceof Releasable &&
+			$item->canStartUsingItem($this)
+		);
 
 		return true;
 	}

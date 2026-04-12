@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\item;
 
+use pocketmine\BeeltySettings;
 use pocketmine\block\AmethystCluster;
 use pocketmine\block\Block;
 use pocketmine\block\Light;
@@ -265,8 +266,10 @@ final class StringToItemParser extends StringToTParser
 		$result->registerBlock("cherry_stairs", fn() => Blocks::CHERRY_STAIRS());
 		$result->registerBlock("cherry_trapdoor", fn() => Blocks::CHERRY_TRAPDOOR());
 		$result->registerBlock("cherry_wood", fn() => Blocks::CHERRY_WOOD());
-		$result->registerBlock("chemical_heat", fn() => Blocks::CHEMICAL_HEAT());
-		$result->registerBlock("chemistry_table", fn() => Blocks::COMPOUND_CREATOR());
+		if(BeeltySettings::chemistryBlocksEnabled()){
+			$result->registerBlock("chemical_heat", fn() => Blocks::CHEMICAL_HEAT());
+			$result->registerBlock("chemistry_table", fn() => Blocks::COMPOUND_CREATOR());
+		}
 		$result->registerBlock("chest", fn() => Blocks::CHEST());
 		$result->registerBlock("chipped_anvil", fn() => Blocks::ANVIL()->setDamage(1));
 		$result->registerBlock("chiseled_bookshelf", fn() => Blocks::CHISELED_BOOKSHELF());
@@ -306,7 +309,9 @@ final class StringToItemParser extends StringToTParser
 		$result->registerBlock("colored_torch_rg", fn() => Blocks::RED_TORCH());
 		$result->registerBlock("comparator", fn() => Blocks::REDSTONE_COMPARATOR());
 		$result->registerBlock("comparator_block", fn() => Blocks::REDSTONE_COMPARATOR());
-		$result->registerBlock("compound_creator", fn() => Blocks::COMPOUND_CREATOR());
+		if(BeeltySettings::chemistryBlocksEnabled()){
+			$result->registerBlock("compound_creator", fn() => Blocks::COMPOUND_CREATOR());
+		}
 		$result->registerBlock("concrete", fn() => Blocks::CONCRETE());
 		$result->registerBlock("concrete_powder", fn() => Blocks::CONCRETE_POWDER());
 		$result->registerBlock("concretepowder", fn() => Blocks::CONCRETE_POWDER());
@@ -429,9 +434,10 @@ final class StringToItemParser extends StringToTParser
 		$result->registerBlock("dried_kelp_block", fn() => Blocks::DRIED_KELP());
 		$result->registerBlock("dripstone_block", fn() => Blocks::DRIPSTONE_BLOCK());
 		$result->registerBlock("dyed_shulker_box", fn() => Blocks::DYED_SHULKER_BOX());
-		$result->registerBlock("element_0", fn() => Blocks::ELEMENT_ZERO());
-		$result->registerBlock("element_1", fn() => Blocks::ELEMENT_HYDROGEN());
-		$result->registerBlock("element_10", fn() => Blocks::ELEMENT_NEON());
+		if(BeeltySettings::chemistryBlocksEnabled()){
+			$result->registerBlock("element_0", fn() => Blocks::ELEMENT_ZERO());
+			$result->registerBlock("element_1", fn() => Blocks::ELEMENT_HYDROGEN());
+			$result->registerBlock("element_10", fn() => Blocks::ELEMENT_NEON());
 		$result->registerBlock("element_100", fn() => Blocks::ELEMENT_FERMIUM());
 		$result->registerBlock("element_101", fn() => Blocks::ELEMENT_MENDELEVIUM());
 		$result->registerBlock("element_102", fn() => Blocks::ELEMENT_NOBELIUM());
@@ -571,7 +577,6 @@ final class StringToItemParser extends StringToTParser
 		$result->registerBlock("element_chlorine", fn() => Blocks::ELEMENT_CHLORINE());
 		$result->registerBlock("element_chromium", fn() => Blocks::ELEMENT_CHROMIUM());
 		$result->registerBlock("element_cobalt", fn() => Blocks::ELEMENT_COBALT());
-		$result->registerBlock("element_constructor", fn() => Blocks::ELEMENT_CONSTRUCTOR());
 		$result->registerBlock("element_copernicium", fn() => Blocks::ELEMENT_COPERNICIUM());
 		$result->registerBlock("element_copper", fn() => Blocks::ELEMENT_COPPER());
 		$result->registerBlock("element_curium", fn() => Blocks::ELEMENT_CURIUM());
@@ -667,7 +672,8 @@ final class StringToItemParser extends StringToTParser
 		$result->registerBlock("element_yttrium", fn() => Blocks::ELEMENT_YTTRIUM());
 		$result->registerBlock("element_zero", fn() => Blocks::ELEMENT_ZERO());
 		$result->registerBlock("element_zinc", fn() => Blocks::ELEMENT_ZINC());
-		$result->registerBlock("element_zirconium", fn() => Blocks::ELEMENT_ZIRCONIUM());
+			$result->registerBlock("element_zirconium", fn() => Blocks::ELEMENT_ZIRCONIUM());
+		}
 		$result->registerBlock("emerald_block", fn() => Blocks::EMERALD());
 		$result->registerBlock("emerald_ore", fn() => Blocks::EMERALD_ORE());
 		$result->registerBlock("enchant_table", fn() => Blocks::ENCHANTING_TABLE());
@@ -795,7 +801,7 @@ final class StringToItemParser extends StringToTParser
 		$result->registerBlock("jungle_wood", fn() => Blocks::JUNGLE_WOOD()->setStripped(false));
 		$result->registerBlock("jungle_wood_stairs", fn() => Blocks::JUNGLE_STAIRS());
 		$result->registerBlock("jungle_wooden_stairs", fn() => Blocks::JUNGLE_STAIRS());
-		$result->registerBlock("lab_table", fn() => Blocks::LAB_TABLE());
+	
 		$result->registerBlock("ladder", fn() => Blocks::LADDER());
 		$result->registerBlock("lantern", fn() => Blocks::LANTERN());
 		$result->registerBlock("lapis_block", fn() => Blocks::LAPIS_LAZULI());
@@ -846,7 +852,9 @@ final class StringToItemParser extends StringToTParser
 		$result->registerBlock("mangrove_stairs", fn() => Blocks::MANGROVE_STAIRS());
 		$result->registerBlock("mangrove_trapdoor", fn() => Blocks::MANGROVE_TRAPDOOR());
 		$result->registerBlock("mangrove_wood", fn() => Blocks::MANGROVE_WOOD()->setStripped(false));
-		$result->registerBlock("material_reducer", fn() => Blocks::MATERIAL_REDUCER());
+		if(BeeltySettings::chemistryBlocksEnabled()){
+			$result->registerBlock("material_reducer", fn() => Blocks::MATERIAL_REDUCER());
+		}
 		$result->registerBlock("medium_amethyst_bud", fn() => Blocks::AMETHYST_CLUSTER()->setStage(AmethystCluster::STAGE_MEDIUM_BUD));
 		$result->registerBlock("melon_block", fn() => Blocks::MELON());
 		$result->registerBlock("melon_stem", fn() => Blocks::MELON_STEM());
@@ -1300,7 +1308,9 @@ final class StringToItemParser extends StringToTParser
 		$result->register("acacia_boat", fn() => Items::ACACIA_BOAT());
 		$result->register("acacia_hanging_sign", fn() => Items::ACACIA_HANGING_SIGN());
 		$result->register("amethyst_shard", fn() => Items::AMETHYST_SHARD());
-		$result->register("antidote", fn() => Items::MEDICINE()->setType(MedicineType::ANTIDOTE));
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("antidote", fn() => Items::MEDICINE()->setType(MedicineType::ANTIDOTE));
+		}
 		$result->register("apple", fn() => Items::APPLE());
 		$result->register("apple_enchanted", fn() => Items::ENCHANTED_GOLDEN_APPLE());
 		$result->register("appleenchanted", fn() => Items::ENCHANTED_GOLDEN_APPLE());
@@ -1317,7 +1327,9 @@ final class StringToItemParser extends StringToTParser
 		$result->register("birch_hanging_sign", fn() => Items::BIRCH_HANGING_SIGN());
 		$result->register("blaze_powder", fn() => Items::BLAZE_POWDER());
 		$result->register("blaze_rod", fn() => Items::BLAZE_ROD());
-		$result->register("bleach", fn() => Items::BLEACH());
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("bleach", fn() => Items::BLEACH());
+		}
 		$result->register("boat", fn() => Items::OAK_BOAT());
 		$result->register("bone", fn() => Items::BONE());
 		$result->register("bone_meal", fn() => Items::BONE_MEAL());
@@ -1339,44 +1351,46 @@ final class StringToItemParser extends StringToTParser
 		$result->register("chainmail_helmet", fn() => Items::CHAINMAIL_HELMET());
 		$result->register("chainmail_leggings", fn() => Items::CHAINMAIL_LEGGINGS());
 		$result->register("charcoal", fn() => Items::CHARCOAL());
-		$result->register("chemical_aluminium_oxide", fn() => Items::CHEMICAL_ALUMINIUM_OXIDE());
-		$result->register("chemical_ammonia", fn() => Items::CHEMICAL_AMMONIA());
-		$result->register("chemical_barium_sulphate", fn() => Items::CHEMICAL_BARIUM_SULPHATE());
-		$result->register("chemical_benzene", fn() => Items::CHEMICAL_BENZENE());
-		$result->register("chemical_boron_trioxide", fn() => Items::CHEMICAL_BORON_TRIOXIDE());
-		$result->register("chemical_calcium_bromide", fn() => Items::CHEMICAL_CALCIUM_BROMIDE());
-		$result->register("chemical_calcium_chloride", fn() => Items::CHEMICAL_CALCIUM_CHLORIDE());
-		$result->register("chemical_cerium_chloride", fn() => Items::CHEMICAL_CERIUM_CHLORIDE());
-		$result->register("chemical_charcoal", fn() => Items::CHEMICAL_CHARCOAL());
-		$result->register("chemical_crude_oil", fn() => Items::CHEMICAL_CRUDE_OIL());
-		$result->register("chemical_glue", fn() => Items::CHEMICAL_GLUE());
-		$result->register("chemical_hydrogen_peroxide", fn() => Items::CHEMICAL_HYDROGEN_PEROXIDE());
-		$result->register("chemical_hypochlorite", fn() => Items::CHEMICAL_HYPOCHLORITE());
-		$result->register("chemical_ink", fn() => Items::CHEMICAL_INK());
-		$result->register("chemical_iron_sulphide", fn() => Items::CHEMICAL_IRON_SULPHIDE());
-		$result->register("chemical_latex", fn() => Items::CHEMICAL_LATEX());
-		$result->register("chemical_lithium_hydride", fn() => Items::CHEMICAL_LITHIUM_HYDRIDE());
-		$result->register("chemical_luminol", fn() => Items::CHEMICAL_LUMINOL());
-		$result->register("chemical_magnesium_nitrate", fn() => Items::CHEMICAL_MAGNESIUM_NITRATE());
-		$result->register("chemical_magnesium_oxide", fn() => Items::CHEMICAL_MAGNESIUM_OXIDE());
-		$result->register("chemical_magnesium_salts", fn() => Items::CHEMICAL_MAGNESIUM_SALTS());
-		$result->register("chemical_mercuric_chloride", fn() => Items::CHEMICAL_MERCURIC_CHLORIDE());
-		$result->register("chemical_polyethylene", fn() => Items::CHEMICAL_POLYETHYLENE());
-		$result->register("chemical_potassium_chloride", fn() => Items::CHEMICAL_POTASSIUM_CHLORIDE());
-		$result->register("chemical_potassium_iodide", fn() => Items::CHEMICAL_POTASSIUM_IODIDE());
-		$result->register("chemical_rubbish", fn() => Items::CHEMICAL_RUBBISH());
-		$result->register("chemical_salt", fn() => Items::CHEMICAL_SALT());
-		$result->register("chemical_soap", fn() => Items::CHEMICAL_SOAP());
-		$result->register("chemical_sodium_acetate", fn() => Items::CHEMICAL_SODIUM_ACETATE());
-		$result->register("chemical_sodium_fluoride", fn() => Items::CHEMICAL_SODIUM_FLUORIDE());
-		$result->register("chemical_sodium_hydride", fn() => Items::CHEMICAL_SODIUM_HYDRIDE());
-		$result->register("chemical_sodium_hydroxide", fn() => Items::CHEMICAL_SODIUM_HYDROXIDE());
-		$result->register("chemical_sodium_hypochlorite", fn() => Items::CHEMICAL_SODIUM_HYPOCHLORITE());
-		$result->register("chemical_sodium_oxide", fn() => Items::CHEMICAL_SODIUM_OXIDE());
-		$result->register("chemical_sugar", fn() => Items::CHEMICAL_SUGAR());
-		$result->register("chemical_sulphate", fn() => Items::CHEMICAL_SULPHATE());
-		$result->register("chemical_tungsten_chloride", fn() => Items::CHEMICAL_TUNGSTEN_CHLORIDE());
-		$result->register("chemical_water", fn() => Items::CHEMICAL_WATER());
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("chemical_aluminium_oxide", fn() => Items::CHEMICAL_ALUMINIUM_OXIDE());
+			$result->register("chemical_ammonia", fn() => Items::CHEMICAL_AMMONIA());
+			$result->register("chemical_barium_sulphate", fn() => Items::CHEMICAL_BARIUM_SULPHATE());
+			$result->register("chemical_benzene", fn() => Items::CHEMICAL_BENZENE());
+			$result->register("chemical_boron_trioxide", fn() => Items::CHEMICAL_BORON_TRIOXIDE());
+			$result->register("chemical_calcium_bromide", fn() => Items::CHEMICAL_CALCIUM_BROMIDE());
+			$result->register("chemical_calcium_chloride", fn() => Items::CHEMICAL_CALCIUM_CHLORIDE());
+			$result->register("chemical_cerium_chloride", fn() => Items::CHEMICAL_CERIUM_CHLORIDE());
+			$result->register("chemical_charcoal", fn() => Items::CHEMICAL_CHARCOAL());
+			$result->register("chemical_crude_oil", fn() => Items::CHEMICAL_CRUDE_OIL());
+			$result->register("chemical_glue", fn() => Items::CHEMICAL_GLUE());
+			$result->register("chemical_hydrogen_peroxide", fn() => Items::CHEMICAL_HYDROGEN_PEROXIDE());
+			$result->register("chemical_hypochlorite", fn() => Items::CHEMICAL_HYPOCHLORITE());
+			$result->register("chemical_ink", fn() => Items::CHEMICAL_INK());
+			$result->register("chemical_iron_sulphide", fn() => Items::CHEMICAL_IRON_SULPHIDE());
+			$result->register("chemical_latex", fn() => Items::CHEMICAL_LATEX());
+			$result->register("chemical_lithium_hydride", fn() => Items::CHEMICAL_LITHIUM_HYDRIDE());
+			$result->register("chemical_luminol", fn() => Items::CHEMICAL_LUMINOL());
+			$result->register("chemical_magnesium_nitrate", fn() => Items::CHEMICAL_MAGNESIUM_NITRATE());
+			$result->register("chemical_magnesium_oxide", fn() => Items::CHEMICAL_MAGNESIUM_OXIDE());
+			$result->register("chemical_magnesium_salts", fn() => Items::CHEMICAL_MAGNESIUM_SALTS());
+			$result->register("chemical_mercuric_chloride", fn() => Items::CHEMICAL_MERCURIC_CHLORIDE());
+			$result->register("chemical_polyethylene", fn() => Items::CHEMICAL_POLYETHYLENE());
+			$result->register("chemical_potassium_chloride", fn() => Items::CHEMICAL_POTASSIUM_CHLORIDE());
+			$result->register("chemical_potassium_iodide", fn() => Items::CHEMICAL_POTASSIUM_IODIDE());
+			$result->register("chemical_rubbish", fn() => Items::CHEMICAL_RUBBISH());
+			$result->register("chemical_salt", fn() => Items::CHEMICAL_SALT());
+			$result->register("chemical_soap", fn() => Items::CHEMICAL_SOAP());
+			$result->register("chemical_sodium_acetate", fn() => Items::CHEMICAL_SODIUM_ACETATE());
+			$result->register("chemical_sodium_fluoride", fn() => Items::CHEMICAL_SODIUM_FLUORIDE());
+			$result->register("chemical_sodium_hydride", fn() => Items::CHEMICAL_SODIUM_HYDRIDE());
+			$result->register("chemical_sodium_hydroxide", fn() => Items::CHEMICAL_SODIUM_HYDROXIDE());
+			$result->register("chemical_sodium_hypochlorite", fn() => Items::CHEMICAL_SODIUM_HYPOCHLORITE());
+			$result->register("chemical_sodium_oxide", fn() => Items::CHEMICAL_SODIUM_OXIDE());
+			$result->register("chemical_sugar", fn() => Items::CHEMICAL_SUGAR());
+			$result->register("chemical_sulphate", fn() => Items::CHEMICAL_SULPHATE());
+			$result->register("chemical_tungsten_chloride", fn() => Items::CHEMICAL_TUNGSTEN_CHLORIDE());
+			$result->register("chemical_water", fn() => Items::CHEMICAL_WATER());
+		}
 		$result->register("cherry_hanging_sign", fn() => Items::CHERRY_HANGING_SIGN());
 		$result->register("chicken", fn() => Items::RAW_CHICKEN());
 		$result->register("chorus_fruit", fn() => Items::CHORUS_FRUIT());
@@ -1391,7 +1405,9 @@ final class StringToItemParser extends StringToTParser
 		$result->register("cocoa_beans", fn() => Items::COCOA_BEANS());
 		$result->register("cod", fn() => Items::RAW_FISH());
 		$result->register("compass", fn() => Items::COMPASS());
-		$result->register("compound", fn() => Items::CHEMICAL_SALT());
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("compound", fn() => Items::CHEMICAL_SALT());
+		}
 		$result->register("cooked_beef", fn() => Items::STEAK());
 		$result->register("cooked_chicken", fn() => Items::COOKED_CHICKEN());
 		$result->register("cooked_cod", fn() => Items::COOKED_FISH());
@@ -1434,7 +1450,9 @@ final class StringToItemParser extends StringToTParser
 		$result->register("dye", fn() => Items::INK_SAC());
 		$result->register("echo_shard", fn() => Items::ECHO_SHARD());
 		$result->register("egg", fn() => Items::EGG());
-		$result->register("elixir", fn() => Items::MEDICINE()->setType(MedicineType::ELIXIR));
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("elixir", fn() => Items::MEDICINE()->setType(MedicineType::ELIXIR));
+		}
 		$result->register("elytra", fn() => Items::ELYTRA());
 		$result->register("emerald", fn() => Items::EMERALD());
 		$result->register("enchanted_book", fn() => Items::ENCHANTED_BOOK());
@@ -1444,7 +1462,9 @@ final class StringToItemParser extends StringToTParser
 		$result->register("ender_pearl", fn() => Items::ENDER_PEARL());
 		$result->register("experience_bottle", fn() => Items::EXPERIENCE_BOTTLE());
 		$result->register("eye_armor_trim_smithing_template", fn() => Items::EYE_ARMOR_TRIM_SMITHING_TEMPLATE());
-		$result->register("eye_drops", fn() => Items::MEDICINE()->setType(MedicineType::EYE_DROPS));
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("eye_drops", fn() => Items::MEDICINE()->setType(MedicineType::EYE_DROPS));
+		}
 		$result->register("feather", fn() => Items::FEATHER());
 		$result->register("fermented_spider_eye", fn() => Items::FERMENTED_SPIDER_EYE());
 		$result->register("firework_rocket", fn() => Items::FIREWORK_ROCKET());
@@ -1493,7 +1513,9 @@ final class StringToItemParser extends StringToTParser
 		$result->register("honey_bottle", fn() => Items::HONEY_BOTTLE());
 		$result->register("host_armor_trim_smithing_template", fn() => Items::HOST_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$result->register("honeycomb", fn() => Items::HONEYCOMB());
-		$result->register("ice_bomb", fn() => Items::ICE_BOMB());
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("ice_bomb", fn() => Items::ICE_BOMB());
+		}
 		$result->register("ink_sac", fn() => Items::INK_SAC());
 		$result->register("iron_axe", fn() => Items::IRON_AXE());
 		$result->register("iron_boots", fn() => Items::IRON_BOOTS());
@@ -1650,7 +1672,9 @@ final class StringToItemParser extends StringToTParser
 		$result->register("sugar", fn() => Items::SUGAR());
 		$result->register("suspicious_stew", fn() => Items::SUSPICIOUS_STEW());
 		$result->register("sweet_berries", fn() => Items::SWEET_BERRIES());
-		$result->register("tonic", fn() => Items::MEDICINE()->setType(MedicineType::TONIC));
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("tonic", fn() => Items::MEDICINE()->setType(MedicineType::TONIC));
+		}
 		$result->register("torchflower_seeds", fn() => Items::TORCHFLOWER_SEEDS());
 		$result->register("tide_armor_trim_smithing_template", fn() => Items::TIDE_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$result->register("totem", fn() => Items::TOTEM());

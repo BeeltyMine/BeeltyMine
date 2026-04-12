@@ -1,4 +1,13 @@
+# Beelty configuration file
+
 entity-ai: false
+
+
+# Chemistry features, including items and blocks. Enabling this may cause performance issues on lower-end devices.
+chemistry:
+  items: false
+  blocks: false
+
 redstone:
   status: false
   piston-movement: false

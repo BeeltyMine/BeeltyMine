@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace pocketmine\data\bedrock\item;
 
+use pocketmine\BeeltySettings;
 use pocketmine\block\Bed;
 use pocketmine\block\Block;
 use pocketmine\block\CopperDoor;
@@ -186,7 +187,9 @@ final class ItemSerializerDeserializerRegistrar{
 		$this->map1to1Item(Ids::BIRCH_SIGN, Items::BIRCH_SIGN());
 		$this->map1to1Item(Ids::BLAZE_POWDER, Items::BLAZE_POWDER());
 		$this->map1to1Item(Ids::BLAZE_ROD, Items::BLAZE_ROD());
-		$this->map1to1Item(Ids::BLEACH, Items::BLEACH());
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$this->map1to1Item(Ids::BLEACH, Items::BLEACH());
+		}
 		$this->map1to1Item(Ids::BONE, Items::BONE());
 		$this->map1to1Item(Ids::BONE_MEAL, Items::BONE_MEAL());
 		$this->map1to1Item(Ids::BOOK, Items::BOOK());
@@ -314,7 +317,9 @@ final class ItemSerializerDeserializerRegistrar{
 		$this->map1to1Item(Ids::HONEYCOMB, Items::HONEYCOMB());
 		$this->map1to1Item(Ids::HOST_ARMOR_TRIM_SMITHING_TEMPLATE, Items::HOST_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$this->map1to1Item(Ids::HAPPY_GHAST_SPAWN_EGG, Items::HAPPY_GHAST_SPAWN_EGG());
-		$this->map1to1Item(Ids::ICE_BOMB, Items::ICE_BOMB());
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$this->map1to1Item(Ids::ICE_BOMB, Items::ICE_BOMB());
+		}
 		$this->map1to1Item(Ids::INK_SAC, Items::INK_SAC());
 		$this->map1to1Item(Ids::IRON_AXE, Items::IRON_AXE());
 		$this->map1to1Item(Ids::IRON_BOOTS, Items::IRON_BOOTS());
@@ -486,46 +491,48 @@ final class ItemSerializerDeserializerRegistrar{
 			0 => Items::ARROW(),
 			//TODO: tipped arrows
 		]);
-		$this->map1ToNItem(Ids::COMPOUND, [
-			CompoundTypeIds::SALT => Items::CHEMICAL_SALT(),
-			CompoundTypeIds::SODIUM_OXIDE => Items::CHEMICAL_SODIUM_OXIDE(),
-			CompoundTypeIds::SODIUM_HYDROXIDE => Items::CHEMICAL_SODIUM_HYDROXIDE(),
-			CompoundTypeIds::MAGNESIUM_NITRATE => Items::CHEMICAL_MAGNESIUM_NITRATE(),
-			CompoundTypeIds::IRON_SULPHIDE => Items::CHEMICAL_IRON_SULPHIDE(),
-			CompoundTypeIds::LITHIUM_HYDRIDE => Items::CHEMICAL_LITHIUM_HYDRIDE(),
-			CompoundTypeIds::SODIUM_HYDRIDE => Items::CHEMICAL_SODIUM_HYDRIDE(),
-			CompoundTypeIds::CALCIUM_BROMIDE => Items::CHEMICAL_CALCIUM_BROMIDE(),
-			CompoundTypeIds::MAGNESIUM_OXIDE => Items::CHEMICAL_MAGNESIUM_OXIDE(),
-			CompoundTypeIds::SODIUM_ACETATE => Items::CHEMICAL_SODIUM_ACETATE(),
-			CompoundTypeIds::LUMINOL => Items::CHEMICAL_LUMINOL(),
-			CompoundTypeIds::CHARCOAL => Items::CHEMICAL_CHARCOAL(),
-			CompoundTypeIds::SUGAR => Items::CHEMICAL_SUGAR(),
-			CompoundTypeIds::ALUMINIUM_OXIDE => Items::CHEMICAL_ALUMINIUM_OXIDE(),
-			CompoundTypeIds::BORON_TRIOXIDE => Items::CHEMICAL_BORON_TRIOXIDE(),
-			CompoundTypeIds::SOAP => Items::CHEMICAL_SOAP(),
-			CompoundTypeIds::POLYETHYLENE => Items::CHEMICAL_POLYETHYLENE(),
-			CompoundTypeIds::RUBBISH => Items::CHEMICAL_RUBBISH(),
-			CompoundTypeIds::MAGNESIUM_SALTS => Items::CHEMICAL_MAGNESIUM_SALTS(),
-			CompoundTypeIds::SULPHATE => Items::CHEMICAL_SULPHATE(),
-			CompoundTypeIds::BARIUM_SULPHATE => Items::CHEMICAL_BARIUM_SULPHATE(),
-			CompoundTypeIds::POTASSIUM_CHLORIDE => Items::CHEMICAL_POTASSIUM_CHLORIDE(),
-			CompoundTypeIds::MERCURIC_CHLORIDE => Items::CHEMICAL_MERCURIC_CHLORIDE(),
-			CompoundTypeIds::CERIUM_CHLORIDE => Items::CHEMICAL_CERIUM_CHLORIDE(),
-			CompoundTypeIds::TUNGSTEN_CHLORIDE => Items::CHEMICAL_TUNGSTEN_CHLORIDE(),
-			CompoundTypeIds::CALCIUM_CHLORIDE => Items::CHEMICAL_CALCIUM_CHLORIDE(),
-			CompoundTypeIds::WATER => Items::CHEMICAL_WATER(),
-			CompoundTypeIds::GLUE => Items::CHEMICAL_GLUE(),
-			CompoundTypeIds::HYPOCHLORITE => Items::CHEMICAL_HYPOCHLORITE(),
-			CompoundTypeIds::CRUDE_OIL => Items::CHEMICAL_CRUDE_OIL(),
-			CompoundTypeIds::LATEX => Items::CHEMICAL_LATEX(),
-			CompoundTypeIds::POTASSIUM_IODIDE => Items::CHEMICAL_POTASSIUM_IODIDE(),
-			CompoundTypeIds::SODIUM_FLUORIDE => Items::CHEMICAL_SODIUM_FLUORIDE(),
-			CompoundTypeIds::BENZENE => Items::CHEMICAL_BENZENE(),
-			CompoundTypeIds::INK => Items::CHEMICAL_INK(),
-			CompoundTypeIds::HYDROGEN_PEROXIDE => Items::CHEMICAL_HYDROGEN_PEROXIDE(),
-			CompoundTypeIds::AMMONIA => Items::CHEMICAL_AMMONIA(),
-			CompoundTypeIds::SODIUM_HYPOCHLORITE => Items::CHEMICAL_SODIUM_HYPOCHLORITE(),
-		]);
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$this->map1ToNItem(Ids::COMPOUND, [
+				CompoundTypeIds::SALT => Items::CHEMICAL_SALT(),
+				CompoundTypeIds::SODIUM_OXIDE => Items::CHEMICAL_SODIUM_OXIDE(),
+				CompoundTypeIds::SODIUM_HYDROXIDE => Items::CHEMICAL_SODIUM_HYDROXIDE(),
+				CompoundTypeIds::MAGNESIUM_NITRATE => Items::CHEMICAL_MAGNESIUM_NITRATE(),
+				CompoundTypeIds::IRON_SULPHIDE => Items::CHEMICAL_IRON_SULPHIDE(),
+				CompoundTypeIds::LITHIUM_HYDRIDE => Items::CHEMICAL_LITHIUM_HYDRIDE(),
+				CompoundTypeIds::SODIUM_HYDRIDE => Items::CHEMICAL_SODIUM_HYDRIDE(),
+				CompoundTypeIds::CALCIUM_BROMIDE => Items::CHEMICAL_CALCIUM_BROMIDE(),
+				CompoundTypeIds::MAGNESIUM_OXIDE => Items::CHEMICAL_MAGNESIUM_OXIDE(),
+				CompoundTypeIds::SODIUM_ACETATE => Items::CHEMICAL_SODIUM_ACETATE(),
+				CompoundTypeIds::LUMINOL => Items::CHEMICAL_LUMINOL(),
+				CompoundTypeIds::CHARCOAL => Items::CHEMICAL_CHARCOAL(),
+				CompoundTypeIds::SUGAR => Items::CHEMICAL_SUGAR(),
+				CompoundTypeIds::ALUMINIUM_OXIDE => Items::CHEMICAL_ALUMINIUM_OXIDE(),
+				CompoundTypeIds::BORON_TRIOXIDE => Items::CHEMICAL_BORON_TRIOXIDE(),
+				CompoundTypeIds::SOAP => Items::CHEMICAL_SOAP(),
+				CompoundTypeIds::POLYETHYLENE => Items::CHEMICAL_POLYETHYLENE(),
+				CompoundTypeIds::RUBBISH => Items::CHEMICAL_RUBBISH(),
+				CompoundTypeIds::MAGNESIUM_SALTS => Items::CHEMICAL_MAGNESIUM_SALTS(),
+				CompoundTypeIds::SULPHATE => Items::CHEMICAL_SULPHATE(),
+				CompoundTypeIds::BARIUM_SULPHATE => Items::CHEMICAL_BARIUM_SULPHATE(),
+				CompoundTypeIds::POTASSIUM_CHLORIDE => Items::CHEMICAL_POTASSIUM_CHLORIDE(),
+				CompoundTypeIds::MERCURIC_CHLORIDE => Items::CHEMICAL_MERCURIC_CHLORIDE(),
+				CompoundTypeIds::CERIUM_CHLORIDE => Items::CHEMICAL_CERIUM_CHLORIDE(),
+				CompoundTypeIds::TUNGSTEN_CHLORIDE => Items::CHEMICAL_TUNGSTEN_CHLORIDE(),
+				CompoundTypeIds::CALCIUM_CHLORIDE => Items::CHEMICAL_CALCIUM_CHLORIDE(),
+				CompoundTypeIds::WATER => Items::CHEMICAL_WATER(),
+				CompoundTypeIds::GLUE => Items::CHEMICAL_GLUE(),
+				CompoundTypeIds::HYPOCHLORITE => Items::CHEMICAL_HYPOCHLORITE(),
+				CompoundTypeIds::CRUDE_OIL => Items::CHEMICAL_CRUDE_OIL(),
+				CompoundTypeIds::LATEX => Items::CHEMICAL_LATEX(),
+				CompoundTypeIds::POTASSIUM_IODIDE => Items::CHEMICAL_POTASSIUM_IODIDE(),
+				CompoundTypeIds::SODIUM_FLUORIDE => Items::CHEMICAL_SODIUM_FLUORIDE(),
+				CompoundTypeIds::BENZENE => Items::CHEMICAL_BENZENE(),
+				CompoundTypeIds::INK => Items::CHEMICAL_INK(),
+				CompoundTypeIds::HYDROGEN_PEROXIDE => Items::CHEMICAL_HYDROGEN_PEROXIDE(),
+				CompoundTypeIds::AMMONIA => Items::CHEMICAL_AMMONIA(),
+				CompoundTypeIds::SODIUM_HYPOCHLORITE => Items::CHEMICAL_SODIUM_HYPOCHLORITE(),
+			]);
+		}
 	}
 
 	/**
@@ -574,14 +581,16 @@ final class ItemSerializerDeserializerRegistrar{
 			},
 			fn(SplashPotion $item) => PotionTypeIdMap::getInstance()->toId($item->getType())
 		);
-		$this->map1to1ItemWithMeta(
-			Ids::MEDICINE,
-			Items::MEDICINE(),
-			function(Medicine $item, int $meta) : void{
-				$item->setType(MedicineTypeIdMap::getInstance()->fromId($meta) ?? throw new ItemTypeDeserializeException("Unknown medicine type ID $meta"));
-			},
-			fn(Medicine $item) => MedicineTypeIdMap::getInstance()->toId($item->getType())
-		);
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$this->map1to1ItemWithMeta(
+				Ids::MEDICINE,
+				Items::MEDICINE(),
+				function(Medicine $item, int $meta) : void{
+					$item->setType(MedicineTypeIdMap::getInstance()->fromId($meta) ?? throw new ItemTypeDeserializeException("Unknown medicine type ID $meta"));
+				},
+				fn(Medicine $item) => MedicineTypeIdMap::getInstance()->toId($item->getType())
+			);
+		}
 		$this->map1to1ItemWithMeta(
 			Ids::POTION,
 			Items::POTION(),

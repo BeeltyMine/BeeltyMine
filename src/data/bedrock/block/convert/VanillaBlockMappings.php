@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\data\bedrock\block\convert;
 
+use pocketmine\BeeltySettings;
 use pocketmine\block\ActivatorRail;
 use pocketmine\block\AmethystCluster;
 use pocketmine\block\Anvil;
@@ -190,7 +191,9 @@ final class VanillaBlockMappings
 		$reg->mapSimple(Blocks::BUDDING_AMETHYST(), Ids::BUDDING_AMETHYST);
 		$reg->mapSimple(Blocks::CALCITE(), Ids::CALCITE);
 		$reg->mapSimple(Blocks::CARTOGRAPHY_TABLE(), Ids::CARTOGRAPHY_TABLE);
-		$reg->mapSimple(Blocks::CHEMICAL_HEAT(), Ids::CHEMICAL_HEAT);
+		if(BeeltySettings::chemistryBlocksEnabled()){
+			$reg->mapSimple(Blocks::CHEMICAL_HEAT(), Ids::CHEMICAL_HEAT);
+		}
 		$reg->mapSimple(Blocks::CHISELED_DEEPSLATE(), Ids::CHISELED_DEEPSLATE);
 		$reg->mapSimple(Blocks::CHISELED_NETHER_BRICKS(), Ids::CHISELED_NETHER_BRICKS);
 		$reg->mapSimple(Blocks::CHISELED_POLISHED_BLACKSTONE(), Ids::CHISELED_POLISHED_BLACKSTONE);
@@ -252,6 +255,7 @@ final class VanillaBlockMappings
 		]));
 		$reg->mapSimple(Blocks::DRIED_KELP(), Ids::DRIED_KELP_BLOCK);
 		$reg->mapSimple(Blocks::DRIPSTONE_BLOCK(), Ids::DRIPSTONE_BLOCK);
+		if(BeeltySettings::chemistryBlocksEnabled()){
 		$reg->mapSimple(Blocks::ELEMENT_ACTINIUM(), Ids::ELEMENT_89);
 		$reg->mapSimple(Blocks::ELEMENT_ALUMINUM(), Ids::ELEMENT_13);
 		$reg->mapSimple(Blocks::ELEMENT_AMERICIUM(), Ids::ELEMENT_95);
@@ -371,6 +375,7 @@ final class VanillaBlockMappings
 		$reg->mapSimple(Blocks::ELEMENT_ZERO(), Ids::ELEMENT_0);
 		$reg->mapSimple(Blocks::ELEMENT_ZINC(), Ids::ELEMENT_30);
 		$reg->mapSimple(Blocks::ELEMENT_ZIRCONIUM(), Ids::ELEMENT_40);
+		}
 		$reg->mapSimple(Blocks::EMERALD(), Ids::EMERALD_BLOCK);
 		$reg->mapSimple(Blocks::EMERALD_ORE(), Ids::EMERALD_ORE);
 		$reg->mapSimple(Blocks::ENCHANTING_TABLE(), Ids::ENCHANTING_TABLE);
@@ -1447,6 +1452,10 @@ final class VanillaBlockMappings
 
 	private static function registerChemistryMappings(BlockSerializerDeserializerRegistrar $reg, CommonProperties $commonProperties): void
 	{
+		if(!BeeltySettings::chemistryBlocksEnabled()){
+			return;
+		}
+
 		foreach (
 			[
 				[Blocks::COMPOUND_CREATOR(), Ids::COMPOUND_CREATOR],

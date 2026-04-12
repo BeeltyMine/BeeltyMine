@@ -900,6 +900,15 @@ class Server
 				@file_put_contents($pocketmineYmlPath, $content);
 			};
 
+			$beeltyYmlPath = Path::join($this->dataPath, "beelty.yml");
+			if(!file_exists($beeltyYmlPath)){
+				$content = Filesystem::fileGetContents(Path::join(\pocketmine\RESOURCE_PATH, "beelty.yml"));
+				@file_put_contents($beeltyYmlPath, $content);
+			}
+
+			$beeltyConfig = new Config($beeltyYmlPath, Config::YAML, []);
+			BeeltySettings::loadFromConfig($beeltyConfig);
+
 			$this->configGroup = new ServerConfigGroup(
 				new Config($pocketmineYmlPath, Config::YAML, []),
 				new Config(Path::join($this->dataPath, "server.properties"), Config::PROPERTIES, [

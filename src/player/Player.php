@@ -312,9 +312,8 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 
 	protected int $startAction = -1;
 	private int $ignoreChargeableClickAirUntilTick = -1;
-	private bool $chargeableUseMovementPenaltyApplied = false;
 
-	private const CHARGEABLE_USE_MOVEMENT_SPEED_MULTIPLIER = 0.2;
+	private const CHARGEABLE_USE_WALK_SPEED = 0.02;
 
 	/**
 	 * @phpstan-var array<int|string, int>
@@ -791,19 +790,8 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		return $this->startAction > -1;
 	}
 
-	private function syncChargeableUseMovementPenalty() : void{
-		$shouldApply = $this->isUsingItem() && $this->inventory->getItemInHand() instanceof Chargeable;
-		if($shouldApply === $this->chargeableUseMovementPenaltyApplied){
-			return;
-		}
-
-		if($shouldApply){
-			$this->setMovementSpeed($this->getMovementSpeed() * self::CHARGEABLE_USE_MOVEMENT_SPEED_MULTIPLIER, true);
-		}else{
-			$this->setMovementSpeed($this->getMovementSpeed() / self::CHARGEABLE_USE_MOVEMENT_SPEED_MULTIPLIER, true);
-		}
-		$this->moveSpeedAttr->markSynchronized(false);
-		$this->chargeableUseMovementPenaltyApplied = $shouldApply;
+	public function getAbilityWalkSpeed() : float{
+		return $this->isUsingItem() && $this->inventory->getItemInHand() instanceof Chargeable ? self::CHARGEABLE_USE_WALK_SPEED : 0.1;
 	}
 
 	public function setUsingItem(bool $value) : void{
@@ -811,7 +799,7 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 		$this->startAction = $value ? $this->server->getTick() : -1;
 		$this->networkPropertiesDirty = true;
 		if($wasUsingItem !== $value){
-			$this->syncChargeableUseMovementPenalty();
+			$this->getNetworkSession()->syncAbilities($this);
 		}
 	}
 
@@ -1704,7 +1692,9 @@ class Player extends Human implements CommandSender, ChunkListener, IPlayer, Nev
 				$item->whileUsing($this);
 				$oldItem = clone $item;
 				$completedUsing = $item->continueUsing($this, $this->getItemUseDuration());
-				$this->returnItemsFromAction($oldItem, $item, []);
+				if(!$item->equalsExact($oldItem)){
+					$this->returnItemsFromAction($oldItem, $item, []);
+				}
 				if($completedUsing){
 					$this->setUsingItem(false);
 					$this->ignoreChargeableClickAirForTicks(1);

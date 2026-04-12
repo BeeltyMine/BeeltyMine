@@ -1134,7 +1134,7 @@ class NetworkSession{
 		];
 
 		$layers = [
-			new AbilitiesLayer(AbilitiesLayer::LAYER_BASE, $boolAbilities, $for->getFlightSpeedMultiplier(), 1, 0.1),
+			new AbilitiesLayer(AbilitiesLayer::LAYER_BASE, $boolAbilities, $for->getFlightSpeedMultiplier(), 1, $for->getAbilityWalkSpeed()),
 		];
 		if(!$for->hasBlockCollision()){
 			//TODO: HACK! In 1.19.80, the client starts falling in our faux spectator mode when it clips into a

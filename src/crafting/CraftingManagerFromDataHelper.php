@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace pocketmine\crafting;
 
-use pocketmine\crafting\json\FurnaceRecipeData;
 use pocketmine\crafting\json\ItemStackData;
 use pocketmine\crafting\json\PotionContainerChangeRecipeData;
 use pocketmine\crafting\json\PotionTypeRecipeData;
@@ -50,7 +49,7 @@ use function get_debug_type;
 use function is_array;
 use function is_object;
 use function json_decode;
-
+use function count;
 final class CraftingManagerFromDataHelper
 {
 
@@ -224,6 +223,11 @@ final class CraftingManagerFromDataHelper
 				"stonecutter" => ShapelessRecipeType::STONECUTTER,
 				"smithing_table" => ShapelessRecipeType::SMITHING,
 				"cartography_table" => ShapelessRecipeType::CARTOGRAPHY,
+				"furnace" => FurnaceType::FURNACE,
+				"blast_furnace" => FurnaceType::BLAST_FURNACE,
+				"smoker" => FurnaceType::SMOKER,
+				"campfire" => FurnaceType::CAMPFIRE,
+				"soul_campfire" => FurnaceType::SOUL_CAMPFIRE,
 				default => null
 			};
 			if ($recipeType === null) {
@@ -246,11 +250,22 @@ final class CraftingManagerFromDataHelper
 				$outputs[] = $output;
 			}
 			//TODO: check unlocking requirements - our current system doesn't support this
-			$result->registerShapelessRecipe(new ShapelessRecipe(
-				$inputs,
-				$outputs,
-				$recipeType
-			));
+			if ($recipeType instanceof FurnaceType) {
+				if (count($inputs) !== 1 || count($outputs) !== 1) {
+					throw new SavedDataLoadingException("Furnace recipes must have exactly 1 input and 1 output");
+				}
+
+				$result->getFurnaceRecipeManager($recipeType)->register(new FurnaceRecipe(
+					$outputs[0],
+					$inputs[0]
+				));
+			} else {
+				$result->registerShapelessRecipe(new ShapelessRecipe(
+					$inputs,
+					$outputs,
+					$recipeType
+				));
+			}
 		}
 		foreach (self::loadJsonArrayOfObjectsFile(Path::join($directoryPath, 'shaped_crafting.json'), ShapedRecipeData::class) as $recipe) {
 			if ($recipe->block !== "crafting_table") { //TODO: filter others out for now to avoid breaking economics
@@ -277,31 +292,6 @@ final class CraftingManagerFromDataHelper
 				$recipe->shape,
 				$inputs,
 				$outputs
-			));
-		}
-		foreach (self::loadJsonArrayOfObjectsFile(Path::join($directoryPath, 'smelting.json'), FurnaceRecipeData::class) as $recipe) {
-			$furnaceType = match ($recipe->block) {
-				"furnace" => FurnaceType::FURNACE,
-				"blast_furnace" => FurnaceType::BLAST_FURNACE,
-				"smoker" => FurnaceType::SMOKER,
-				"campfire" => FurnaceType::CAMPFIRE,
-				"soul_campfire" => FurnaceType::SOUL_CAMPFIRE,
-				default => null
-			};
-			if ($furnaceType === null) {
-				continue;
-			}
-			$output = self::deserializeItemStack($recipe->output);
-			if ($output === null) {
-				continue;
-			}
-			$input = self::deserializeIngredient($recipe->input);
-			if ($input === null) {
-				continue;
-			}
-			$result->getFurnaceRecipeManager($furnaceType)->register(new FurnaceRecipe(
-				$output,
-				$input
 			));
 		}
 

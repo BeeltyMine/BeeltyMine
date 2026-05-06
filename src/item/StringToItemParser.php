@@ -355,6 +355,7 @@ final class StringToItemParser extends StringToTParser
 		$result->registerBlock("cut_sandstone_slab", fn() => Blocks::CUT_SANDSTONE_SLAB());
 		$result->registerBlock("damaged_anvil", fn() => Blocks::ANVIL()->setDamage(2));
 		$result->registerBlock("dandelion", fn() => Blocks::DANDELION());
+		$result->registerBlock("golden_dandelion", fn() => Blocks::GOLDEN_DANDELION());
 		$result->registerBlock("dark_oak_button", fn() => Blocks::DARK_OAK_BUTTON());
 		$result->registerBlock("dark_oak_door", fn() => Blocks::DARK_OAK_DOOR());
 		$result->registerBlock("dark_oak_door_block", fn() => Blocks::DARK_OAK_DOOR());

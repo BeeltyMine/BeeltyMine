@@ -27,13 +27,15 @@ use pocketmine\entity\Living;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\types\ActorEvent;
 
-final class RespawnAnimation implements Animation{
+final class RespawnAnimation implements Animation
+{
 
-	public function __construct(private Living $entity){}
+	public function __construct(private Living $entity) {}
 
-	public function encode() : array{
+	public function encode(): array
+	{
 		return [
-			ActorEventPacket::create($this->entity->getId(), ActorEvent::RESPAWN, 0)
+			ActorEventPacket::create($this->entity->getId(), ActorEvent::RESPAWN, 0, null)
 		];
 	}
 }

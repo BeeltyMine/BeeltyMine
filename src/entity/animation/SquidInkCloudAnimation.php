@@ -27,13 +27,15 @@ use pocketmine\entity\Squid;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\types\ActorEvent;
 
-final class SquidInkCloudAnimation implements Animation{
+final class SquidInkCloudAnimation implements Animation
+{
 
-	public function __construct(private Squid $squid){}
+	public function __construct(private Squid $squid) {}
 
-	public function encode() : array{
+	public function encode(): array
+	{
 		return [
-			ActorEventPacket::create($this->squid->getId(), ActorEvent::SQUID_INK_CLOUD, 0)
+			ActorEventPacket::create($this->squid->getId(), ActorEvent::SQUID_INK_CLOUD, 0, null)
 		];
 	}
 }

@@ -27,14 +27,16 @@ use pocketmine\entity\Living;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\types\ActorEvent;
 
-final class ArmSwingAnimation implements Animation{
+final class ArmSwingAnimation implements Animation
+{
 
 	//TODO: not sure if this should be constrained to humanoids, but we don't have any concept of that right now
-	public function __construct(private Living $entity){}
+	public function __construct(private Living $entity) {}
 
-	public function encode() : array{
+	public function encode(): array
+	{
 		return [
-			ActorEventPacket::create($this->entity->getId(), ActorEvent::ARM_SWING, 0)
+			ActorEventPacket::create($this->entity->getId(), ActorEvent::ARM_SWING, 0, null),
 		];
 	}
 }

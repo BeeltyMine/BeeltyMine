@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace pocketmine;
 
+use pocketmine\block\utils\HopperRuntime;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\SimpleCommandMap;
@@ -2001,6 +2002,7 @@ class Server
 
 		$this->worldManager->tick($this->tickCounter);
 		$this->beaconManager->tick($this->tickCounter);
+		HopperRuntime::getInstance()->onServerTick($this);
 
 		Timings::$connection->startTiming();
 		$this->network->tick();

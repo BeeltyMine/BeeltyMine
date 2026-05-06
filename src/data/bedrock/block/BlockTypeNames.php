@@ -320,6 +320,7 @@ final class BlockTypeNames{
 	public const CYAN_WOOL = "minecraft:cyan_wool";
 	public const DAMAGED_ANVIL = "minecraft:damaged_anvil";
 	public const DANDELION = "minecraft:dandelion";
+	public const GOLDEN_DANDELION = "minecraft:golden_dandelion";
 	public const DARK_OAK_BUTTON = "minecraft:dark_oak_button";
 	public const DARK_OAK_DOOR = "minecraft:dark_oak_door";
 	public const DARK_OAK_DOUBLE_SLAB = "minecraft:dark_oak_double_slab";

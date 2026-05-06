@@ -276,6 +276,7 @@ final class ItemTypeNames{
 	public const GOLDEN_BOOTS = "minecraft:golden_boots";
 	public const GOLDEN_CARROT = "minecraft:golden_carrot";
 	public const GOLDEN_CHESTPLATE = "minecraft:golden_chestplate";
+	public const GOLDEN_DANDELION = "minecraft:golden_dandelion";
 	public const GOLDEN_HELMET = "minecraft:golden_helmet";
 	public const GOLDEN_HOE = "minecraft:golden_hoe";
 	public const GOLDEN_HORSE_ARMOR = "minecraft:golden_horse_armor";

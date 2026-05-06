@@ -287,6 +287,7 @@ use function strtolower;
  * @method static Opaque CUT_SANDSTONE()
  * @method static Slab CUT_SANDSTONE_SLAB()
  * @method static Flower DANDELION()
+ * @method static Flower GOLDEN_DANDELION()
  * @method static WoodenButton DARK_OAK_BUTTON()
  * @method static CeilingCenterHangingSign DARK_OAK_CEILING_CENTER_HANGING_SIGN()
  * @method static CeilingEdgesHangingSign DARK_OAK_CEILING_EDGES_HANGING_SIGN()
@@ -1036,6 +1037,7 @@ final class VanillaBlocks
 
 		$flowerTypeInfo = new Info(BreakInfo::instant(), [Tags::POTTABLE_PLANTS]);
 		self::register("dandelion", fn(BID $id) => new Flower($id, "Dandelion", $flowerTypeInfo));
+		self::register("golden_dandelion", fn(BID $id) => new Flower($id, "Golden Dandelion", $flowerTypeInfo));
 		self::register("poppy", fn(BID $id) => new Flower($id, "Poppy", $flowerTypeInfo));
 		self::register("allium", fn(BID $id) => new Flower($id, "Allium", $flowerTypeInfo));
 		self::register("azure_bluet", fn(BID $id) => new Flower($id, "Azure Bluet", $flowerTypeInfo));

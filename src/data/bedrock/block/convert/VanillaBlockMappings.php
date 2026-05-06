@@ -220,6 +220,7 @@ final class VanillaBlockMappings
 		$reg->mapSimple(Blocks::CRIMSON_ROOTS(), Ids::CRIMSON_ROOTS);
 		$reg->mapSimple(Blocks::CRYING_OBSIDIAN(), Ids::CRYING_OBSIDIAN);
 		$reg->mapSimple(Blocks::DANDELION(), Ids::DANDELION);
+		$reg->mapSimple(Blocks::GOLDEN_DANDELION(), Ids::GOLDEN_DANDELION);
 		$reg->mapSimple(Blocks::CUT_RED_SANDSTONE(), Ids::CUT_RED_SANDSTONE);
 		$reg->mapSimple(Blocks::CUT_SANDSTONE(), Ids::CUT_SANDSTONE);
 		$reg->mapSimple(Blocks::DARK_PRISMARINE(), Ids::DARK_PRISMARINE);

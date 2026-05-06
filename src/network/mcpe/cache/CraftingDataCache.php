@@ -51,6 +51,7 @@ use pocketmine\utils\Binary;
 use pocketmine\utils\SingletonTrait;
 use Ramsey\Uuid\Uuid;
 use function array_map;
+use function count;
 use function spl_object_id;
 
 final class CraftingDataCache{
@@ -91,6 +92,7 @@ final class CraftingDataCache{
 		$nullUUID = Uuid::fromString(Uuid::NIL);
 		$converter = TypeConverter::getInstance();
 		$recipesWithTypeIds = [];
+		$nextRecipeNetId = count($manager->getCraftingRecipeIndex()) + self::RECIPE_ID_OFFSET;
 
 		$noUnlockingRequirement = new RecipeUnlockingRequirement(null);
 		foreach($manager->getCraftingRecipeIndex() as $index => $recipe){
@@ -148,16 +150,18 @@ final class CraftingDataCache{
 				FurnaceType::SOUL_CAMPFIRE => FurnaceRecipeBlockName::SOUL_CAMPFIRE
 			};
 			foreach($manager->getFurnaceRecipeManager($furnaceType)->getAll() as $recipe){
-				$input = $converter->coreRecipeIngredientToNet($recipe->getInput())->getDescriptor();
-				if(!$input instanceof IntIdMetaItemDescriptor){
-					throw new AssumptionFailedError();
-				}
+				$recipeNetId = $nextRecipeNetId++;
+				$input = $converter->coreRecipeIngredientToNet($recipe->getInput());
 				$recipesWithTypeIds[] = new ProtocolFurnaceRecipe(
-					CraftingDataPacket::ENTRY_FURNACE_DATA,
-					$input->getId(),
-					$input->getMeta(),
+					CraftingDataPacket::ENTRY_FURNACE,
+					BE::packUnsignedInt($recipeNetId),
+					[$input],
 					$converter->coreItemStackToNet($recipe->getResult()),
-					$typeTag
+					$nullUUID,
+					$typeTag,
+					0,
+					$noUnlockingRequirement,
+					$recipeNetId
 				);
 			}
 		}

@@ -1,24 +1,5 @@
 <?php
 
-/*
- *
- *  ____            _        _   __  __ _                  __  __ ____
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
- *
- *
- */
-
 declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\cache;
@@ -29,13 +10,9 @@ use pocketmine\crafting\FurnaceType;
 use pocketmine\crafting\ShapedRecipe;
 use pocketmine\crafting\ShapelessRecipe;
 use pocketmine\crafting\ShapelessRecipeType;
-use pocketmine\crafting\SmithingTransformRecipe;
-use pocketmine\crafting\SmithingTrimRecipe;
-use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\types\recipe\CraftingRecipeBlockName;
-use pocketmine\network\mcpe\protocol\types\recipe\FurnaceRecipe as ProtocolFurnaceRecipe;
 use pocketmine\network\mcpe\protocol\types\recipe\FurnaceRecipeBlockName;
 use pocketmine\network\mcpe\protocol\types\recipe\IntIdMetaItemDescriptor;
 use pocketmine\network\mcpe\protocol\types\recipe\PotionContainerChangeRecipe as ProtocolPotionContainerChangeRecipe;
@@ -43,15 +20,11 @@ use pocketmine\network\mcpe\protocol\types\recipe\PotionTypeRecipe as ProtocolPo
 use pocketmine\network\mcpe\protocol\types\recipe\RecipeUnlockingRequirement;
 use pocketmine\network\mcpe\protocol\types\recipe\ShapedRecipe as ProtocolShapedRecipe;
 use pocketmine\network\mcpe\protocol\types\recipe\ShapelessRecipe as ProtocolShapelessRecipe;
-use pocketmine\network\mcpe\protocol\types\recipe\SmithingTransformRecipe as ProtocolSmithingTransformRecipe;
-use pocketmine\network\mcpe\protocol\types\recipe\SmithingTrimRecipe as ProtocolSmithingTrimRecipe;
 use pocketmine\timings\Timings;
 use pocketmine\utils\AssumptionFailedError;
-use pocketmine\utils\Binary;
 use pocketmine\utils\SingletonTrait;
 use Ramsey\Uuid\Uuid;
 use function array_map;
-use function count;
 use function spl_object_id;
 
 final class CraftingDataCache{
@@ -92,7 +65,6 @@ final class CraftingDataCache{
 		$nullUUID = Uuid::fromString(Uuid::NIL);
 		$converter = TypeConverter::getInstance();
 		$recipesWithTypeIds = [];
-		$nextRecipeNetId = count($manager->getCraftingRecipeIndex()) + self::RECIPE_ID_OFFSET;
 
 		$noUnlockingRequirement = new RecipeUnlockingRequirement(null);
 		foreach($manager->getCraftingRecipeIndex() as $index => $recipe){
@@ -150,47 +122,19 @@ final class CraftingDataCache{
 				FurnaceType::SOUL_CAMPFIRE => FurnaceRecipeBlockName::SOUL_CAMPFIRE
 			};
 			foreach($manager->getFurnaceRecipeManager($furnaceType)->getAll() as $recipe){
-				$recipeNetId = $nextRecipeNetId++;
-				$input = $converter->coreRecipeIngredientToNet($recipe->getInput());
-				$recipesWithTypeIds[] = new ProtocolFurnaceRecipe(
-					CraftingDataPacket::ENTRY_FURNACE,
-					BE::packUnsignedInt($recipeNetId),
-					[$input],
-					$converter->coreItemStackToNet($recipe->getResult()),
+				$recipeNetId = ($recipeNetId ?? self::RECIPE_ID_OFFSET) + 1;
+				$recipesWithTypeIds[] = new ProtocolShapelessRecipe(
+					CraftingDataPacket::ENTRY_SHAPELESS,
+					BE::packUnsignedInt($recipeNetId), //TODO: this should probably be changed to something human-readable
+					[$converter->coreRecipeIngredientToNet($recipe->getInput())],
+					[$converter->coreItemStackToNet($recipe->getResult())],
 					$nullUUID,
 					$typeTag,
-					0,
+					50,
 					$noUnlockingRequirement,
 					$recipeNetId
 				);
 			}
-		}
-
-		$index = InventoryManager::SMITHING_RECIPE_NETWORK_OFFSET;
-		foreach($manager->getSmithingRecipes() as $recipe){
-			if($recipe instanceof SmithingTransformRecipe){
-				$recipesWithTypeIds[] = new ProtocolSmithingTransformRecipe(
-					CraftingDataPacket::ENTRY_SMITHING_TRANSFORM,
-					Binary::writeInt($index),
-					$converter->coreRecipeIngredientToNet($recipe->getTemplate()),
-					$converter->coreRecipeIngredientToNet($recipe->getInput()),
-					$converter->coreRecipeIngredientToNet($recipe->getAddition()),
-					$converter->coreItemStackToNet($recipe->getResult()),
-					CraftingRecipeBlockName::SMITHING_TABLE,
-					$index
-				);
-			}elseif($recipe instanceof SmithingTrimRecipe){
-				$recipesWithTypeIds[] = new ProtocolSmithingTrimRecipe(
-					CraftingDataPacket::ENTRY_SMITHING_TRIM,
-					Binary::writeInt($index),
-					$converter->coreRecipeIngredientToNet($recipe->getTemplate()),
-					$converter->coreRecipeIngredientToNet($recipe->getInput()),
-					$converter->coreRecipeIngredientToNet($recipe->getAddition()),
-					CraftingRecipeBlockName::SMITHING_TABLE,
-					$index
-				);
-			}
-			$index++;
 		}
 
 		$potionTypeRecipes = [];

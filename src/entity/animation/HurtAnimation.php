@@ -27,13 +27,15 @@ use pocketmine\entity\Living;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\types\ActorEvent;
 
-final class HurtAnimation implements Animation{
+final class HurtAnimation implements Animation
+{
 
-	public function __construct(private Living $entity){}
+	public function __construct(private Living $entity) {}
 
-	public function encode() : array{
+	public function encode(): array
+	{
 		return [
-			ActorEventPacket::create($this->entity->getId(), ActorEvent::HURT_ANIMATION, 0)
+			ActorEventPacket::create($this->entity->getId(), ActorEvent::HURT_ANIMATION, 0, null)
 		];
 	}
 }

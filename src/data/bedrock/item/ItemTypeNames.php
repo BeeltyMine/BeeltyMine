@@ -276,7 +276,6 @@ final class ItemTypeNames{
 	public const GOLDEN_BOOTS = "minecraft:golden_boots";
 	public const GOLDEN_CARROT = "minecraft:golden_carrot";
 	public const GOLDEN_CHESTPLATE = "minecraft:golden_chestplate";
-	public const GOLDEN_DANDELION = "minecraft:golden_dandelion";
 	public const GOLDEN_HELMET = "minecraft:golden_helmet";
 	public const GOLDEN_HOE = "minecraft:golden_hoe";
 	public const GOLDEN_HORSE_ARMOR = "minecraft:golden_horse_armor";
@@ -567,6 +566,8 @@ final class ItemTypeNames{
 	public const STRING = "minecraft:string";
 	public const SUGAR = "minecraft:sugar";
 	public const SUGAR_CANE = "minecraft:sugar_cane";
+	public const SULFUR_CUBE_BUCKET = "minecraft:sulfur_cube_bucket";
+	public const SULFUR_CUBE_SPAWN_EGG = "minecraft:sulfur_cube_spawn_egg";
 	public const SUSPICIOUS_STEW = "minecraft:suspicious_stew";
 	public const SWEET_BERRIES = "minecraft:sweet_berries";
 	public const TADPOLE_BUCKET = "minecraft:tadpole_bucket";

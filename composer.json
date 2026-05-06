@@ -35,9 +35,9 @@
       "adhocore/json-comment": "~1.2.0",
       "netresearch/jsonmapper": "~v5.0.0",
       "pocketmine/bedrock-block-upgrade-schema": "~5.2.0+bedrock-1.21.110",
-      "pocketmine/bedrock-data": "dev-bedrock-1.26.10",
+      "pocketmine/bedrock-data": "dev-bedrock-1.26.20",
       "pocketmine/bedrock-item-upgrade-schema": "~1.16.0+bedrock-1.21.110",
-      "pocketmine/bedrock-protocol": "dev-bedrock-1.26.10",
+      "pocketmine/bedrock-protocol": "dev-bedrock-1.26.20",
       "pocketmine/binaryutils": "^0.2.1",
       "pocketmine/callback-validator": "~1.0.4",
       "pocketmine/color": "^0.3.0",
@@ -91,13 +91,13 @@
          "@php -dphar.readonly=0 build/server-phar.php"
       ],
       "update-codegen": [
-         "@php build/codegen/bedrockdata-path-consts.php",
-         "@php build/codegen/biome-ids.php",
-         "@php build/codegen/block-serializer-consts.php vendor/pocketmine/bedrock-data/canonical_block_states.nbt",
-         "@php build/codegen/item-type-names.php vendor/pocketmine/bedrock-data/required_item_list.json",
-         "@php build/codegen/known-translation-apis.php",
-         "@php build/codegen/pocketmine-yml-property-consts.php",
-         "@php build/codegen/registry-interface.php src generated"
+         "@php build/generate-bedrockdata-path-consts.php",
+         "@php build/generate-biome-ids.php",
+         "@php build/generate-block-serializer-consts.php vendor/pocketmine/bedrock-data/canonical_block_states.nbt",
+         "@php build/generate-item-type-names.php vendor/pocketmine/bedrock-data/required_item_list.json",
+         "@php build/generate-known-translation-apis.php",
+         "@php build/generate-pocketmine-yml-property-consts.php",
+         "@php build/generate-registry-annotations.php src"
       ]
    }
 }

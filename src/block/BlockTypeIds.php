@@ -888,8 +888,21 @@ final class BlockTypeIds{
 	public const PALE_OAK_SHELF = 10849;
 	public const SPRUCE_SHELF = 10850;
 	public const WARPED_SHELF = 10851;
+	public const POWDER_SNOW = 10852;
+	public const COPPER_GOLEM_STATUE = 10853;
+	public const EXPOSED_COPPER_GOLEM_STATUE = 10854;
+	public const WEATHERED_COPPER_GOLEM_STATUE = 10855;
+	public const OXIDIZED_COPPER_GOLEM_STATUE = 10856;
+	public const WAXED_COPPER_GOLEM_STATUE = 10857;
+	public const WAXED_EXPOSED_COPPER_GOLEM_STATUE = 10858;
+	public const WAXED_WEATHERED_COPPER_GOLEM_STATUE = 10859;
+	public const WAXED_OXIDIZED_COPPER_GOLEM_STATUE = 10860;
+	public const COPPER_CHEST = 10861;
+	public const DRIED_GHAST = 10862;
+	public const SNIFFER_EGG = 10863;
+	public const GOLDEN_DANDELION = 10864;
 
-	public const FIRST_UNUSED_BLOCK_ID = 10852;
+	public const FIRST_UNUSED_BLOCK_ID = 10865;
 
 	private static int $nextDynamicId = self::FIRST_UNUSED_BLOCK_ID;
 

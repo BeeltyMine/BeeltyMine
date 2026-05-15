@@ -1,32 +1,38 @@
 <?php
 
 /*
- *
- *  ____            _        _   __  __ _                  __  __ ____
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
+ *     ____            ____        __  ____
+ *    / __ )___  ___  / / /___  __/  |/  (_)___  ___
+ *   / __  / _ \/ _ \/ / __/ / / / /|_/ / / __ \/ _ \
+ *  / /_/ /  __/  __/ / /_/ /_/ / /  / / / / / /  __/
+ * /_____/\___/\___/_/\__/\__, /_/  /_/_/_/ /_/\___/
+ *                       /____/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
- *
- *
+ * @author Ayrz
+ * @team BeeltyMine
+ * 
+ * 
  */
 
 declare(strict_types=1);
 
 namespace pocketmine\item;
 
+use pocketmine\BeeltyFeatureGate;
 use pocketmine\block\utils\RecordType;
 use pocketmine\block\VanillaBlocks as Blocks;
+use pocketmine\entity\Bee;
+use pocketmine\entity\Chicken;
 use pocketmine\entity\Entity;
+use pocketmine\entity\Ghast;
+use pocketmine\entity\HappyGhast;
 use pocketmine\entity\Location;
+use pocketmine\entity\Sniffer;
 use pocketmine\entity\Squid;
 use pocketmine\entity\Villager;
 use pocketmine\entity\Zombie;
@@ -59,6 +65,7 @@ use function strtolower;
  * @method static HangingSign BAMBOO_HANGING_SIGN()
  * @method static ItemBlockWallOrFloor BAMBOO_SIGN()
  * @method static Banner BANNER()
+ * @method static SpawnEgg BEE_SPAWN_EGG()
  * @method static Beetroot BEETROOT()
  * @method static BeetrootSeeds BEETROOT_SEEDS()
  * @method static BeetrootSoup BEETROOT_SOUP()
@@ -72,10 +79,29 @@ use function strtolower;
  * @method static Fertilizer BONE_MEAL()
  * @method static Book BOOK()
  * @method static Bow BOW()
+ * @method static Crossbow CROSSBOW()
  * @method static Bowl BOWL()
  * @method static Bread BREAD()
  * @method static Item BRICK()
  * @method static Bucket BUCKET()
+ * @method static SpawnEgg CHICKEN_SPAWN_EGG()
+ * @method static Bundle BUNDLE()
+ * @method static Bundle WHITE_BUNDLE()
+ * @method static Bundle LIGHT_GRAY_BUNDLE()
+ * @method static Bundle GRAY_BUNDLE()
+ * @method static Bundle BLACK_BUNDLE()
+ * @method static Bundle BROWN_BUNDLE()
+ * @method static Bundle RED_BUNDLE()
+ * @method static Bundle ORANGE_BUNDLE()
+ * @method static Bundle YELLOW_BUNDLE()
+ * @method static Bundle LIME_BUNDLE()
+ * @method static Bundle GREEN_BUNDLE()
+ * @method static Bundle CYAN_BUNDLE()
+ * @method static Bundle LIGHT_BLUE_BUNDLE()
+ * @method static Bundle BLUE_BUNDLE()
+ * @method static Bundle PURPLE_BUNDLE()
+ * @method static Bundle MAGENTA_BUNDLE()
+ * @method static Bundle PINK_BUNDLE()
  * @method static Carrot CARROT()
  * @method static Armor CHAINMAIL_BOOTS()
  * @method static Armor CHAINMAIL_CHESTPLATE()
@@ -146,6 +172,7 @@ use function strtolower;
  * @method static Armor COPPER_LEGGINGS()
  * @method static Item COPPER_NUGGET()
  * @method static Pickaxe COPPER_PICKAXE()
+ * @method static Spear COPPER_SPEAR()
  * @method static Shovel COPPER_SHOVEL()
  * @method static Sword COPPER_SWORD()
  * @method static CoralFan CORAL_FAN()
@@ -162,6 +189,7 @@ use function strtolower;
  * @method static Hoe DIAMOND_HOE()
  * @method static Armor DIAMOND_LEGGINGS()
  * @method static Pickaxe DIAMOND_PICKAXE()
+ * @method static Spear DIAMOND_SPEAR()
  * @method static Shovel DIAMOND_SHOVEL()
  * @method static Sword DIAMOND_SWORD()
  * @method static Item DISC_FRAGMENT_5()
@@ -203,6 +231,7 @@ use function strtolower;
  * @method static Hoe GOLDEN_HOE()
  * @method static Armor GOLDEN_LEGGINGS()
  * @method static Pickaxe GOLDEN_PICKAXE()
+ * @method static Spear GOLDEN_SPEAR()
  * @method static Shovel GOLDEN_SHOVEL()
  * @method static Sword GOLDEN_SWORD()
  * @method static Item GOLD_INGOT()
@@ -223,6 +252,7 @@ use function strtolower;
  * @method static Armor IRON_LEGGINGS()
  * @method static Item IRON_NUGGET()
  * @method static Pickaxe IRON_PICKAXE()
+ * @method static Spear IRON_SPEAR()
  * @method static Shovel IRON_SHOVEL()
  * @method static Sword IRON_SWORD()
  * @method static Boat JUNGLE_BOAT()
@@ -256,6 +286,7 @@ use function strtolower;
  * @method static Item NETHERITE_INGOT()
  * @method static Armor NETHERITE_LEGGINGS()
  * @method static Pickaxe NETHERITE_PICKAXE()
+ * @method static Spear NETHERITE_SPEAR()
  * @method static Item NETHERITE_SCRAP()
  * @method static Shovel NETHERITE_SHOVEL()
  * @method static Sword NETHERITE_SWORD()
@@ -277,6 +308,7 @@ use function strtolower;
  * @method static Item POPPED_CHORUS_FRUIT()
  * @method static Potato POTATO()
  * @method static Potion POTION()
+ * @method static PowderSnowBucket POWDER_SNOW_BUCKET()
  * @method static Item PRISMARINE_CRYSTALS()
  * @method static Item PRISMARINE_SHARD()
  * @method static Pufferfish PUFFERFISH()
@@ -343,6 +375,7 @@ use function strtolower;
  * @method static Axe STONE_AXE()
  * @method static Hoe STONE_HOE()
  * @method static Pickaxe STONE_PICKAXE()
+ * @method static Spear STONE_SPEAR()
  * @method static Shovel STONE_SHOVEL()
  * @method static Sword STONE_SWORD()
  * @method static StringItem STRING()
@@ -367,6 +400,7 @@ use function strtolower;
  * @method static Axe WOODEN_AXE()
  * @method static Hoe WOODEN_HOE()
  * @method static Pickaxe WOODEN_PICKAXE()
+ * @method static Spear WOODEN_SPEAR()
  * @method static Shovel WOODEN_SHOVEL()
  * @method static Sword WOODEN_SWORD()
  * @method static WritableBook WRITABLE_BOOK()
@@ -403,6 +437,12 @@ final class VanillaItems{
 		self::_registryRegister($name, $item);
 
 		return $item;
+	}
+
+	private static function registerChemistryItem(string $name, \Closure $createItem) : void{
+		BeeltyFeatureGate::whenChemistryItemsEnabled(function() use ($name, $createItem) : void{
+			self::register($name, $createItem);
+		});
 	}
 
 	/**
@@ -443,57 +483,75 @@ final class VanillaItems{
 		self::register("birch_hanging_sign", fn(IID $id) => new HangingSign($id, "Birch Hanging Sign", Blocks::BIRCH_CEILING_CENTER_HANGING_SIGN(), Blocks::BIRCH_CEILING_EDGES_HANGING_SIGN(), Blocks::BIRCH_WALL_HANGING_SIGN()));
 		self::register("blaze_powder", fn(IID $id) => new Item($id, "Blaze Powder"));
 		self::register("blaze_rod", fn(IID $id) => new BlazeRod($id, "Blaze Rod"));
-		self::register("bleach", fn(IID $id) => new Item($id, "Bleach"));
+		self::registerChemistryItem("bleach", fn(IID $id) => new Item($id, "Bleach"));
 		self::register("bone", fn(IID $id) => new Item($id, "Bone"));
 		self::register("bone_meal", fn(IID $id) => new Fertilizer($id, "Bone Meal"));
 		self::register("book", fn(IID $id) => new Book($id, "Book", [EnchantmentTags::ALL]));
 		self::register("bow", fn(IID $id) => new Bow($id, "Bow", [EnchantmentTags::BOW]));
+		self::register("crossbow", fn(IID $id) => new Crossbow($id, "Crossbow", [EnchantmentTags::CROSSBOW]));
 		self::register("bowl", fn(IID $id) => new Bowl($id, "Bowl"));
 		self::register("bread", fn(IID $id) => new Bread($id, "Bread"));
 		self::register("brick", fn(IID $id) => new Item($id, "Brick"));
 		self::register("bucket", fn(IID $id) => new Bucket($id, "Bucket"));
+		self::register("bundle", fn(IID $id) => new Bundle($id, "Bundle"));
+		self::register("white_bundle", fn(IID $id) => new Bundle($id, "White Bundle"));
+		self::register("light_gray_bundle", fn(IID $id) => new Bundle($id, "Light Gray Bundle"));
+		self::register("gray_bundle", fn(IID $id) => new Bundle($id, "Gray Bundle"));
+		self::register("black_bundle", fn(IID $id) => new Bundle($id, "Black Bundle"));
+		self::register("brown_bundle", fn(IID $id) => new Bundle($id, "Brown Bundle"));
+		self::register("red_bundle", fn(IID $id) => new Bundle($id, "Red Bundle"));
+		self::register("orange_bundle", fn(IID $id) => new Bundle($id, "Orange Bundle"));
+		self::register("yellow_bundle", fn(IID $id) => new Bundle($id, "Yellow Bundle"));
+		self::register("lime_bundle", fn(IID $id) => new Bundle($id, "Lime Bundle"));
+		self::register("green_bundle", fn(IID $id) => new Bundle($id, "Green Bundle"));
+		self::register("cyan_bundle", fn(IID $id) => new Bundle($id, "Cyan Bundle"));
+		self::register("light_blue_bundle", fn(IID $id) => new Bundle($id, "Light Blue Bundle"));
+		self::register("blue_bundle", fn(IID $id) => new Bundle($id, "Blue Bundle"));
+		self::register("purple_bundle", fn(IID $id) => new Bundle($id, "Purple Bundle"));
+		self::register("magenta_bundle", fn(IID $id) => new Bundle($id, "Magenta Bundle"));
+		self::register("pink_bundle", fn(IID $id) => new Bundle($id, "Pink Bundle"));
 		self::register("carrot", fn(IID $id) => new Carrot($id, "Carrot"));
 		self::register("charcoal", fn(IID $id) => new Coal($id, "Charcoal"));
 		self::register("cherry_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::CHERRY_SIGN(), Blocks::CHERRY_WALL_SIGN()));
 		self::register("cherry_hanging_sign", fn(IID $id) => new HangingSign($id, "Cherry Hanging Sign", Blocks::CHERRY_CEILING_CENTER_HANGING_SIGN(), Blocks::CHERRY_CEILING_EDGES_HANGING_SIGN(), Blocks::CHERRY_WALL_HANGING_SIGN()));
-		self::register("chemical_aluminium_oxide", fn(IID $id) => new Item($id, "Aluminium Oxide"));
-		self::register("chemical_ammonia", fn(IID $id) => new Item($id, "Ammonia"));
-		self::register("chemical_barium_sulphate", fn(IID $id) => new Item($id, "Barium Sulphate"));
-		self::register("chemical_benzene", fn(IID $id) => new Item($id, "Benzene"));
-		self::register("chemical_boron_trioxide", fn(IID $id) => new Item($id, "Boron Trioxide"));
-		self::register("chemical_calcium_bromide", fn(IID $id) => new Item($id, "Calcium Bromide"));
-		self::register("chemical_calcium_chloride", fn(IID $id) => new Item($id, "Calcium Chloride"));
-		self::register("chemical_cerium_chloride", fn(IID $id) => new Item($id, "Cerium Chloride"));
-		self::register("chemical_charcoal", fn(IID $id) => new Item($id, "Charcoal"));
-		self::register("chemical_crude_oil", fn(IID $id) => new Item($id, "Crude Oil"));
-		self::register("chemical_glue", fn(IID $id) => new Item($id, "Glue"));
-		self::register("chemical_hydrogen_peroxide", fn(IID $id) => new Item($id, "Hydrogen Peroxide"));
-		self::register("chemical_hypochlorite", fn(IID $id) => new Item($id, "Hypochlorite"));
-		self::register("chemical_ink", fn(IID $id) => new Item($id, "Ink"));
-		self::register("chemical_iron_sulphide", fn(IID $id) => new Item($id, "Iron Sulphide"));
-		self::register("chemical_latex", fn(IID $id) => new Item($id, "Latex"));
-		self::register("chemical_lithium_hydride", fn(IID $id) => new Item($id, "Lithium Hydride"));
-		self::register("chemical_luminol", fn(IID $id) => new Item($id, "Luminol"));
-		self::register("chemical_magnesium_nitrate", fn(IID $id) => new Item($id, "Magnesium Nitrate"));
-		self::register("chemical_magnesium_oxide", fn(IID $id) => new Item($id, "Magnesium Oxide"));
-		self::register("chemical_magnesium_salts", fn(IID $id) => new Item($id, "Magnesium Salts"));
-		self::register("chemical_mercuric_chloride", fn(IID $id) => new Item($id, "Mercuric Chloride"));
-		self::register("chemical_polyethylene", fn(IID $id) => new Item($id, "Polyethylene"));
-		self::register("chemical_potassium_chloride", fn(IID $id) => new Item($id, "Potassium Chloride"));
-		self::register("chemical_potassium_iodide", fn(IID $id) => new Item($id, "Potassium Iodide"));
-		self::register("chemical_rubbish", fn(IID $id) => new Item($id, "Rubbish"));
-		self::register("chemical_salt", fn(IID $id) => new Item($id, "Salt"));
-		self::register("chemical_soap", fn(IID $id) => new Item($id, "Soap"));
-		self::register("chemical_sodium_acetate", fn(IID $id) => new Item($id, "Sodium Acetate"));
-		self::register("chemical_sodium_fluoride", fn(IID $id) => new Item($id, "Sodium Fluoride"));
-		self::register("chemical_sodium_hydride", fn(IID $id) => new Item($id, "Sodium Hydride"));
-		self::register("chemical_sodium_hydroxide", fn(IID $id) => new Item($id, "Sodium Hydroxide"));
-		self::register("chemical_sodium_hypochlorite", fn(IID $id) => new Item($id, "Sodium Hypochlorite"));
-		self::register("chemical_sodium_oxide", fn(IID $id) => new Item($id, "Sodium Oxide"));
-		self::register("chemical_sugar", fn(IID $id) => new Item($id, "Sugar"));
-		self::register("chemical_sulphate", fn(IID $id) => new Item($id, "Sulphate"));
-		self::register("chemical_tungsten_chloride", fn(IID $id) => new Item($id, "Tungsten Chloride"));
-		self::register("chemical_water", fn(IID $id) => new Item($id, "Water"));
+		self::registerChemistryItem("chemical_aluminium_oxide", fn(IID $id) => new Item($id, "Aluminium Oxide"));
+		self::registerChemistryItem("chemical_ammonia", fn(IID $id) => new Item($id, "Ammonia"));
+		self::registerChemistryItem("chemical_barium_sulphate", fn(IID $id) => new Item($id, "Barium Sulphate"));
+		self::registerChemistryItem("chemical_benzene", fn(IID $id) => new Item($id, "Benzene"));
+		self::registerChemistryItem("chemical_boron_trioxide", fn(IID $id) => new Item($id, "Boron Trioxide"));
+		self::registerChemistryItem("chemical_calcium_bromide", fn(IID $id) => new Item($id, "Calcium Bromide"));
+		self::registerChemistryItem("chemical_calcium_chloride", fn(IID $id) => new Item($id, "Calcium Chloride"));
+		self::registerChemistryItem("chemical_cerium_chloride", fn(IID $id) => new Item($id, "Cerium Chloride"));
+		self::registerChemistryItem("chemical_charcoal", fn(IID $id) => new Item($id, "Charcoal"));
+		self::registerChemistryItem("chemical_crude_oil", fn(IID $id) => new Item($id, "Crude Oil"));
+		self::registerChemistryItem("chemical_glue", fn(IID $id) => new Item($id, "Glue"));
+		self::registerChemistryItem("chemical_hydrogen_peroxide", fn(IID $id) => new Item($id, "Hydrogen Peroxide"));
+		self::registerChemistryItem("chemical_hypochlorite", fn(IID $id) => new Item($id, "Hypochlorite"));
+		self::registerChemistryItem("chemical_ink", fn(IID $id) => new Item($id, "Ink"));
+		self::registerChemistryItem("chemical_iron_sulphide", fn(IID $id) => new Item($id, "Iron Sulphide"));
+		self::registerChemistryItem("chemical_latex", fn(IID $id) => new Item($id, "Latex"));
+		self::registerChemistryItem("chemical_lithium_hydride", fn(IID $id) => new Item($id, "Lithium Hydride"));
+		self::registerChemistryItem("chemical_luminol", fn(IID $id) => new Item($id, "Luminol"));
+		self::registerChemistryItem("chemical_magnesium_nitrate", fn(IID $id) => new Item($id, "Magnesium Nitrate"));
+		self::registerChemistryItem("chemical_magnesium_oxide", fn(IID $id) => new Item($id, "Magnesium Oxide"));
+		self::registerChemistryItem("chemical_magnesium_salts", fn(IID $id) => new Item($id, "Magnesium Salts"));
+		self::registerChemistryItem("chemical_mercuric_chloride", fn(IID $id) => new Item($id, "Mercuric Chloride"));
+		self::registerChemistryItem("chemical_polyethylene", fn(IID $id) => new Item($id, "Polyethylene"));
+		self::registerChemistryItem("chemical_potassium_chloride", fn(IID $id) => new Item($id, "Potassium Chloride"));
+		self::registerChemistryItem("chemical_potassium_iodide", fn(IID $id) => new Item($id, "Potassium Iodide"));
+		self::registerChemistryItem("chemical_rubbish", fn(IID $id) => new Item($id, "Rubbish"));
+		self::registerChemistryItem("chemical_salt", fn(IID $id) => new Item($id, "Salt"));
+		self::registerChemistryItem("chemical_soap", fn(IID $id) => new Item($id, "Soap"));
+		self::registerChemistryItem("chemical_sodium_acetate", fn(IID $id) => new Item($id, "Sodium Acetate"));
+		self::registerChemistryItem("chemical_sodium_fluoride", fn(IID $id) => new Item($id, "Sodium Fluoride"));
+		self::registerChemistryItem("chemical_sodium_hydride", fn(IID $id) => new Item($id, "Sodium Hydride"));
+		self::registerChemistryItem("chemical_sodium_hydroxide", fn(IID $id) => new Item($id, "Sodium Hydroxide"));
+		self::registerChemistryItem("chemical_sodium_hypochlorite", fn(IID $id) => new Item($id, "Sodium Hypochlorite"));
+		self::registerChemistryItem("chemical_sodium_oxide", fn(IID $id) => new Item($id, "Sodium Oxide"));
+		self::registerChemistryItem("chemical_sugar", fn(IID $id) => new Item($id, "Sugar"));
+		self::registerChemistryItem("chemical_sulphate", fn(IID $id) => new Item($id, "Sulphate"));
+		self::registerChemistryItem("chemical_tungsten_chloride", fn(IID $id) => new Item($id, "Tungsten Chloride"));
+		self::registerChemistryItem("chemical_water", fn(IID $id) => new Item($id, "Water"));
 		self::register("chorus_fruit", fn(IID $id) => new ChorusFruit($id, "Chorus Fruit"));
 		self::register("clay", fn(IID $id) => new Item($id, "Clay"));
 		self::register("clock", fn(IID $id) => new Clock($id, "Clock"));
@@ -552,7 +610,7 @@ final class VanillaItems{
 		self::register("heart_of_the_sea", fn(IID $id) => new Item($id, "Heart of the Sea"));
 		self::register("honey_bottle", fn(IID $id) => new HoneyBottle($id, "Honey Bottle"));
 		self::register("honeycomb", fn(IID $id) => new Item($id, "Honeycomb"));
-		self::register("ice_bomb", fn(IID $id) => new IceBomb($id, "Ice Bomb"));
+		self::registerChemistryItem("ice_bomb", fn(IID $id) => new IceBomb($id, "Ice Bomb"));
 		self::register("ink_sac", fn(IID $id) => new Item($id, "Ink Sac"));
 		self::register("iron_ingot", fn(IID $id) => new Item($id, "Iron Ingot"));
 		self::register("iron_nugget", fn(IID $id) => new Item($id, "Iron Nugget"));
@@ -565,7 +623,7 @@ final class VanillaItems{
 		self::register("magma_cream", fn(IID $id) => new Item($id, "Magma Cream"));
 		self::register("mangrove_sign", fn(IID $id) => new ItemBlockWallOrFloor($id, Blocks::MANGROVE_SIGN(), Blocks::MANGROVE_WALL_SIGN()));
 		self::register("mangrove_hanging_sign", fn(IID $id) => new HangingSign($id, "Mangrove Hanging Sign", Blocks::MANGROVE_CEILING_CENTER_HANGING_SIGN(), Blocks::MANGROVE_CEILING_EDGES_HANGING_SIGN(), Blocks::MANGROVE_WALL_HANGING_SIGN()));
-		self::register("medicine", fn(IID $id) => new Medicine($id, "Medicine"));
+		self::registerChemistryItem("medicine", fn(IID $id) => new Medicine($id, "Medicine"));
 		self::register("melon", fn(IID $id) => new Melon($id, "Melon"));
 		self::register("melon_seeds", fn(IID $id) => new MelonSeeds($id, "Melon Seeds"));
 		self::register("milk_bucket", fn(IID $id) => new MilkBucket($id, "Milk Bucket"));
@@ -595,6 +653,7 @@ final class VanillaItems{
 		self::register("popped_chorus_fruit", fn(IID $id) => new Item($id, "Popped Chorus Fruit"));
 		self::register("potato", fn(IID $id) => new Potato($id, "Potato"));
 		self::register("potion", fn(IID $id) => new Potion($id, "Potion"));
+		self::register("powder_snow_bucket", fn(IID $id) => new PowderSnowBucket($id, "Powder Snow Bucket"));
 		self::register("prismarine_crystals", fn(IID $id) => new Item($id, "Prismarine Crystals"));
 		self::register("prismarine_shard", fn(IID $id) => new Item($id, "Prismarine Shard"));
 		self::register("pufferfish", fn(IID $id) => new Pufferfish($id, "Pufferfish"));
@@ -676,6 +735,31 @@ final class VanillaItems{
 				return new Zombie(Location::fromObject($pos, $world, $yaw, $pitch));
 			}
 		});
+		self::register("chicken_spawn_egg", fn(IID $id) => new class($id, "Chicken Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
+				return new Chicken(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
+		self::register("bee_spawn_egg", fn(IID $id) => new class($id, "Bee Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
+				return new Bee(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
+		self::register("ghast_spawn_egg", fn(IID $id) => new class($id, "Ghast Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
+				return new Ghast(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
+		self::register("happy_ghast_spawn_egg", fn(IID $id) => new class($id, "Happy Ghast Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
+				return new HappyGhast(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
+		self::register("sniffer_spawn_egg", fn(IID $id) => new class($id, "Sniffer Spawn Egg") extends SpawnEgg{
+			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
+				return new Sniffer(Location::fromObject($pos, $world, $yaw, $pitch));
+			}
+		});
 		self::register("squid_spawn_egg", fn(IID $id) => new class($id, "Squid Spawn Egg") extends SpawnEgg{
 			protected function createEntity(World $world, Vector3 $pos, float $yaw, float $pitch) : Entity{
 				return new Squid(Location::fromObject($pos, $world, $yaw, $pitch));
@@ -703,6 +787,7 @@ final class VanillaItems{
 			self::register($idPrefix . "_pickaxe", fn(IID $id) => new Pickaxe($id, $namePrefix . " Pickaxe", $tier, [EnchantmentTags::PICKAXE]));
 			self::register($idPrefix . "_shovel", fn(IID $id) => new Shovel($id, $namePrefix . " Shovel", $tier, [EnchantmentTags::SHOVEL]));
 			self::register($idPrefix . "_sword", fn(IID $id) => new Sword($id, $namePrefix . " Sword", $tier, [EnchantmentTags::SWORD]));
+			self::register($idPrefix . "_spear", fn(IID $id) => new Spear($id, $namePrefix . " Spear", $tier, [EnchantmentTags::SPEAR]));
 		}
 	}
 

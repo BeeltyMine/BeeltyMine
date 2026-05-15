@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\entity\projectile;
 
+use pocketmine\BeeltySettings;
 use pocketmine\block\Block;
 use pocketmine\block\BlockTypeIds;
 use pocketmine\block\VanillaBlocks;
@@ -57,7 +58,7 @@ class IceBomb extends Throwable{
 		$pos = $this->location;
 
 		$world->addSound($pos, new IceBombHitSound());
-		$itemBreakParticle = new ItemBreakParticle(VanillaItems::ICE_BOMB());
+		$itemBreakParticle = new ItemBreakParticle(BeeltySettings::chemistryItemsEnabled() ? VanillaItems::ICE_BOMB() : VanillaItems::SNOWBALL());
 		for($i = 0; $i < 6; ++$i){
 			$world->addParticle($pos, $itemBreakParticle);
 		}

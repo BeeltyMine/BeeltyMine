@@ -1,22 +1,22 @@
 <?php
 
 /*
- *
- *  ____            _        _   __  __ _                  __  __ ____
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
- * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
+ *     ____            ____        __  ____
+ *    / __ )___  ___  / / /___  __/  |/  (_)___  ___
+ *   / __  / _ \/ _ \/ / __/ / / / /|_/ / / __ \/ _ \
+ *  / /_/ /  __/  __/ / /_/ /_/ / /  / / / / / /  __/
+ * /_____/\___/\___/_/\__/\__, /_/  /_/_/_/ /_/\___/
+ *                       /____/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author PocketMine Team
- * @link http://www.pocketmine.net/
- *
- *
+ * @author Ayrz
+ * @team BeeltyMine
+ * 
+ * 
  */
 
 declare(strict_types=1);
@@ -31,6 +31,8 @@ use pocketmine\block\tile\Beacon as BeaconTile;
 use pocketmine\block\tile\Sign;
 use pocketmine\block\utils\SignText;
 use pocketmine\entity\Attribute;
+use pocketmine\entity\Entity;
+use pocketmine\entity\HappyGhast;
 use pocketmine\entity\InvalidSkinException;
 use pocketmine\event\player\PlayerEditBookEvent;
 use pocketmine\inventory\transaction\action\DropItemAction;
@@ -38,7 +40,10 @@ use pocketmine\inventory\transaction\InventoryTransaction;
 use pocketmine\inventory\transaction\TransactionBuilder;
 use pocketmine\inventory\transaction\TransactionCancelledException;
 use pocketmine\inventory\transaction\TransactionValidationException;
+use pocketmine\item\Chargeable;
+use pocketmine\item\Releasable;
 use pocketmine\item\VanillaItems;
+use pocketmine\item\Spear;
 use pocketmine\item\WritableBook;
 use pocketmine\item\WritableBookPage;
 use pocketmine\item\WrittenBook;
@@ -82,6 +87,7 @@ use pocketmine\network\mcpe\protocol\SpawnExperienceOrbPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
+use pocketmine\network\mcpe\protocol\types\inventory\ContainerUIIds;
 use pocketmine\network\mcpe\protocol\types\inventory\MismatchTransactionData;
 use pocketmine\network\mcpe\protocol\types\inventory\NetworkInventoryAction;
 use pocketmine\network\mcpe\protocol\types\inventory\NormalTransactionData;
@@ -101,6 +107,9 @@ use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\Limits;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
+use pocketmine\world\sound\BundleInsertFailSound;
+use pocketmine\world\sound\BundleInsertSound;
+use pocketmine\world\sound\BundleRemoveOneSound;
 use pocketmine\world\beacon\BeaconEffects;
 use pocketmine\world\beacon\BeaconStructure;
 use pocketmine\world\format\Chunk;
@@ -135,6 +144,8 @@ use const JSON_THROW_ON_ERROR;
 class InGamePacketHandler extends PacketHandler{
 	private const MAX_FORM_RESPONSE_SIZE = 10 * 1024; //10 KiB should be more than enough
 	private const MAX_FORM_RESPONSE_DEPTH = 2; //modal/simple will be 1, custom forms 2 - they will never contain anything other than string|int|float|bool|null
+	private const SPEAR_TRACE_FALLBACK_MIN_DOT = 0.55;
+	private const SNOWBALL_AIR_SUPPRESSION_WINDOW = 0.2;
 
 	//TODO: The client-side per-page character limit is inconsistent for non-ASCII text,
 	//allowing input beyond 256 chars. Use a slightly higher bounded soft limit to
@@ -143,6 +154,7 @@ class InGamePacketHandler extends PacketHandler{
 
 	protected float $lastRightClickTime = 0.0;
 	protected ?UseItemTransactionData $lastRightClickData = null;
+	protected float $suppressSnowballClickAirUntil = 0.0;
 
 	protected ?Vector3 $lastPlayerAuthInputPosition = null;
 	protected ?float $lastPlayerAuthInputYaw = null;
@@ -341,6 +353,9 @@ class InGamePacketHandler extends PacketHandler{
 		//a legacy prediction action for the destination armor slot.
 		foreach($packet->requestChangedSlots as $containerInfo){
 			foreach($containerInfo->getChangedSlotIndexes() as $netSlot){
+				if($containerInfo->getContainerId() === ContainerUIIds::DYNAMIC){
+					continue;
+				}
 				[$windowId, $slot] = ItemStackContainerIdTranslator::translate($containerInfo->getContainerId(), $this->inventoryManager->getCurrentWindowId(), $netSlot);
 				$inventoryAndSlot = $this->inventoryManager->locateWindowAndSlot($windowId, $slot);
 				if($inventoryAndSlot !== null){ //trigger the normal slot sync logic
@@ -610,22 +625,177 @@ class InGamePacketHandler extends PacketHandler{
 				}
 				return true;
 			case UseItemTransactionData::ACTION_CLICK_AIR:
+				if($this->shouldSuppressSnowballClickAirAfterEntityFeed()){
+					return true;
+				}
+				if($this->player->shouldIgnoreChargeableClickAir()){
+					return true;
+				}
+				if($this->shouldSuppressSnowballThrowForBabyHappyGhastFeed()){
+					return true;
+				}
 				if($this->player->isUsingItem()){
-					if(!$this->player->consumeHeldItem()){
+					if($this->player->getInventory()->getItemInHand() instanceof Chargeable){
+						return true;
+					}elseif(!$this->player->consumeHeldItem()){
 						$hungerAttr = $this->player->getAttributeMap()->get(Attribute::HUNGER) ?? throw new AssumptionFailedError();
 						$hungerAttr->markSynchronized(false);
 					}
-					//TODO: workaround goat horns getting stuck in the "using item" state
-					//this timed-trigger behaviour is also used for other items apart from food
-					//in the future we'll generalise this logic and add proper hooks for it
-					$this->player->setUsingItem(false);
 					return true;
 				}
 				$this->player->useHeldItem();
 				return true;
+			case UseItemTransactionData::ACTION_USE_AS_ATTACK:
+				$heldItem = $this->player->getInventory()->getItemInHand();
+				if($heldItem instanceof Spear){
+					return $this->executeSpearJab();
+				}
+				return $this->player->useHeldItem();
 		}
 
 		return false;
+	}
+
+	private function shouldSuppressSnowballClickAirAfterEntityFeed() : bool{
+		if(microtime(true) > $this->suppressSnowballClickAirUntil){
+			return false;
+		}
+
+		return $this->player->getInventory()->getItemInHand()->getTypeId() === VanillaItems::SNOWBALL()->getTypeId();
+	}
+
+	private function shouldSuppressSnowballThrowForBabyHappyGhastFeed() : bool{
+		$itemInHand = $this->player->getInventory()->getItemInHand();
+		if($itemInHand->getTypeId() !== VanillaItems::SNOWBALL()->getTypeId()){
+			return false;
+		}
+
+		$maxDistance = 10.0;
+		$eyePos = $this->player->getEyePos();
+		$direction = $this->player->getDirectionVector()->normalize();
+		$traceEnd = $eyePos->addVector($direction->multiply($maxDistance));
+		$searchBox = $this->player->getBoundingBox()->expandedCopy($maxDistance, $maxDistance, $maxDistance);
+
+		foreach($this->player->getWorld()->getNearbyEntities($searchBox, $this->player) as $entity){
+			if(!($entity instanceof HappyGhast) || !$entity->isBaby() || !$entity->isAlive() || $entity->isFlaggedForDespawn()){
+				continue;
+			}
+			if(!$this->player->canInteract($entity->getLocation(), $maxDistance)){
+				continue;
+			}
+
+			$targetPos = $entity->getPosition()->add(0, $entity->size->getHeight() / 2, 0);
+			$toEntity = $targetPos->subtractVector($eyePos);
+			if($toEntity->lengthSquared() <= 0.0001){
+				return true;
+			}
+			if($entity->getBoundingBox()->expandedCopy(0.5, 0.5, 0.5)->calculateIntercept($eyePos, $traceEnd) === null){
+				continue;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private function executeSpearJab(?Entity $prioritizedTarget = null) : bool{
+		$heldItem = $this->player->getInventory()->getItemInHand();
+		if(!($heldItem instanceof Spear)){
+			return false;
+		}
+
+		if($this->player->hasItemCooldown($heldItem)){
+			$this->player->missSwing();
+			return true;
+		}
+
+		$lungeActivated = $heldItem->activateLunge($this->player);
+
+		$targets = $this->findSpearJabTargets($heldItem, $prioritizedTarget);
+		$this->player->resetItemCooldown($heldItem, $heldItem->getJabCooldownTicks());
+
+		if(count($targets) === 0){
+			if($lungeActivated){
+				$currentHeldItem = $this->player->getInventory()->getItemInHand();
+				if($currentHeldItem instanceof Spear){
+					$currentHeldItem->applyDamage(1);
+					$this->player->getInventory()->setItemInHand($currentHeldItem);
+				}
+			}
+			$this->player->missSwing();
+			return true;
+		}
+
+		$damaged = false;
+		foreach($targets as $target){
+			$damaged = $this->player->attackEntity($target) || $damaged;
+		}
+
+		if($lungeActivated){
+			$currentHeldItem = $this->player->getInventory()->getItemInHand();
+			if($currentHeldItem instanceof Spear){
+				$currentHeldItem->applyDamage(1);
+				$this->player->getInventory()->setItemInHand($currentHeldItem);
+			}
+		}
+
+		if(!$damaged){
+			$this->player->missSwing();
+		}
+
+		return true;
+	}
+
+	/**
+	 * @return Entity[]
+	 */
+	private function findSpearJabTargets(Spear $spear, ?Entity $prioritizedTarget = null) : array{
+		$eyePos = $this->player->getEyePos();
+		$direction = $this->player->getDirectionVector()->normalize();
+		$traceEnd = $eyePos->addVector($direction->multiply($spear->getJabMaxDistance()));
+		$searchRadius = $spear->getJabMaxDistance() + $spear->getJabHitboxMargin();
+		$searchBox = $this->player->getBoundingBox()->expandedCopy($searchRadius, $searchRadius, $searchRadius);
+
+		$candidates = [];
+		foreach($this->player->getWorld()->getNearbyEntities($searchBox, $this->player) as $entity){
+			if(!$entity->isAlive() || $entity->isFlaggedForDespawn()){
+				continue;
+			}
+
+			$targetPos = $entity->getPosition()->add(0, $entity->size->getHeight() / 2, 0);
+			$distance = $eyePos->distance($targetPos);
+			if($distance > $spear->getJabMaxDistance() || $distance < $spear->getJabMinDistance()){
+				continue;
+			}
+
+			$expandedHitBox = $entity->getBoundingBox()->expandedCopy($spear->getJabHitboxMargin(), $spear->getJabHitboxMargin(), $spear->getJabHitboxMargin());
+			if($expandedHitBox->calculateIntercept($eyePos, $traceEnd) === null){
+				if($prioritizedTarget !== $entity){
+					continue;
+				}
+
+				$toEntity = $targetPos->subtractVector($eyePos)->normalize();
+				if($direction->dot($toEntity) < self::SPEAR_TRACE_FALLBACK_MIN_DOT){
+					continue;
+				}
+			}
+
+			$candidates[] = [
+				"entity" => $entity,
+				"distance" => $distance,
+				"priority" => $prioritizedTarget === $entity ? -1 : 0,
+			];
+		}
+
+		usort($candidates, static fn(array $a, array $b) : int => ($a["priority"] <=> $b["priority"]) ?: ($a["distance"] <=> $b["distance"]));
+
+		$targets = [];
+		foreach($candidates as $candidate){
+			$targets[] = $candidate["entity"];
+		}
+
+		return $targets;
 	}
 
 	/**
@@ -669,9 +839,35 @@ class InGamePacketHandler extends PacketHandler{
 
 		switch($data->getActionType()){
 			case UseItemOnEntityTransactionData::ACTION_INTERACT:
-				$this->player->interactEntity($target, $data->getClickPosition());
+				$heldItem = $this->player->getInventory()->getItemInHand();
+				if($heldItem instanceof Spear){
+					if(!$this->player->isUsingItem()){
+						$this->player->useHeldItem();
+					}
+					return true;
+				}
+				if($heldItem instanceof Releasable && $this->player->isUsingItem()){
+					return true;
+				}
+				$interacted = $this->player->interactEntity($target, $data->getClickPosition());
+				if(
+					$interacted &&
+					$heldItem->getTypeId() === VanillaItems::SNOWBALL()->getTypeId() &&
+					$target instanceof HappyGhast &&
+					$target->isBaby()
+				){
+					$this->suppressSnowballClickAirUntil = microtime(true) + self::SNOWBALL_AIR_SUPPRESSION_WINDOW;
+				}
+				if(!$interacted && $heldItem instanceof Releasable){
+					return $this->player->useHeldItem();
+				}
 				return true;
 			case UseItemOnEntityTransactionData::ACTION_ATTACK:
+				$heldItem = $this->player->getInventory()->getItemInHand();
+				if($heldItem instanceof Spear){
+					return $this->executeSpearJab($target);
+				}
+
 				$this->player->attackEntity($target);
 				return true;
 		}
@@ -717,6 +913,17 @@ class InGamePacketHandler extends PacketHandler{
 			$this->session->getLogger()->debug("ItemStackRequest #" . $request->getRequestId() . " failed: " . $e->getMessage());
 			$this->session->getLogger()->debug(implode("\n", Utils::printableExceptionInfo($e)));
 			$this->inventoryManager->requestSyncAll();
+		}
+
+		if($result){
+			if($executor->shouldPlayBundleInsertSound()){
+				$this->player->broadcastSound(new BundleInsertSound());
+			}
+			if($executor->shouldPlayBundleRemoveSound()){
+				$this->player->broadcastSound(new BundleRemoveOneSound());
+			}
+		}elseif($executor->hasBundleInsertRequest()){
+			$this->player->broadcastSound(new BundleInsertFailSound());
 		}
 
 		return $result ? $executor->getItemStackResponseBuilder() : null;

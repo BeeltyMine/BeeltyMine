@@ -34,6 +34,7 @@ use pocketmine\utils\RegistryTrait;
  * @generate-registry-docblock
  *
  * @method static Enchantment AQUA_AFFINITY()
+ * @method static BaneOfArthropodsEnchantment BANE_OF_ARTHROPODS()
  * @method static ProtectionEnchantment BLAST_PROTECTION()
  * @method static Enchantment EFFICIENCY()
  * @method static ProtectionEnchantment FEATHER_FALLING()
@@ -44,14 +45,19 @@ use pocketmine\utils\RegistryTrait;
  * @method static Enchantment FROST_WALKER()
  * @method static Enchantment INFINITY()
  * @method static KnockbackEnchantment KNOCKBACK()
+ * @method static Enchantment LUNGE()
+ * @method static Enchantment LOOTING()
  * @method static Enchantment MENDING()
+ * @method static Enchantment MULTISHOT()
  * @method static Enchantment POWER()
  * @method static ProtectionEnchantment PROJECTILE_PROTECTION()
  * @method static ProtectionEnchantment PROTECTION()
  * @method static Enchantment PUNCH()
+ * @method static Enchantment QUICK_CHARGE()
  * @method static Enchantment RESPIRATION()
  * @method static SharpnessEnchantment SHARPNESS()
  * @method static Enchantment SILK_TOUCH()
+ * @method static SmiteEnchantment SMITE()
  * @method static Enchantment SWIFT_SNEAK()
  * @method static Enchantment THORNS()
  * @method static Enchantment UNBREAKING()
@@ -175,6 +181,24 @@ final class VanillaEnchantments{
 			fn(int $level) : int => 11 * ($level - 1) + 1,
 			20
 		));
+		self::register("SMITE", new SmiteEnchantment(
+			KnownTranslationFactory::enchantment_damage_undead(),
+			Rarity::UNCOMMON,
+			0,
+			0,
+			5,
+			fn(int $level) : int => 8 * ($level - 1) + 5,
+			20
+		));
+		self::register("BANE_OF_ARTHROPODS", new BaneOfArthropodsEnchantment(
+			KnownTranslationFactory::enchantment_damage_arthropods(),
+			Rarity::UNCOMMON,
+			0,
+			0,
+			5,
+			fn(int $level) : int => 8 * ($level - 1) + 5,
+			20
+		));
 		self::register("KNOCKBACK", new KnockbackEnchantment(
 			KnownTranslationFactory::enchantment_knockback(),
 			Rarity::UNCOMMON,
@@ -193,7 +217,24 @@ final class VanillaEnchantments{
 			fn(int $level) : int => 20 * ($level - 1) + 10,
 			50
 		));
-		//TODO: smite, bane of arthropods, looting (these don't make sense now because their applicable mobs don't exist yet)
+		self::register("LOOTING", new Enchantment(
+			KnownTranslationFactory::enchantment_lootBonus(),
+			Rarity::RARE,
+			0,
+			0,
+			3,
+			fn(int $level) : int => 9 * ($level - 1) + 15,
+			50
+		));
+		self::register("LUNGE", new Enchantment(
+			"Lunge",
+			Rarity::UNCOMMON,
+			0,
+			0,
+			3,
+			fn(int $level) : int => 10 * ($level - 1) + 12,
+			25
+		));
 
 		self::register("EFFICIENCY", new Enchantment(
 			KnownTranslationFactory::enchantment_digging(),
@@ -267,6 +308,24 @@ final class VanillaEnchantments{
 			1,
 			fn(int $level) : int => 20,
 			30
+		));
+		self::register("MULTISHOT", new Enchantment(
+			KnownTranslationFactory::enchantment_crossbowMultishot(),
+			Rarity::RARE,
+			0,
+			0,
+			1,
+			fn(int $level) : int => 20,
+			30
+		));
+		self::register("QUICK_CHARGE", new Enchantment(
+			KnownTranslationFactory::enchantment_crossbowQuickCharge(),
+			Rarity::COMMON,
+			0,
+			0,
+			3,
+			fn(int $level) : int => 20 * ($level - 1) + 12,
+			50
 		));
 
 		self::register("MENDING", new Enchantment(

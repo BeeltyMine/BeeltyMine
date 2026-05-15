@@ -27,15 +27,19 @@ use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 
-final class WaterSplashSound implements Sound{
 
-	public function __construct(private float $volume){
-		if($volume < 0 || $volume > 1){
+final class WaterSplashSound implements Sound
+{
+
+	public function __construct(private float $volume)
+	{
+		if ($volume < 0 || $volume > 1) {
 			throw new \InvalidArgumentException("Volume must be between 0 and 1");
 		}
 	}
 
-	public function encode(Vector3 $pos) : array{
+	public function encode(Vector3 $pos): array
+	{
 		return [LevelSoundEventPacket::create(
 			LevelSoundEvent::SPLASH,
 			$pos,
@@ -43,7 +47,8 @@ final class WaterSplashSound implements Sound{
 			":",
 			false,
 			false,
-			-1
+			-1,
+			null
 		)];
 	}
 }

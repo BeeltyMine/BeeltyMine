@@ -32,10 +32,12 @@ use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
  * Played when an entity hits ground after falling a long distance (damage).
  * This is the bone-breaker "crunch" sound.
  */
-class EntityLongFallSound implements Sound{
-	public function __construct(private Entity $entity){}
+class EntityLongFallSound implements Sound
+{
+	public function __construct(private Entity $entity) {}
 
-	public function encode(Vector3 $pos) : array{
+	public function encode(Vector3 $pos): array
+	{
 		return [LevelSoundEventPacket::create(
 			LevelSoundEvent::FALL_BIG,
 			$pos,
@@ -43,7 +45,8 @@ class EntityLongFallSound implements Sound{
 			$this->entity::getNetworkTypeId(),
 			false, //TODO: is isBaby relevant here?
 			false,
-			$this->entity->getId()
+			$this->entity->getId(),
+			null
 		)];
 	}
 }

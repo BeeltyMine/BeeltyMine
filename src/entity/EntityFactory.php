@@ -195,6 +195,26 @@ final class EntityFactory{
 			'ThrownTrident' //as above
 		]);
 
+		$this->register(Bee::class, function(World $world, CompoundTag $nbt) : Bee{
+			return new Bee(Helper::parseLocation($nbt, $world), $nbt);
+		}, ['Bee', 'minecraft:bee']);
+
+		$this->register(Chicken::class, function(World $world, CompoundTag $nbt) : Chicken{
+			return new Chicken(Helper::parseLocation($nbt, $world), $nbt);
+		}, ['Chicken', 'minecraft:chicken']);
+
+		$this->register(Ghast::class, function(World $world, CompoundTag $nbt) : Ghast{
+			return new Ghast(Helper::parseLocation($nbt, $world), $nbt);
+		}, ['Ghast', 'minecraft:ghast']);
+
+		$this->register(HappyGhast::class, function(World $world, CompoundTag $nbt) : HappyGhast{
+			return new HappyGhast(Helper::parseLocation($nbt, $world), $nbt);
+		}, ['HappyGhast', 'minecraft:happy_ghast']);
+
+		$this->register(Sniffer::class, function(World $world, CompoundTag $nbt) : Sniffer{
+			return new Sniffer(Helper::parseLocation($nbt, $world), $nbt);
+		}, ['Sniffer', 'minecraft:sniffer']);
+
 		$this->register(Squid::class, function(World $world, CompoundTag $nbt) : Squid{
 			return new Squid(Helper::parseLocation($nbt, $world), $nbt);
 		}, ['Squid', 'minecraft:squid']);

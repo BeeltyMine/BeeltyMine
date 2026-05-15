@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\item;
 
+use pocketmine\BeeltySettings;
 use pocketmine\block\AmethystCluster;
 use pocketmine\block\Block;
 use pocketmine\block\Light;
@@ -46,10 +47,12 @@ use function strtolower;
  *
  * @phpstan-extends StringToTParser<Item>
  */
-final class StringToItemParser extends StringToTParser{
+final class StringToItemParser extends StringToTParser
+{
 	use SingletonTrait;
 
-	private static function make() : self{
+	private static function make(): self
+	{
 		$result = new self();
 
 		self::registerDynamicBlocks($result);
@@ -60,8 +63,9 @@ final class StringToItemParser extends StringToTParser{
 		return $result;
 	}
 
-	private static function registerDynamicBlocks(self $result) : void{
-		foreach(DyeColor::cases() as $color){
+	private static function registerDynamicBlocks(self $result): void
+	{
+		foreach (DyeColor::cases() as $color) {
 			$register = fn(string $name, \Closure $callback) => $result->registerBlock(strtolower($color->name) . "_" . $name, $callback);
 			//wall and floor banner are the same item
 			$register("banner", fn() => Blocks::BANNER()->setColor($color));
@@ -80,23 +84,23 @@ final class StringToItemParser extends StringToTParser{
 			$register("shulker_box", fn() => Blocks::DYED_SHULKER_BOX()->setColor($color));
 		}
 
-		foreach(CoralType::cases() as $coralType){
+		foreach (CoralType::cases() as $coralType) {
 			$register = fn(string $name, \Closure $callback) => $result->registerBlock(strtolower($coralType->name) . "_" . $name, $callback);
 			$register("coral", fn() => Blocks::CORAL()->setCoralType($coralType));
 			$register("coral_block", fn() => Blocks::CORAL_BLOCK()->setCoralType($coralType));
 			//wall and floor coral fans are the same item
 			$register("coral_fan", fn() => Blocks::CORAL_FAN()->setCoralType($coralType));
 		}
-		for($i = Light::MIN_LIGHT_LEVEL; $i <= Light::MAX_LIGHT_LEVEL; $i++){
+		for ($i = Light::MIN_LIGHT_LEVEL; $i <= Light::MAX_LIGHT_LEVEL; $i++) {
 			//helper aliases, since we don't support passing data values in /give
 			$result->registerBlock("light_$i", fn() => Blocks::LIGHT()->setLightLevel($i));
 			$result->registerBlock("light_block_$i", fn() => Blocks::LIGHT()->setLightLevel($i));
 		}
 
-		foreach(CopperOxidation::cases() as $oxidation){
+		foreach (CopperOxidation::cases() as $oxidation) {
 			$oxPrefix = $oxidation === CopperOxidation::NONE ? "" : strtolower($oxidation->name) . "_";
 
-			foreach(["" => false, "waxed_" => true] as $waxedPrefix => $waxed){
+			foreach (["" => false, "waxed_" => true] as $waxedPrefix => $waxed) {
 				$register = fn(string $name, \Closure $callback) => $result->registerBlock($waxedPrefix . $oxPrefix . $name, $callback);
 				$register("copper_block", fn() => Blocks::COPPER()->setOxidation($oxidation)->setWaxed($waxed));
 				$register("chiseled_copper", fn() => Blocks::CHISELED_COPPER()->setOxidation($oxidation)->setWaxed($waxed));
@@ -114,12 +118,13 @@ final class StringToItemParser extends StringToTParser{
 			}
 		}
 
-		foreach(FroglightType::cases() as $froglightType){
+		foreach (FroglightType::cases() as $froglightType) {
 			$result->registerBlock(strtolower($froglightType->name) . "_froglight", fn() => Blocks::FROGLIGHT()->setFroglightType($froglightType));
 		}
 	}
 
-	private static function registerBlocks(self $result) : void{
+	private static function registerBlocks(self $result): void
+	{
 		$result->registerBlock("acacia_button", fn() => Blocks::ACACIA_BUTTON());
 		$result->registerBlock("acacia_door", fn() => Blocks::ACACIA_DOOR());
 		$result->registerBlock("acacia_door_block", fn() => Blocks::ACACIA_DOOR());
@@ -261,8 +266,10 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("cherry_stairs", fn() => Blocks::CHERRY_STAIRS());
 		$result->registerBlock("cherry_trapdoor", fn() => Blocks::CHERRY_TRAPDOOR());
 		$result->registerBlock("cherry_wood", fn() => Blocks::CHERRY_WOOD());
-		$result->registerBlock("chemical_heat", fn() => Blocks::CHEMICAL_HEAT());
-		$result->registerBlock("chemistry_table", fn() => Blocks::COMPOUND_CREATOR());
+		if(BeeltySettings::chemistryBlocksEnabled()){
+			$result->registerBlock("chemical_heat", fn() => Blocks::CHEMICAL_HEAT());
+			$result->registerBlock("chemistry_table", fn() => Blocks::COMPOUND_CREATOR());
+		}
 		$result->registerBlock("chest", fn() => Blocks::CHEST());
 		$result->registerBlock("chipped_anvil", fn() => Blocks::ANVIL()->setDamage(1));
 		$result->registerBlock("chiseled_bookshelf", fn() => Blocks::CHISELED_BOOKSHELF());
@@ -302,7 +309,9 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("colored_torch_rg", fn() => Blocks::RED_TORCH());
 		$result->registerBlock("comparator", fn() => Blocks::REDSTONE_COMPARATOR());
 		$result->registerBlock("comparator_block", fn() => Blocks::REDSTONE_COMPARATOR());
-		$result->registerBlock("compound_creator", fn() => Blocks::COMPOUND_CREATOR());
+		if(BeeltySettings::chemistryBlocksEnabled()){
+			$result->registerBlock("compound_creator", fn() => Blocks::COMPOUND_CREATOR());
+		}
 		$result->registerBlock("concrete", fn() => Blocks::CONCRETE());
 		$result->registerBlock("concrete_powder", fn() => Blocks::CONCRETE_POWDER());
 		$result->registerBlock("concretepowder", fn() => Blocks::CONCRETE_POWDER());
@@ -346,6 +355,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("cut_sandstone_slab", fn() => Blocks::CUT_SANDSTONE_SLAB());
 		$result->registerBlock("damaged_anvil", fn() => Blocks::ANVIL()->setDamage(2));
 		$result->registerBlock("dandelion", fn() => Blocks::DANDELION());
+		$result->registerBlock("golden_dandelion", fn() => Blocks::GOLDEN_DANDELION());
 		$result->registerBlock("dark_oak_button", fn() => Blocks::DARK_OAK_BUTTON());
 		$result->registerBlock("dark_oak_door", fn() => Blocks::DARK_OAK_DOOR());
 		$result->registerBlock("dark_oak_door_block", fn() => Blocks::DARK_OAK_DOOR());
@@ -423,12 +433,15 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("double_wooden_slabs", fn() => Blocks::OAK_SLAB()->setSlabType(SlabType::DOUBLE));
 		$result->registerBlock("dragon_egg", fn() => Blocks::DRAGON_EGG());
 		$result->registerBlock("dragon_head", fn() => Blocks::MOB_HEAD()->setMobHeadType(MobHeadType::DRAGON));
+		$result->registerBlock("dried_ghast", fn() => Blocks::DRIED_GHAST());
+		$result->registerBlock("sniffer_egg", fn() => Blocks::SNIFFER_EGG());
 		$result->registerBlock("dried_kelp_block", fn() => Blocks::DRIED_KELP());
 		$result->registerBlock("dripstone_block", fn() => Blocks::DRIPSTONE_BLOCK());
 		$result->registerBlock("dyed_shulker_box", fn() => Blocks::DYED_SHULKER_BOX());
-		$result->registerBlock("element_0", fn() => Blocks::ELEMENT_ZERO());
-		$result->registerBlock("element_1", fn() => Blocks::ELEMENT_HYDROGEN());
-		$result->registerBlock("element_10", fn() => Blocks::ELEMENT_NEON());
+		if(BeeltySettings::chemistryBlocksEnabled()){
+			$result->registerBlock("element_0", fn() => Blocks::ELEMENT_ZERO());
+			$result->registerBlock("element_1", fn() => Blocks::ELEMENT_HYDROGEN());
+			$result->registerBlock("element_10", fn() => Blocks::ELEMENT_NEON());
 		$result->registerBlock("element_100", fn() => Blocks::ELEMENT_FERMIUM());
 		$result->registerBlock("element_101", fn() => Blocks::ELEMENT_MENDELEVIUM());
 		$result->registerBlock("element_102", fn() => Blocks::ELEMENT_NOBELIUM());
@@ -568,7 +581,6 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("element_chlorine", fn() => Blocks::ELEMENT_CHLORINE());
 		$result->registerBlock("element_chromium", fn() => Blocks::ELEMENT_CHROMIUM());
 		$result->registerBlock("element_cobalt", fn() => Blocks::ELEMENT_COBALT());
-		$result->registerBlock("element_constructor", fn() => Blocks::ELEMENT_CONSTRUCTOR());
 		$result->registerBlock("element_copernicium", fn() => Blocks::ELEMENT_COPERNICIUM());
 		$result->registerBlock("element_copper", fn() => Blocks::ELEMENT_COPPER());
 		$result->registerBlock("element_curium", fn() => Blocks::ELEMENT_CURIUM());
@@ -664,7 +676,8 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("element_yttrium", fn() => Blocks::ELEMENT_YTTRIUM());
 		$result->registerBlock("element_zero", fn() => Blocks::ELEMENT_ZERO());
 		$result->registerBlock("element_zinc", fn() => Blocks::ELEMENT_ZINC());
-		$result->registerBlock("element_zirconium", fn() => Blocks::ELEMENT_ZIRCONIUM());
+			$result->registerBlock("element_zirconium", fn() => Blocks::ELEMENT_ZIRCONIUM());
+		}
 		$result->registerBlock("emerald_block", fn() => Blocks::EMERALD());
 		$result->registerBlock("emerald_ore", fn() => Blocks::EMERALD_ORE());
 		$result->registerBlock("enchant_table", fn() => Blocks::ENCHANTING_TABLE());
@@ -792,7 +805,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("jungle_wood", fn() => Blocks::JUNGLE_WOOD()->setStripped(false));
 		$result->registerBlock("jungle_wood_stairs", fn() => Blocks::JUNGLE_STAIRS());
 		$result->registerBlock("jungle_wooden_stairs", fn() => Blocks::JUNGLE_STAIRS());
-		$result->registerBlock("lab_table", fn() => Blocks::LAB_TABLE());
+	
 		$result->registerBlock("ladder", fn() => Blocks::LADDER());
 		$result->registerBlock("lantern", fn() => Blocks::LANTERN());
 		$result->registerBlock("lapis_block", fn() => Blocks::LAPIS_LAZULI());
@@ -843,7 +856,9 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("mangrove_stairs", fn() => Blocks::MANGROVE_STAIRS());
 		$result->registerBlock("mangrove_trapdoor", fn() => Blocks::MANGROVE_TRAPDOOR());
 		$result->registerBlock("mangrove_wood", fn() => Blocks::MANGROVE_WOOD()->setStripped(false));
-		$result->registerBlock("material_reducer", fn() => Blocks::MATERIAL_REDUCER());
+		if(BeeltySettings::chemistryBlocksEnabled()){
+			$result->registerBlock("material_reducer", fn() => Blocks::MATERIAL_REDUCER());
+		}
 		$result->registerBlock("medium_amethyst_bud", fn() => Blocks::AMETHYST_CLUSTER()->setStage(AmethystCluster::STAGE_MEDIUM_BUD));
 		$result->registerBlock("melon_block", fn() => Blocks::MELON());
 		$result->registerBlock("melon_stem", fn() => Blocks::MELON_STEM());
@@ -1268,26 +1283,27 @@ final class StringToItemParser extends StringToTParser{
 		$result->registerBlock("zombie_head", fn() => Blocks::MOB_HEAD()->setMobHeadType(MobHeadType::ZOMBIE));
 	}
 
-	private static function registerDynamicItems(self $result) : void{
-		foreach(DyeColor::cases() as $color){
+	private static function registerDynamicItems(self $result): void
+	{
+		foreach (DyeColor::cases() as $color) {
 			$prefix = fn(string $name) => strtolower($color->name) . "_" . $name;
 
 			$result->register($prefix("dye"), fn() => Items::DYE()->setColor($color));
 		}
 
-		foreach(GoatHornType::cases() as $goatHornType){
+		foreach (GoatHornType::cases() as $goatHornType) {
 			$prefix = fn(string $name) => strtolower($goatHornType->name) . "_" . $name;
 
 			$result->register($prefix("goat_horn"), fn() => Items::GOAT_HORN()->setHornType($goatHornType));
 		}
 
-		foreach(SuspiciousStewType::cases() as $suspiciousStewType){
+		foreach (SuspiciousStewType::cases() as $suspiciousStewType) {
 			$prefix = fn(string $name) => strtolower($suspiciousStewType->name) . "_" . $name;
 
 			$result->register($prefix("suspicious_stew"), fn() => Items::SUSPICIOUS_STEW()->setType($suspiciousStewType));
 		}
 
-		foreach(PotionType::cases() as $potionType){
+		foreach (PotionType::cases() as $potionType) {
 			$prefix = fn(string $name) => strtolower($potionType->name) . "_" . $name;
 
 			$result->register($prefix("potion"), fn() => Items::POTION()->setType($potionType));
@@ -1296,12 +1312,15 @@ final class StringToItemParser extends StringToTParser{
 		}
 	}
 
-	private static function registerItems(self $result) : void{
+	private static function registerItems(self $result): void
+	{
 
 		$result->register("acacia_boat", fn() => Items::ACACIA_BOAT());
 		$result->register("acacia_hanging_sign", fn() => Items::ACACIA_HANGING_SIGN());
 		$result->register("amethyst_shard", fn() => Items::AMETHYST_SHARD());
-		$result->register("antidote", fn() => Items::MEDICINE()->setType(MedicineType::ANTIDOTE));
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("antidote", fn() => Items::MEDICINE()->setType(MedicineType::ANTIDOTE));
+		}
 		$result->register("apple", fn() => Items::APPLE());
 		$result->register("apple_enchanted", fn() => Items::ENCHANTED_GOLDEN_APPLE());
 		$result->register("appleenchanted", fn() => Items::ENCHANTED_GOLDEN_APPLE());
@@ -1318,13 +1337,16 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("birch_hanging_sign", fn() => Items::BIRCH_HANGING_SIGN());
 		$result->register("blaze_powder", fn() => Items::BLAZE_POWDER());
 		$result->register("blaze_rod", fn() => Items::BLAZE_ROD());
-		$result->register("bleach", fn() => Items::BLEACH());
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("bleach", fn() => Items::BLEACH());
+		}
 		$result->register("boat", fn() => Items::OAK_BOAT());
 		$result->register("bone", fn() => Items::BONE());
 		$result->register("bone_meal", fn() => Items::BONE_MEAL());
 		$result->register("book", fn() => Items::BOOK());
 		$result->register("bottle_o_enchanting", fn() => Items::EXPERIENCE_BOTTLE());
 		$result->register("bow", fn() => Items::BOW());
+		$result->register("crossbow", fn() => Items::CROSSBOW());
 		$result->register("bowl", fn() => Items::BOWL());
 		$result->register("bread", fn() => Items::BREAD());
 		$result->register("brick", fn() => Items::BRICK());
@@ -1339,44 +1361,46 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("chainmail_helmet", fn() => Items::CHAINMAIL_HELMET());
 		$result->register("chainmail_leggings", fn() => Items::CHAINMAIL_LEGGINGS());
 		$result->register("charcoal", fn() => Items::CHARCOAL());
-		$result->register("chemical_aluminium_oxide", fn() => Items::CHEMICAL_ALUMINIUM_OXIDE());
-		$result->register("chemical_ammonia", fn() => Items::CHEMICAL_AMMONIA());
-		$result->register("chemical_barium_sulphate", fn() => Items::CHEMICAL_BARIUM_SULPHATE());
-		$result->register("chemical_benzene", fn() => Items::CHEMICAL_BENZENE());
-		$result->register("chemical_boron_trioxide", fn() => Items::CHEMICAL_BORON_TRIOXIDE());
-		$result->register("chemical_calcium_bromide", fn() => Items::CHEMICAL_CALCIUM_BROMIDE());
-		$result->register("chemical_calcium_chloride", fn() => Items::CHEMICAL_CALCIUM_CHLORIDE());
-		$result->register("chemical_cerium_chloride", fn() => Items::CHEMICAL_CERIUM_CHLORIDE());
-		$result->register("chemical_charcoal", fn() => Items::CHEMICAL_CHARCOAL());
-		$result->register("chemical_crude_oil", fn() => Items::CHEMICAL_CRUDE_OIL());
-		$result->register("chemical_glue", fn() => Items::CHEMICAL_GLUE());
-		$result->register("chemical_hydrogen_peroxide", fn() => Items::CHEMICAL_HYDROGEN_PEROXIDE());
-		$result->register("chemical_hypochlorite", fn() => Items::CHEMICAL_HYPOCHLORITE());
-		$result->register("chemical_ink", fn() => Items::CHEMICAL_INK());
-		$result->register("chemical_iron_sulphide", fn() => Items::CHEMICAL_IRON_SULPHIDE());
-		$result->register("chemical_latex", fn() => Items::CHEMICAL_LATEX());
-		$result->register("chemical_lithium_hydride", fn() => Items::CHEMICAL_LITHIUM_HYDRIDE());
-		$result->register("chemical_luminol", fn() => Items::CHEMICAL_LUMINOL());
-		$result->register("chemical_magnesium_nitrate", fn() => Items::CHEMICAL_MAGNESIUM_NITRATE());
-		$result->register("chemical_magnesium_oxide", fn() => Items::CHEMICAL_MAGNESIUM_OXIDE());
-		$result->register("chemical_magnesium_salts", fn() => Items::CHEMICAL_MAGNESIUM_SALTS());
-		$result->register("chemical_mercuric_chloride", fn() => Items::CHEMICAL_MERCURIC_CHLORIDE());
-		$result->register("chemical_polyethylene", fn() => Items::CHEMICAL_POLYETHYLENE());
-		$result->register("chemical_potassium_chloride", fn() => Items::CHEMICAL_POTASSIUM_CHLORIDE());
-		$result->register("chemical_potassium_iodide", fn() => Items::CHEMICAL_POTASSIUM_IODIDE());
-		$result->register("chemical_rubbish", fn() => Items::CHEMICAL_RUBBISH());
-		$result->register("chemical_salt", fn() => Items::CHEMICAL_SALT());
-		$result->register("chemical_soap", fn() => Items::CHEMICAL_SOAP());
-		$result->register("chemical_sodium_acetate", fn() => Items::CHEMICAL_SODIUM_ACETATE());
-		$result->register("chemical_sodium_fluoride", fn() => Items::CHEMICAL_SODIUM_FLUORIDE());
-		$result->register("chemical_sodium_hydride", fn() => Items::CHEMICAL_SODIUM_HYDRIDE());
-		$result->register("chemical_sodium_hydroxide", fn() => Items::CHEMICAL_SODIUM_HYDROXIDE());
-		$result->register("chemical_sodium_hypochlorite", fn() => Items::CHEMICAL_SODIUM_HYPOCHLORITE());
-		$result->register("chemical_sodium_oxide", fn() => Items::CHEMICAL_SODIUM_OXIDE());
-		$result->register("chemical_sugar", fn() => Items::CHEMICAL_SUGAR());
-		$result->register("chemical_sulphate", fn() => Items::CHEMICAL_SULPHATE());
-		$result->register("chemical_tungsten_chloride", fn() => Items::CHEMICAL_TUNGSTEN_CHLORIDE());
-		$result->register("chemical_water", fn() => Items::CHEMICAL_WATER());
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("chemical_aluminium_oxide", fn() => Items::CHEMICAL_ALUMINIUM_OXIDE());
+			$result->register("chemical_ammonia", fn() => Items::CHEMICAL_AMMONIA());
+			$result->register("chemical_barium_sulphate", fn() => Items::CHEMICAL_BARIUM_SULPHATE());
+			$result->register("chemical_benzene", fn() => Items::CHEMICAL_BENZENE());
+			$result->register("chemical_boron_trioxide", fn() => Items::CHEMICAL_BORON_TRIOXIDE());
+			$result->register("chemical_calcium_bromide", fn() => Items::CHEMICAL_CALCIUM_BROMIDE());
+			$result->register("chemical_calcium_chloride", fn() => Items::CHEMICAL_CALCIUM_CHLORIDE());
+			$result->register("chemical_cerium_chloride", fn() => Items::CHEMICAL_CERIUM_CHLORIDE());
+			$result->register("chemical_charcoal", fn() => Items::CHEMICAL_CHARCOAL());
+			$result->register("chemical_crude_oil", fn() => Items::CHEMICAL_CRUDE_OIL());
+			$result->register("chemical_glue", fn() => Items::CHEMICAL_GLUE());
+			$result->register("chemical_hydrogen_peroxide", fn() => Items::CHEMICAL_HYDROGEN_PEROXIDE());
+			$result->register("chemical_hypochlorite", fn() => Items::CHEMICAL_HYPOCHLORITE());
+			$result->register("chemical_ink", fn() => Items::CHEMICAL_INK());
+			$result->register("chemical_iron_sulphide", fn() => Items::CHEMICAL_IRON_SULPHIDE());
+			$result->register("chemical_latex", fn() => Items::CHEMICAL_LATEX());
+			$result->register("chemical_lithium_hydride", fn() => Items::CHEMICAL_LITHIUM_HYDRIDE());
+			$result->register("chemical_luminol", fn() => Items::CHEMICAL_LUMINOL());
+			$result->register("chemical_magnesium_nitrate", fn() => Items::CHEMICAL_MAGNESIUM_NITRATE());
+			$result->register("chemical_magnesium_oxide", fn() => Items::CHEMICAL_MAGNESIUM_OXIDE());
+			$result->register("chemical_magnesium_salts", fn() => Items::CHEMICAL_MAGNESIUM_SALTS());
+			$result->register("chemical_mercuric_chloride", fn() => Items::CHEMICAL_MERCURIC_CHLORIDE());
+			$result->register("chemical_polyethylene", fn() => Items::CHEMICAL_POLYETHYLENE());
+			$result->register("chemical_potassium_chloride", fn() => Items::CHEMICAL_POTASSIUM_CHLORIDE());
+			$result->register("chemical_potassium_iodide", fn() => Items::CHEMICAL_POTASSIUM_IODIDE());
+			$result->register("chemical_rubbish", fn() => Items::CHEMICAL_RUBBISH());
+			$result->register("chemical_salt", fn() => Items::CHEMICAL_SALT());
+			$result->register("chemical_soap", fn() => Items::CHEMICAL_SOAP());
+			$result->register("chemical_sodium_acetate", fn() => Items::CHEMICAL_SODIUM_ACETATE());
+			$result->register("chemical_sodium_fluoride", fn() => Items::CHEMICAL_SODIUM_FLUORIDE());
+			$result->register("chemical_sodium_hydride", fn() => Items::CHEMICAL_SODIUM_HYDRIDE());
+			$result->register("chemical_sodium_hydroxide", fn() => Items::CHEMICAL_SODIUM_HYDROXIDE());
+			$result->register("chemical_sodium_hypochlorite", fn() => Items::CHEMICAL_SODIUM_HYPOCHLORITE());
+			$result->register("chemical_sodium_oxide", fn() => Items::CHEMICAL_SODIUM_OXIDE());
+			$result->register("chemical_sugar", fn() => Items::CHEMICAL_SUGAR());
+			$result->register("chemical_sulphate", fn() => Items::CHEMICAL_SULPHATE());
+			$result->register("chemical_tungsten_chloride", fn() => Items::CHEMICAL_TUNGSTEN_CHLORIDE());
+			$result->register("chemical_water", fn() => Items::CHEMICAL_WATER());
+		}
 		$result->register("cherry_hanging_sign", fn() => Items::CHERRY_HANGING_SIGN());
 		$result->register("chicken", fn() => Items::RAW_CHICKEN());
 		$result->register("chorus_fruit", fn() => Items::CHORUS_FRUIT());
@@ -1391,7 +1415,9 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("cocoa_beans", fn() => Items::COCOA_BEANS());
 		$result->register("cod", fn() => Items::RAW_FISH());
 		$result->register("compass", fn() => Items::COMPASS());
-		$result->register("compound", fn() => Items::CHEMICAL_SALT());
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("compound", fn() => Items::CHEMICAL_SALT());
+		}
 		$result->register("cooked_beef", fn() => Items::STEAK());
 		$result->register("cooked_chicken", fn() => Items::COOKED_CHICKEN());
 		$result->register("cooked_cod", fn() => Items::COOKED_FISH());
@@ -1410,6 +1436,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("copper_leggings", fn() => Items::COPPER_LEGGINGS());
 		$result->register("copper_nugget", fn() => Items::COPPER_NUGGET());
 		$result->register("copper_pickaxe", fn() => Items::COPPER_PICKAXE());
+		$result->register("copper_spear", fn() => Items::COPPER_SPEAR());
 		$result->register("copper_shovel", fn() => Items::COPPER_SHOVEL());
 		$result->register("copper_sword", fn() => Items::COPPER_SWORD());
 		$result->register("crimson_hanging_sign", fn() => Items::CRIMSON_HANGING_SIGN());
@@ -1423,6 +1450,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("diamond_hoe", fn() => Items::DIAMOND_HOE());
 		$result->register("diamond_leggings", fn() => Items::DIAMOND_LEGGINGS());
 		$result->register("diamond_pickaxe", fn() => Items::DIAMOND_PICKAXE());
+		$result->register("diamond_spear", fn() => Items::DIAMOND_SPEAR());
 		$result->register("diamond_shovel", fn() => Items::DIAMOND_SHOVEL());
 		$result->register("diamond_sword", fn() => Items::DIAMOND_SWORD());
 		$result->register("disc_fragment_5", fn() => Items::DISC_FRAGMENT_5());
@@ -1432,7 +1460,9 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("dye", fn() => Items::INK_SAC());
 		$result->register("echo_shard", fn() => Items::ECHO_SHARD());
 		$result->register("egg", fn() => Items::EGG());
-		$result->register("elixir", fn() => Items::MEDICINE()->setType(MedicineType::ELIXIR));
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("elixir", fn() => Items::MEDICINE()->setType(MedicineType::ELIXIR));
+		}
 		$result->register("elytra", fn() => Items::ELYTRA());
 		$result->register("emerald", fn() => Items::EMERALD());
 		$result->register("enchanted_book", fn() => Items::ENCHANTED_BOOK());
@@ -1442,7 +1472,9 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("ender_pearl", fn() => Items::ENDER_PEARL());
 		$result->register("experience_bottle", fn() => Items::EXPERIENCE_BOTTLE());
 		$result->register("eye_armor_trim_smithing_template", fn() => Items::EYE_ARMOR_TRIM_SMITHING_TEMPLATE());
-		$result->register("eye_drops", fn() => Items::MEDICINE()->setType(MedicineType::EYE_DROPS));
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("eye_drops", fn() => Items::MEDICINE()->setType(MedicineType::EYE_DROPS));
+		}
 		$result->register("feather", fn() => Items::FEATHER());
 		$result->register("fermented_spider_eye", fn() => Items::FERMENTED_SPIDER_EYE());
 		$result->register("firework_rocket", fn() => Items::FIREWORK_ROCKET());
@@ -1460,6 +1492,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("glow_berries", fn() => Items::GLOW_BERRIES());
 		$result->register("glow_ink_sac", fn() => Items::GLOW_INK_SAC());
 		$result->register("glowstone_dust", fn() => Items::GLOWSTONE_DUST());
+		$result->register("ghast_spawn_egg", fn() => Items::GHAST_SPAWN_EGG());
 		$result->register("goat_horn", fn() => Items::GOAT_HORN());
 		$result->register("gold_axe", fn() => Items::GOLDEN_AXE());
 		$result->register("gold_boots", fn() => Items::GOLDEN_BOOTS());
@@ -1482,6 +1515,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("golden_leggings", fn() => Items::GOLDEN_LEGGINGS());
 		$result->register("golden_nugget", fn() => Items::GOLD_NUGGET());
 		$result->register("golden_pickaxe", fn() => Items::GOLDEN_PICKAXE());
+		$result->register("golden_spear", fn() => Items::GOLDEN_SPEAR());
 		$result->register("golden_shovel", fn() => Items::GOLDEN_SHOVEL());
 		$result->register("golden_sword", fn() => Items::GOLDEN_SWORD());
 		$result->register("gunpowder", fn() => Items::GUNPOWDER());
@@ -1489,7 +1523,9 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("honey_bottle", fn() => Items::HONEY_BOTTLE());
 		$result->register("host_armor_trim_smithing_template", fn() => Items::HOST_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$result->register("honeycomb", fn() => Items::HONEYCOMB());
-		$result->register("ice_bomb", fn() => Items::ICE_BOMB());
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("ice_bomb", fn() => Items::ICE_BOMB());
+		}
 		$result->register("ink_sac", fn() => Items::INK_SAC());
 		$result->register("iron_axe", fn() => Items::IRON_AXE());
 		$result->register("iron_boots", fn() => Items::IRON_BOOTS());
@@ -1500,12 +1536,14 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("iron_leggings", fn() => Items::IRON_LEGGINGS());
 		$result->register("iron_nugget", fn() => Items::IRON_NUGGET());
 		$result->register("iron_pickaxe", fn() => Items::IRON_PICKAXE());
+		$result->register("iron_spear", fn() => Items::IRON_SPEAR());
 		$result->register("iron_shovel", fn() => Items::IRON_SHOVEL());
 		$result->register("iron_sword", fn() => Items::IRON_SWORD());
 		$result->register("jungle_boat", fn() => Items::JUNGLE_BOAT());
 		$result->register("jungle_hanging_sign", fn() => Items::JUNGLE_HANGING_SIGN());
 		$result->register("lapis_lazuli", fn() => Items::LAPIS_LAZULI());
 		$result->register("lava_bucket", fn() => Items::LAVA_BUCKET());
+		$result->register("powder_snow_bucket", fn() => Items::POWDER_SNOW_BUCKET());
 		$result->register("leather", fn() => Items::LEATHER());
 		$result->register("leather_boots", fn() => Items::LEATHER_BOOTS());
 		$result->register("leather_cap", fn() => Items::LEATHER_CAP());
@@ -1542,6 +1580,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("netherite_leggings", fn() => Items::NETHERITE_LEGGINGS());
 		$result->register("netherite_pickaxe", fn() => Items::NETHERITE_PICKAXE());
 		$result->register("netherite_scrap", fn() => Items::NETHERITE_SCRAP());
+		$result->register("netherite_spear", fn() => Items::NETHERITE_SPEAR());
 		$result->register("netherite_shovel", fn() => Items::NETHERITE_SHOVEL());
 		$result->register("netherite_sword", fn() => Items::NETHERITE_SWORD());
 		$result->register("netherstar", fn() => Items::NETHER_STAR());
@@ -1615,6 +1654,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("shears", fn() => Items::SHEARS());
 		$result->register("shulker_shell", fn() => Items::SHULKER_SHELL());
 		$result->register("silence_armor_trim_smithing_template", fn() => Items::SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE());
+		$result->register("sniffer_spawn_egg", fn() => Items::SNIFFER_SPAWN_EGG());
 		$result->register("slime_ball", fn() => Items::SLIMEBALL());
 		$result->register("snout_armor_trim_smithing_template", fn() => Items::SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$result->register("slimeball", fn() => Items::SLIMEBALL());
@@ -1626,6 +1666,8 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("spruce_boat", fn() => Items::SPRUCE_BOAT());
 		$result->register("spruce_hanging_sign", fn() => Items::SPRUCE_HANGING_SIGN());
 		$result->register("spyglass", fn() => Items::SPYGLASS());
+		$result->register("chicken_spawn_egg", fn() => Items::CHICKEN_SPAWN_EGG());
+		$result->register("bee_spawn_egg", fn() => Items::BEE_SPAWN_EGG());
 		$result->register("squid_spawn_egg", fn() => Items::SQUID_SPAWN_EGG());
 		$result->register("steak", fn() => Items::STEAK());
 		$result->register("stick", fn() => Items::STICK());
@@ -1634,12 +1676,15 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("stone_hoe", fn() => Items::STONE_HOE());
 		$result->register("stone_pickaxe", fn() => Items::STONE_PICKAXE());
 		$result->register("stone_shovel", fn() => Items::STONE_SHOVEL());
+		$result->register("stone_spear", fn() => Items::STONE_SPEAR());
 		$result->register("stone_sword", fn() => Items::STONE_SWORD());
 		$result->register("string", fn() => Items::STRING());
 		$result->register("sugar", fn() => Items::SUGAR());
 		$result->register("suspicious_stew", fn() => Items::SUSPICIOUS_STEW());
 		$result->register("sweet_berries", fn() => Items::SWEET_BERRIES());
-		$result->register("tonic", fn() => Items::MEDICINE()->setType(MedicineType::TONIC));
+		if(BeeltySettings::chemistryItemsEnabled()){
+			$result->register("tonic", fn() => Items::MEDICINE()->setType(MedicineType::TONIC));
+		}
 		$result->register("torchflower_seeds", fn() => Items::TORCHFLOWER_SEEDS());
 		$result->register("tide_armor_trim_smithing_template", fn() => Items::TIDE_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$result->register("totem", fn() => Items::TOTEM());
@@ -1648,6 +1693,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("vex_armor_trim_smithing_template", fn() => Items::VEX_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$result->register("turtle_shell_piece", fn() => Items::SCUTE());
 		$result->register("villager_spawn_egg", fn() => Items::VILLAGER_SPAWN_EGG());
+		$result->register("happy_ghast_spawn_egg", fn() => Items::HAPPY_GHAST_SPAWN_EGG());
 		$result->register("ward_armor_trim_smithing_template", fn() => Items::WARD_ARMOR_TRIM_SMITHING_TEMPLATE());
 		$result->register("warped_hanging_sign", fn() => Items::WARPED_HANGING_SIGN());
 		$result->register("water_bucket", fn() => Items::WATER_BUCKET());
@@ -1659,6 +1705,7 @@ final class StringToItemParser extends StringToTParser{
 		$result->register("wooden_hoe", fn() => Items::WOODEN_HOE());
 		$result->register("wooden_pickaxe", fn() => Items::WOODEN_PICKAXE());
 		$result->register("wooden_shovel", fn() => Items::WOODEN_SHOVEL());
+		$result->register("wooden_spear", fn() => Items::WOODEN_SPEAR());
 		$result->register("wooden_sword", fn() => Items::WOODEN_SWORD());
 		$result->register("writable_book", fn() => Items::WRITABLE_BOOK());
 		$result->register("written_book", fn() => Items::WRITTEN_BOOK());
@@ -1671,18 +1718,20 @@ final class StringToItemParser extends StringToTParser{
 	 */
 	private array $reverseMap = [];
 
-	public function register(string $alias, \Closure $callback) : void{
+	public function register(string $alias, \Closure $callback): void
+	{
 		parent::register($alias, $callback);
 		$item = $callback($alias);
 		$this->reverseMap[$item->getStateId()][$alias] = true;
 	}
 
-	public function override(string $alias, \Closure $callback) : void{
+	public function override(string $alias, \Closure $callback): void
+	{
 		$oldItem = $this->parse($alias);
-		if($oldItem !== null){
+		if ($oldItem !== null) {
 			$oldStateId = $oldItem->getStateId();
 			unset($this->reverseMap[$oldStateId][$alias]);
-			if(count($this->reverseMap[$oldStateId]) === 0){
+			if (count($this->reverseMap[$oldStateId]) === 0) {
 				unset($this->reverseMap[$oldStateId]);
 			}
 		}
@@ -1692,11 +1741,13 @@ final class StringToItemParser extends StringToTParser{
 	}
 
 	/** @phpstan-param \Closure(string $input) : Block $callback */
-	public function registerBlock(string $alias, \Closure $callback) : void{
+	public function registerBlock(string $alias, \Closure $callback): void
+	{
 		$this->register($alias, fn(string $input) => $callback($input)->asItem());
 	}
 
-	public function parse(string $input) : ?Item{
+	public function parse(string $input): ?Item
+	{
 		return parent::parse($input);
 	}
 
@@ -1706,7 +1757,8 @@ final class StringToItemParser extends StringToTParser{
 	 * @return string[]
 	 * @phpstan-return list<string>
 	 */
-	public function lookupAliases(Item $item) : array{
+	public function lookupAliases(Item $item): array
+	{
 		$aliases = $this->reverseMap[$item->getStateId()] ?? [];
 		return array_keys($aliases);
 	}
@@ -1717,7 +1769,8 @@ final class StringToItemParser extends StringToTParser{
 	 * @return string[]
 	 * @phpstan-return list<string>
 	 */
-	public function lookupBlockAliases(Block $block) : array{
+	public function lookupBlockAliases(Block $block): array
+	{
 		return $this->lookupAliases($block->asItem());
 	}
 }

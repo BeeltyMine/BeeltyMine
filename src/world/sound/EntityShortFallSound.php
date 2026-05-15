@@ -31,10 +31,12 @@ use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 /**
  * Played when an entity hits the ground after falling a short distance.
  */
-class EntityShortFallSound implements Sound{
-	public function __construct(private Entity $entity){}
+class EntityShortFallSound implements Sound
+{
+	public function __construct(private Entity $entity) {}
 
-	public function encode(Vector3 $pos) : array{
+	public function encode(Vector3 $pos): array
+	{
 		return [LevelSoundEventPacket::create(
 			LevelSoundEvent::FALL_SMALL,
 			$pos,
@@ -42,7 +44,8 @@ class EntityShortFallSound implements Sound{
 			$this->entity::getNetworkTypeId(),
 			false, //TODO: does isBaby have any relevance here?
 			false,
-			-1
+			-1,
+			null
 		)];
 	}
 }

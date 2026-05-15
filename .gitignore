@@ -92,3 +92,5 @@ Documentation/*
 /tests/
 
 /virions/
+.github/copilot-instructions.md
+.tmp-dashboard-test/

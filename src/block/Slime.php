@@ -36,8 +36,20 @@ final class Slime extends Transparent{
 		if($entity instanceof Living && $entity->isSneaking()){
 			return null;
 		}
+
+		$verticalSpeed = $entity->getMotion()->y;
+		if($verticalSpeed >= 0){
+			return null;
+		}
+
 		$entity->resetFallDistance();
-		return -$entity->getMotion()->y;
+
+		$bounce = -$verticalSpeed;
+		if(!$entity instanceof Living){
+			$bounce *= 0.8;
+		}
+
+		return $bounce;
 	}
 
 	//TODO: slime blocks should slow entities walking on them to about 0.4x original speed

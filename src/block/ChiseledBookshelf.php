@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\block\tile\ChiseledBookshelf as TileChiseledBookshelf;
+use pocketmine\block\utils\AnalogRedstoneSignalEmitter;
 use pocketmine\block\utils\ChiseledBookshelfSlot;
 use pocketmine\block\utils\FacesOppositePlacingPlayerTrait;
 use pocketmine\block\utils\HorizontalFacing;
@@ -37,9 +38,10 @@ use pocketmine\math\Axis;
 use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
+use pocketmine\utils\AssumptionFailedError;
 use function spl_object_id;
 
-class ChiseledBookshelf extends Opaque implements HorizontalFacing{
+class ChiseledBookshelf extends Opaque implements HorizontalFacing, AnalogRedstoneSignalEmitter{
 	use HorizontalFacingTrait;
 	use FacesOppositePlacingPlayerTrait;
 
@@ -140,6 +142,29 @@ class ChiseledBookshelf extends Opaque implements HorizontalFacing{
 	 */
 	public function setLastInteractedSlot(?ChiseledBookshelfSlot $lastInteractedSlot) : self{
 		$this->lastInteractedSlot = $lastInteractedSlot;
+		return $this;
+	}
+
+	public function getOutputSignalStrength() : int{
+		return $this->lastInteractedSlot !== null ? $this->lastInteractedSlot->value + 1 : 0;
+	}
+
+	/** @return $this */
+	public function setOutputSignalStrength(int $signalStrength) : self{
+		if($signalStrength < 0 || $signalStrength > 6){
+			throw new \InvalidArgumentException("Signal strength must be in range 0-6 for Chiseled Bookshelf");
+		}
+
+		if($signalStrength === 0){
+			$this->lastInteractedSlot = null;
+			return $this;
+		}
+
+		$this->lastInteractedSlot = ChiseledBookshelfSlot::tryFrom($signalStrength - 1);
+		if($this->lastInteractedSlot === null){
+			throw new AssumptionFailedError("Failed to resolve chiseled bookshelf slot from signal strength");
+		}
+
 		return $this;
 	}
 

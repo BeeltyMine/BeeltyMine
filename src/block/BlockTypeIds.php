@@ -867,6 +867,15 @@ final class BlockTypeIds{
 	public const LEAF_LITTER = 10837;
 	public const POINTED_DRIPSTONE = 10838;
 	public const BEE_NEST = 10839;
+	public const PISTON = 10840;
+	public const STICKY_PISTON = 10841;
+	public const OBSERVER = 10842;
+	public const DISPENSER = 10843;
+	public const DROPPER = 10844;
+	public const PISTON_ARM_COLLISION = 10845;
+	public const STICKY_PISTON_ARM_COLLISION = 10846;
+
+	public const FIRST_UNUSED_BLOCK_ID = 10847;
 	public const ACACIA_SHELF = 10840;
 	public const BAMBOO_SHELF = 10841;
 	public const BIRCH_SHELF = 10842;

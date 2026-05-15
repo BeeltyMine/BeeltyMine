@@ -30,6 +30,7 @@ use pocketmine\block\utils\Lightable;
 use pocketmine\block\utils\LightableTrait;
 use pocketmine\block\utils\PoweredByRedstone;
 use pocketmine\block\utils\PoweredByRedstoneTrait;
+use pocketmine\block\utils\RedstonePowerHelper;
 use pocketmine\data\runtime\RuntimeDataDescriber;
 
 class CopperBulb extends Opaque implements CopperMaterial, Lightable, PoweredByRedstone{
@@ -67,5 +68,12 @@ class CopperBulb extends Opaque implements CopperMaterial, Lightable, PoweredByR
 		}
 
 		return 0;
+	}
+
+	public function onNearbyBlockChange() : void{
+		$shouldBePowered = RedstonePowerHelper::getStrongestNeighborPower($this) > 0;
+		if($shouldBePowered !== $this->powered){
+			$this->position->getWorld()->setBlock($this->position, (clone $this)->togglePowered($shouldBePowered));
+		}
 	}
 }

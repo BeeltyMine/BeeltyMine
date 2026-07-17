@@ -26,10 +26,10 @@ use pocketmine\utils\Utils;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$defaultConfig = yaml_parse(Filesystem::fileGetContents(dirname(__DIR__) . '/resources/beeltymine.yml'));
+$defaultConfig = yaml_parse(Filesystem::fileGetContents(dirname(__DIR__) . '/resources/beelty.yml'));
 
 if(!is_array($defaultConfig)){
-	fwrite(STDERR, "Invalid default beeltymine.yml\n");
+	fwrite(STDERR, "Invalid default beelty.yml\n");
 	exit(1);
 }
 

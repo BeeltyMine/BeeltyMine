@@ -35,7 +35,6 @@ use pocketmine\network\mcpe\InventoryManager;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\types\recipe\CraftingRecipeBlockName;
-use pocketmine\network\mcpe\protocol\types\recipe\FurnaceRecipe as ProtocolFurnaceRecipe;
 use pocketmine\network\mcpe\protocol\types\recipe\FurnaceRecipeBlockName;
 use pocketmine\network\mcpe\protocol\types\recipe\IntIdMetaItemDescriptor;
 use pocketmine\network\mcpe\protocol\types\recipe\PotionContainerChangeRecipe as ProtocolPotionContainerChangeRecipe;
@@ -148,16 +147,17 @@ final class CraftingDataCache{
 				FurnaceType::SOUL_CAMPFIRE => FurnaceRecipeBlockName::SOUL_CAMPFIRE
 			};
 			foreach($manager->getFurnaceRecipeManager($furnaceType)->getAll() as $recipe){
-				$input = $converter->coreRecipeIngredientToNet($recipe->getInput())->getDescriptor();
-				if(!$input instanceof IntIdMetaItemDescriptor){
-					throw new AssumptionFailedError();
-				}
-				$recipesWithTypeIds[] = new ProtocolFurnaceRecipe(
-					CraftingDataPacket::ENTRY_FURNACE_DATA,
-					$input->getId(),
-					$input->getMeta(),
-					$converter->coreItemStackToNet($recipe->getResult()),
-					$typeTag
+				$recipeNetId++;
+				$recipesWithTypeIds[] = new ProtocolShapelessRecipe(
+					CraftingDataPacket::ENTRY_SHAPELESS,
+					BE::packUnsignedInt($recipeNetId),
+					[$converter->coreRecipeIngredientToNet($recipe->getInput())],
+					[$converter->coreItemStackToNet($recipe->getResult())],
+					$nullUUID,
+					$typeTag,
+					50,
+					$noUnlockingRequirement,
+					$recipeNetId
 				);
 			}
 		}
